@@ -39,7 +39,8 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               <h3 className="text-lg font-semibold mb-2 text-karma-primary">Setup</h3>
               <ul className="list-disc pl-5 space-y-2">
                 <li>The game is played with a standard 52-card deck.</li>
-                <li>Each player is dealt 7 cards, which form their hand.</li>
+                <li>Each player is dealt 6 cards which form their hand, 3 are to be placed face up and used when the deck and their hand is empty.</li>
+                <li>Each player also receives 3 face-down cards that remain unknown until played.</li>
                 <li>The remaining cards form the draw pile.</li>
                 <li>The top card from the draw pile is turned face up to start the discard pile.</li>
               </ul>
