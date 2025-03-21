@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ const Lobby = () => {
   const { gameId: joinGameId } = useParams();
   const navigate = useNavigate();
 
+  // Handle the invite link by automatically selecting the join tab and filling the game ID
   useEffect(() => {
     if (joinGameId && !state.gameId) {
       setGameId(joinGameId);
@@ -26,11 +28,23 @@ const Lobby = () => {
     }
   }, [joinGameId, state.gameId]);
 
+  // Redirect to game page after joining via invite link
   useEffect(() => {
-    if (state.gameId && joinGameId) {
+    if (state.gameId) {
       navigate('/game');
     }
-  }, [state.gameId, joinGameId, navigate]);
+  }, [state.gameId, navigate]);
+
+  // Auto-join functionality when coming from an invite link and player name is entered
+  useEffect(() => {
+    if (joinGameId && playerName.trim() && !state.gameId) {
+      const autoJoinHandler = setTimeout(() => {
+        handleJoinGame();
+      }, 500);
+      
+      return () => clearTimeout(autoJoinHandler);
+    }
+  }, [joinGameId, playerName, state.gameId]);
 
   const handleCreateGame = () => {
     if (!playerName.trim()) {
@@ -38,6 +52,7 @@ const Lobby = () => {
       return;
     }
     createGame(playerName);
+    navigate('/game');
   };
 
   const handleJoinGame = () => {
@@ -120,6 +135,7 @@ const Lobby = () => {
                       placeholder="Enter your name"
                       value={playerName}
                       onChange={(e) => setPlayerName(e.target.value)}
+                      autoFocus
                     />
                   </div>
                   <Button onClick={handleCreateGame} className="w-full bg-karma-primary hover:bg-karma-primary/90">
@@ -134,6 +150,7 @@ const Lobby = () => {
                       placeholder="Enter your name"
                       value={playerName}
                       onChange={(e) => setPlayerName(e.target.value)}
+                      autoFocus
                     />
                   </div>
                   <div className="space-y-2">
@@ -148,6 +165,11 @@ const Lobby = () => {
                   <Button onClick={handleJoinGame} className="w-full bg-karma-primary hover:bg-karma-primary/90">
                     Join Game
                   </Button>
+                  {joinGameId && (
+                    <p className="text-sm text-center mt-2 text-karma-foreground/70">
+                      Enter your name to join game {joinGameId}
+                    </p>
+                  )}
                 </TabsContent>
               </Tabs>
             ) : (
