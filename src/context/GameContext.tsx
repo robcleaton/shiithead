@@ -778,7 +778,18 @@ const useGameContext = () => {
       
       if (state.pile.length > 0) {
         const topCard = state.pile[state.pile.length - 1];
-        if (cardToPlay.rank === '10') {
+        
+        const cardRank = cardToPlay.rank;
+        const rankValues: Record<Rank, number> = {
+          'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
+          '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
+        };
+        
+        if (rankValues[cardRank] > 7) {
+          toast.error("After a 7 is played, you must play a card of rank 7 or lower!");
+          return;
+        }
+        else if (cardToPlay.rank === '10') {
           if (topCard && topCard.rank === '7') {
             toast.error("Cannot play a 10 on top of a 7!");
             return;
@@ -839,7 +850,7 @@ const useGameContext = () => {
       if (gameError) throw gameError;
       
       if (cardToPlay.rank === '7') {
-        toast.success(`${player.name} played a 7 - the wild card!`);
+        toast.success(`${player.name} played a 7 - the next player must play a card of rank 7 or lower!`);
       } else if (cardToPlay.rank === '10') {
         toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
       }

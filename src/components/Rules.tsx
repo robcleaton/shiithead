@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
@@ -69,7 +70,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               <h3 className="text-lg font-semibold mb-2 text-karma-primary">Special Cards</h3>
               <ul className="list-disc pl-5 space-y-2">
                 <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top.</li>
-                <li><strong>7:</strong> Can be played on any card regardless of rank. A powerful wild card that can be played at any time.</li>
+                <li><strong>7:</strong> Can be played on any card regardless of rank. After a 7 is played, the next player must play a card of rank 7 or lower.</li>
                 <li><strong>8:</strong> Skip the next player's turn.</li>
                 <li><strong>10:</strong> Can be played on any card except a 7. It burns the entire discard pile, removing those cards from the game. The player then gets another turn to play any card.</li>
               </ul>

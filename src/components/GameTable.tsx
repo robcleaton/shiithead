@@ -63,7 +63,7 @@ const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, curr
       </div>
       
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
-        <p>Remember: 7s can be played on any card! 10s can be played on any card (except 7s), burn the pile, and give you another turn.</p>
+        <p>Remember: 7s can be played on any card and force the next card to be rank 7 or lower! 10s can be played on any card (except 7s), burn the pile, and give you another turn.</p>
       </div>
     </div>
   );
