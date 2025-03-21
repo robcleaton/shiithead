@@ -172,14 +172,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       
       const player = state.players[playerIndex];
       
-      // Sort indices in descending order to remove from highest to lowest
-      // This ensures we don't mess up the array indices during removal
       const sortedIndices = [...action.cardIndices].sort((a, b) => b - a);
       
       const updatedHand = [...player.hand];
       const selectedCards: CardValue[] = [];
       
-      // Remove cards from hand and collect them for face up
       for (const cardIndex of sortedIndices) {
         if (cardIndex >= 0 && cardIndex < updatedHand.length) {
           const cardToMove = updatedHand[cardIndex];
@@ -188,7 +185,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         }
       }
       
-      // Add all selected cards to face up cards
       const updatedPlayer = {
         ...player,
         hand: updatedHand,
@@ -454,7 +450,6 @@ const useGameContext = () => {
       const updatedDeck = [...deck];
       
       for (const player of state.players) {
-        // Deal 3 face down cards
         const faceDown = [];
         for (let i = 0; i < 3; i++) {
           if (updatedDeck.length > 0) {
@@ -463,7 +458,6 @@ const useGameContext = () => {
         }
         faceDownCards[player.id] = faceDown;
         
-        // Deal 6 cards to hand
         const hand = [];
         for (let i = 0; i < 6; i++) {
           if (updatedDeck.length > 0) {
@@ -475,7 +469,6 @@ const useGameContext = () => {
         console.log(`Dealt ${faceDown.length} face down cards and ${hand.length} hand cards to player ${player.name}`);
       }
       
-      // First update game state to set up game phase
       const { error: gameError } = await supabase
         .from('games')
         .update({ 
@@ -491,7 +484,6 @@ const useGameContext = () => {
       
       console.log('Updated game with setup_phase=true and deck');
       
-      // Update each player's cards in separate requests
       for (const player of state.players) {
         console.log(`Updating player ${player.name} with cards:`, {
           hand: hands[player.id],
@@ -515,7 +507,6 @@ const useGameContext = () => {
         }
       }
       
-      // Update local state with new values
       dispatch({ type: 'SET_GAME_STATE', gameState: { setupPhase: true } });
       dispatch({ type: 'DEAL_CARDS' });
       dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -693,32 +684,27 @@ const useGameContext = () => {
       
       dispatch({ type: 'SET_LOADING', isLoading: true });
       
-      // Sort indices in descending order to remove from highest to lowest
       const sortedIndices = [...cardIndices].sort((a, b) => b - a);
       
-      // Collect cards to move
-      const selectedCards = sortedIndices.map(index => player.hand[index]);
       const updatedHand = [...player.hand];
+      const selectedCards: CardValue[] = [];
       
-      // Remove cards from hand (from highest index to lowest)
-      for (const index of sortedIndices) {
-        updatedHand.splice(index, 1);
+      for (const cardIndex of sortedIndices) {
+        if (cardIndex >= 0 && cardIndex < updatedHand.length) {
+          const cardToMove = updatedHand[cardIndex];
+          selectedCards.push(cardToMove);
+          updatedHand.splice(cardIndex, 1);
+        }
       }
       
-      const updatedFaceUpCards = [...player.faceUpCards, ...selectedCards];
-      const isReady = updatedFaceUpCards.length === 3;
+      const updatedPlayer = {
+        ...player,
+        hand: updatedHand,
+        faceUpCards: [...player.faceUpCards, ...selectedCards]
+      };
       
-      const { error: playerError } = await supabase
-        .from('players')
-        .update({ 
-          hand: updatedHand,
-          face_up_cards: updatedFaceUpCards,
-          is_ready: isReady
-        })
-        .eq('id', player.id)
-        .eq('game_id', state.gameId);
-        
-      if (playerError) throw playerError;
+      const updatedPlayers = [...state.players];
+      updatedPlayers[playerIndex] = updatedPlayer;
       
       dispatch({ type: 'SELECT_MULTIPLE_FACE_UP_CARDS', cardIndices: cardIndices });
       dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -734,7 +720,6 @@ const useGameContext = () => {
   };
 
   const completeSetup = async () => {
-    // Check if all players are ready
     const allReady = state.players.every(p => p.isReady);
     
     if (!allReady) {
@@ -747,7 +732,8 @@ const useGameContext = () => {
       
       const firstPlayerId = state.players[0].id;
       const updatedDeck = [...state.deck];
-      const firstCard = updatedDeck.length > 0 ? [updatedDeck.shift()!] : [];
+      
+      const emptyPile: CardValue[] = [];
       
       const { error: gameError } = await supabase
         .from('games')
@@ -756,7 +742,7 @@ const useGameContext = () => {
           setup_phase: false,
           current_player_id: firstPlayerId,
           deck: updatedDeck,
-          pile: firstCard
+          pile: emptyPile
         })
         .eq('id', state.gameId);
         
@@ -783,11 +769,13 @@ const useGameContext = () => {
       if (!player) return;
       
       const cardToPlay = player.hand[cardIndex];
-      const topCard = state.pile[state.pile.length - 1];
       
-      if (topCard && cardToPlay.rank !== topCard.rank) {
-        toast.error("Invalid move! Card must match the rank of the top card.");
-        return;
+      if (state.pile.length > 0) {
+        const topCard = state.pile[state.pile.length - 1];
+        if (topCard && cardToPlay.rank !== topCard.rank) {
+          toast.error("Invalid move! Card must match the rank of the top card.");
+          return;
+        }
       }
       
       dispatch({ type: 'SET_LOADING', isLoading: true });
@@ -795,7 +783,6 @@ const useGameContext = () => {
       const updatedHand = [...player.hand];
       updatedHand.splice(cardIndex, 1);
       
-      // Check if we need to draw cards to maintain minimum hand size
       const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
       const updatedDeck = [...state.deck];
       const drawnCards = [];
@@ -804,7 +791,6 @@ const useGameContext = () => {
         drawnCards.push(updatedDeck.pop()!);
       }
       
-      // Add the drawn cards to the player's hand
       const finalHand = [...updatedHand, ...drawnCards];
       
       const { error: playerError } = await supabase
@@ -829,7 +815,7 @@ const useGameContext = () => {
           pile: updatedPile,
           current_player_id: nextPlayerId,
           ended: gameOver,
-          deck: updatedDeck  // Update the deck after drawing cards
+          deck: updatedDeck
         })
         .eq('id', state.gameId);
         
@@ -927,7 +913,6 @@ const useGameContext = () => {
         
       if (gameError) throw gameError;
       
-      // Reset all players' cards
       for (const player of state.players) {
         const { error: playerError } = await supabase
           .from('players')
@@ -962,7 +947,6 @@ const useGameContext = () => {
     try {
       dispatch({ type: 'SET_LOADING', isLoading: true });
       
-      // Check for duplicate player names
       const existingNames = state.players.map(p => p.name);
       if (existingNames.includes(playerName)) {
         toast.error("A player with this name already exists");
@@ -1007,14 +991,9 @@ const useGameContext = () => {
     try {
       dispatch({ type: 'SET_LOADING', isLoading: true });
       
-      // Generate invite link
       const inviteLink = `${window.location.origin}/join/${state.gameId}`;
       
-      // In a real implementation, this would send an email
-      // For now, we'll just simulate it with a toast
       console.log(`Sending invite to ${email} with link: ${inviteLink}`);
-      
-      // You could use a serverless function or a service to send actual emails
       
       dispatch({ type: 'INVITE_PLAYER', email });
       dispatch({ type: 'SET_LOADING', isLoading: false });
