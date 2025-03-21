@@ -28,34 +28,6 @@ const Index = () => {
 
       <main className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center">
         <div className="max-w-4xl w-full text-center">
-          <motion.div
-            className="relative mb-12 perspective"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7 }}
-          >
-            <motion.div 
-              className="w-32 h-48 mx-auto playing-card bg-karma-card-back bg-card-texture absolute left-1/2 -translate-x-1/2"
-              initial={{ rotateY: 0, x: -80 }}
-              animate={{ rotateY: 15, x: -80 }}
-              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-            />
-            <motion.div 
-              className="w-32 h-48 mx-auto playing-card bg-white absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
-              initial={{ rotateY: 0 }}
-              animate={{ rotateY: 0 }}
-              transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
-            >
-              <div className="text-6xl text-karma-card-red">♥</div>
-            </motion.div>
-            <motion.div 
-              className="w-32 h-48 mx-auto playing-card bg-karma-card-back bg-card-texture absolute left-1/2 -translate-x-1/2"
-              initial={{ rotateY: 0, x: 80 }}
-              animate={{ rotateY: -15, x: 80 }}
-              transition={{ duration: 1, delay: 0.9, ease: "easeOut" }}
-            />
-          </motion.div>
-
           <motion.h1 
             className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-karma-primary to-karma-accent"
             initial={{ opacity: 0, y: 20 }}
