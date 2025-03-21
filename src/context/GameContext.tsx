@@ -821,7 +821,7 @@ const useGameContext = () => {
       }
       
       const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-      const nextIndex = (currentPlayerIndex + 1) % state.players.length;
+      const nextIndex = cardToPlay.rank === '10' ? currentPlayerIndex : (currentPlayerIndex + 1) % state.players.length;
       const nextPlayerId = state.players[nextIndex].id;
       
       const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
@@ -841,7 +841,7 @@ const useGameContext = () => {
       if (cardToPlay.rank === '7') {
         toast.success(`${player.name} played a 7 - the wild card!`);
       } else if (cardToPlay.rank === '10') {
-        toast.success(`${player.name} played a 10 - the pile has been burned!`);
+        toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
       }
       
       if (gameOver) {
