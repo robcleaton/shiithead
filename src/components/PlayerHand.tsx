@@ -1,20 +1,59 @@
 
+import { useState } from 'react';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
+import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 
 interface PlayerHandProps {
   cards: CardValue[];
   isActive: boolean;
   onPlayCard: (index: number) => void;
+  onSelectMultipleCards?: (indices: number[]) => void;
+  isSetupPhase?: boolean;
+  maxSelections?: number;
 }
 
-const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
+const PlayerHand = ({ 
+  cards, 
+  isActive, 
+  onPlayCard, 
+  onSelectMultipleCards, 
+  isSetupPhase = false, 
+  maxSelections = 3 
+}: PlayerHandProps) => {
+  // Add state to track selected card indices
+  const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+  
   // Add console log to help debug
   console.log('PlayerHand rendering with cards:', cards);
+  console.log('Selected indices:', selectedIndices);
   
   // Ensure cards is always an array, even if undefined or null
   const cardArray = Array.isArray(cards) ? cards : [];
   const marginLeft = cardArray.length > 0 ? `-${Math.min(cardArray.length * 8, 40)}px` : '0';
+  
+  const handleSelectCard = (index: number) => {
+    setSelectedIndices(prevIndices => {
+      if (prevIndices.includes(index)) {
+        // Remove index if already selected
+        return prevIndices.filter(i => i !== index);
+      } else {
+        // Add index if under max limit
+        if (prevIndices.length < maxSelections) {
+          return [...prevIndices, index];
+        }
+        return prevIndices;
+      }
+    });
+  };
+  
+  const handlePlaySelected = () => {
+    if (onSelectMultipleCards && selectedIndices.length > 0) {
+      onSelectMultipleCards(selectedIndices);
+      setSelectedIndices([]);
+    }
+  };
   
   return (
     <div className="relative">
@@ -41,14 +80,30 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
                     card={card} 
                     index={index} 
                     isPlayable={isActive}
-                    onPlay={() => onPlayCard(index)}
+                    onPlay={isSetupPhase ? undefined : () => onPlayCard(index)}
                     delay={index}
+                    isSelected={selectedIndices.includes(index)}
+                    onSelect={isSetupPhase ? () => handleSelectCard(index) : undefined}
                   />
                 </div>
               ))
             )}
           </div>
         </div>
+        
+        {/* Only show the Play button during setup phase if we have selections */}
+        {isSetupPhase && isActive && (
+          <div className="mt-4 flex justify-center">
+            <Button
+              onClick={handlePlaySelected}
+              disabled={selectedIndices.length === 0}
+              className="bg-karma-primary hover:bg-karma-primary/90"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Play Selected Cards ({selectedIndices.length}/{maxSelections})
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

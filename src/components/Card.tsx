@@ -1,5 +1,5 @@
+
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { CardValue } from '@/context/GameContext';
 
 interface CardProps {
@@ -8,6 +8,8 @@ interface CardProps {
   isPlayable?: boolean;
   onPlay?: () => void;
   delay?: number;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 const getSuitSymbol = (suit: string) => {
@@ -24,7 +26,7 @@ const getSuitColor = (suit: string) => {
   return suit === 'hearts' || suit === 'diamonds' ? 'text-karma-card-red' : 'text-karma-card-black';
 };
 
-const Card = ({ card, index, isPlayable = false, onPlay, delay = 0 }: CardProps) => {
+const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected = false, onSelect }: CardProps) => {
   const [isFlipped, setIsFlipped] = useState(true);
   
   useEffect(() => {
@@ -44,8 +46,12 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0 }: CardProps)
   }
 
   const handleClick = () => {
-    if (isPlayable && onPlay) {
-      onPlay();
+    if (isPlayable) {
+      if (onSelect) {
+        onSelect();
+      } else if (onPlay) {
+        onPlay();
+      }
     }
   };
 
@@ -55,7 +61,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0 }: CardProps)
 
   return (
     <div
-      className={`playing-card ${isPlayable ? 'cursor-pointer hover:scale-105' : ''}`}
+      className={`playing-card ${isPlayable ? 'cursor-pointer hover:scale-105' : ''} ${isSelected ? 'ring-2 ring-karma-primary transform scale-105' : ''}`}
       onClick={handleClick}
       style={isPlayable ? { boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' } : {}}
     >

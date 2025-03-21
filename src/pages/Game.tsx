@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/context/GameContext';
 import PlayerHand from '@/components/PlayerHand';
@@ -10,7 +9,7 @@ import { HelpCircle, RefreshCw, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Game = () => {
-  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup } = useGame();
+  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
 
   useEffect(() => {
@@ -106,12 +105,7 @@ const Game = () => {
     
     return (
       <div className="container mx-auto px-4 py-10 min-h-screen">
-        <motion.div 
-          className="flex justify-between items-center mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Shithead - Setup Phase</h1>
           <div className="flex gap-2">
             <Button
@@ -124,15 +118,10 @@ const Game = () => {
               Rules
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         <div className="flex flex-col gap-8 items-center">
-          <motion.div
-            className="text-center mb-4"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
+          <div className="text-center mb-4">
             <h2 className="text-xl font-semibold mb-2">Setup Your Cards</h2>
             <p className="text-karma-foreground/80">
               Select 3 cards from your hand to place face-up on your 3 face-down cards
@@ -144,15 +133,10 @@ const Game = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Face Down Cards */}
-          <motion.div 
-            className="flex justify-center gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
+          <div className="flex justify-center gap-4">
             {player.faceDownCards && player.faceDownCards.length > 0 ? (
               player.faceDownCards.map((_, index) => (
                 <div 
@@ -165,15 +149,10 @@ const Game = () => {
                 No face-down cards available
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Face Up Cards */}
-          <motion.div 
-            className="flex justify-center gap-4 mt-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
+          <div className="flex justify-center gap-4 mt-2">
             {player.faceUpCards && player.faceUpCards.length > 0 ? (
               player.faceUpCards.map((card, index) => (
                 <div 
@@ -196,7 +175,7 @@ const Game = () => {
                 </div>
               ))
             )}
-          </motion.div>
+          </div>
 
           {/* Player Hand */}
           <div className="w-full max-w-3xl mt-8">
@@ -205,6 +184,9 @@ const Game = () => {
                 cards={player.hand}
                 isActive={true}
                 onPlayCard={(index) => selectFaceUpCard(index)}
+                onSelectMultipleCards={(indices) => selectMultipleFaceUpCards(indices)}
+                isSetupPhase={true}
+                maxSelections={3 - (player.faceUpCards?.length || 0)}
               />
             ) : (
               <div className="text-center p-4 text-gray-500">
@@ -214,12 +196,7 @@ const Game = () => {
           </div>
 
           {player.isReady && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mt-4"
-            >
+            <div className="mt-4">
               <p className="text-center text-green-600 mb-2">You've selected all your face-up cards</p>
               {state.isHost && (
                 <Button 
@@ -231,7 +208,7 @@ const Game = () => {
                   Start Game
                 </Button>
               )}
-            </motion.div>
+            </div>
           )}
         </div>
 

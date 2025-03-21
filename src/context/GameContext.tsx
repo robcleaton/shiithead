@@ -44,6 +44,7 @@ type GameAction =
   | { type: 'START_GAME' }
   | { type: 'DEAL_CARDS' }
   | { type: 'SELECT_FACE_UP_CARD'; cardIndex: number }
+  | { type: 'SELECT_MULTIPLE_FACE_UP_CARDS'; cardIndices: number[] }
   | { type: 'COMPLETE_SETUP' }
   | { type: 'PLAY_CARD'; cardIndex: number }
   | { type: 'DRAW_CARD' }
@@ -157,6 +158,44 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         faceUpCards: [...player.faceUpCards, cardToMove]
       };
       
+      updatedPlayers[playerIndex] = updatedPlayer;
+      
+      return {
+        ...state,
+        players: updatedPlayers
+      };
+    }
+    
+    case 'SELECT_MULTIPLE_FACE_UP_CARDS': {
+      const playerIndex = state.players.findIndex(p => p.id === state.playerId);
+      if (playerIndex === -1) return state;
+      
+      const player = state.players[playerIndex];
+      
+      // Sort indices in descending order to remove from highest to lowest
+      // This ensures we don't mess up the array indices during removal
+      const sortedIndices = [...action.cardIndices].sort((a, b) => b - a);
+      
+      const updatedHand = [...player.hand];
+      const selectedCards: CardValue[] = [];
+      
+      // Remove cards from hand and collect them for face up
+      for (const cardIndex of sortedIndices) {
+        if (cardIndex >= 0 && cardIndex < updatedHand.length) {
+          const cardToMove = updatedHand[cardIndex];
+          selectedCards.push(cardToMove);
+          updatedHand.splice(cardIndex, 1);
+        }
+      }
+      
+      // Add all selected cards to face up cards
+      const updatedPlayer = {
+        ...player,
+        hand: updatedHand,
+        faceUpCards: [...player.faceUpCards, ...selectedCards]
+      };
+      
+      const updatedPlayers = [...state.players];
       updatedPlayers[playerIndex] = updatedPlayer;
       
       return {
@@ -636,6 +675,64 @@ const useGameContext = () => {
     }
   };
 
+  const selectMultipleFaceUpCards = async (cardIndices: number[]) => {
+    try {
+      const player = state.players.find(p => p.id === state.playerId);
+      if (!player) return;
+      
+      const maxAllowed = 3 - player.faceUpCards.length;
+      if (maxAllowed <= 0) {
+        toast.error("You've already selected 3 cards to place face-up");
+        return;
+      }
+      
+      if (cardIndices.length > maxAllowed) {
+        toast.error(`You can only select ${maxAllowed} more card${maxAllowed !== 1 ? 's' : ''}`);
+        return;
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      // Sort indices in descending order to remove from highest to lowest
+      const sortedIndices = [...cardIndices].sort((a, b) => b - a);
+      
+      // Collect cards to move
+      const selectedCards = sortedIndices.map(index => player.hand[index]);
+      const updatedHand = [...player.hand];
+      
+      // Remove cards from hand (from highest index to lowest)
+      for (const index of sortedIndices) {
+        updatedHand.splice(index, 1);
+      }
+      
+      const updatedFaceUpCards = [...player.faceUpCards, ...selectedCards];
+      const isReady = updatedFaceUpCards.length === 3;
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ 
+          hand: updatedHand,
+          face_up_cards: updatedFaceUpCards,
+          is_ready: isReady
+        })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
+      
+      dispatch({ type: 'SELECT_MULTIPLE_FACE_UP_CARDS', cardIndices: cardIndices });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      
+      if (isReady) {
+        toast.success("You've selected all your face-up cards!");
+      }
+    } catch (error) {
+      console.error('Error selecting face-up cards:', error);
+      toast.error('Failed to select face-up cards');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
   const completeSetup = async () => {
     // Check if all players are ready
     const allReady = state.players.every(p => p.isReady);
@@ -935,6 +1032,7 @@ const useGameContext = () => {
     joinGame,
     startGame,
     selectFaceUpCard,
+    selectMultipleFaceUpCards,
     completeSetup,
     playCard,
     drawCard,
