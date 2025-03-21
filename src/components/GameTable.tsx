@@ -1,5 +1,4 @@
 
-import { motion } from 'framer-motion';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
 import { Button } from '@/components/ui/button';
@@ -15,21 +14,11 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
   const topCard = pile.length > 0 ? pile[pile.length - 1] : undefined;
 
   return (
-    <motion.div 
-      className="flex flex-col items-center justify-center p-6 rounded-xl bg-karma-muted/60 border border-karma-border shadow-lg"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-karma-muted/60 border border-karma-border shadow-lg">
       <div className="text-center mb-4">
-        <motion.span 
-          className="px-4 py-1 bg-karma-secondary text-karma-foreground rounded-full text-sm font-medium"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <span className="px-4 py-1 bg-karma-secondary text-karma-foreground rounded-full text-sm font-medium">
           Current Player: {currentPlayer}
-        </motion.span>
+        </span>
       </div>
       
       <div className="flex justify-center items-center gap-20 my-8">
@@ -39,16 +28,17 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
             {Array.from({ length: Math.min(deckCount, 5) }).map((_, i) => (
               <div 
                 key={`deck-${i}`} 
-                className="absolute playing-card bg-karma-card-back bg-card-texture"
+                className="absolute playing-card bg-karma-card-back bg-card-texture shadow-md"
                 style={{ 
-                  transform: `translateY(${-i * 2}px) translateX(${-i * 2}px) rotate(${-i * 1}deg)`,
-                  zIndex: 5 - i
+                  transform: `translateY(${-i * 1.5}px) translateX(${-i * 1.5}px) rotate(${-i * 0.5}deg)`,
+                  zIndex: 5 - i,
+                  boxShadow: `0 ${i * 0.5 + 1}px ${i + 2}px rgba(0,0,0,0.1)`
                 }}
               />
             ))}
           </div>
-          <span className="mt-3 text-sm font-medium bg-karma-primary/10 px-2 py-1 rounded text-karma-primary">
-            Deck: {deckCount} cards
+          <span className="mt-3 text-sm font-medium bg-karma-primary/10 px-3 py-1 rounded-full text-karma-primary">
+            {deckCount} cards
           </span>
           <Button
             onClick={onDrawCard}
@@ -67,7 +57,7 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
                 key={`pile-${i}`}
                 className="absolute"
                 style={{ 
-                  transform: `rotate(${(i - arr.length + 1) * 5}deg)`,
+                  transform: `rotate(${(i - arr.length + 1) * 3}deg)`,
                   zIndex: i
                 }}
               >
@@ -75,12 +65,12 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
               </div>
             ))}
           </div>
-          <span className="mt-3 text-sm font-medium bg-karma-primary/10 px-2 py-1 rounded text-karma-primary">
-            Pile: {pile.length} cards
+          <span className="mt-3 text-sm font-medium bg-karma-primary/10 px-3 py-1 rounded-full text-karma-primary">
+            {pile.length} cards
           </span>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
