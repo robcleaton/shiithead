@@ -69,7 +69,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
             >
               <h3 className="text-lg font-semibold mb-2 text-karma-primary">Special Cards</h3>
               <ul className="list-disc pl-5 space-y-2">
-                <li><strong>2:</strong> The next player must draw two cards and skip their turn.</li>
+                <li><strong>2:</strong> The player that lays it has another go and can place any card on top.</li>
                 <li><strong>8:</strong> Skip the next player's turn.</li>
                 <li><strong>Jack:</strong> Choose a new suit to play.</li>
                 <li><strong>Ace:</strong> Any player can play on an Ace, regardless of the normal playing order. If no one plays within 5 seconds, normal play continues.</li>
