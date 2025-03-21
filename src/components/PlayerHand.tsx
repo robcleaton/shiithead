@@ -13,6 +13,10 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
   // Add console log to help debug
   console.log('PlayerHand rendering with cards:', cards);
   
+  // Ensure cards is always an array, even if undefined or null
+  const cardArray = Array.isArray(cards) ? cards : [];
+  const marginLeft = cardArray.length > 0 ? `-${Math.min(cardArray.length * 8, 40)}px` : '0';
+  
   return (
     <motion.div
       className="relative"
@@ -27,17 +31,17 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
           </span>
         </div>
         <div className="flex items-center justify-center">
-          <div className="flex items-center" style={{ marginLeft: `${cards && cards.length > 0 ? `-${Math.min(cards.length * 8, 40)}px` : '0'}` }}>
-            {!cards || cards.length === 0 ? (
+          <div className="flex items-center" style={{ marginLeft }}>
+            {!cardArray || cardArray.length === 0 ? (
               <div className="text-center p-4 text-gray-500">
                 No cards available
               </div>
             ) : (
-              cards.map((card, index) => (
+              cardArray.map((card, index) => (
                 <div 
                   key={`${card.suit}-${card.rank}-${index}`} 
                   className="ml-4 first:ml-0 transform transition-transform hover:z-10"
-                  style={{ marginLeft: `-${Math.min(cards.length * 3, 20)}px` }}
+                  style={{ marginLeft: `-${Math.min(cardArray.length * 3, 20)}px` }}
                 >
                   <Card 
                     card={card} 

@@ -174,7 +174,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return state;
       }
       
-      // We can't use await in the reducer, so we'll start the process and let the startGame function handle the async operations
+      // We can't use await in the reducer, so we'll just return the current state
+      // The startGame function will handle the async operations
       return state;
     }
     case 'DEAL_CARDS': {
@@ -283,64 +284,17 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return state;
       }
       
-      dispatch({ type: 'SET_LOADING', isLoading: true });
-      
       const updatedHand = [...player.hand];
       updatedHand.splice(action.cardIndex, 1);
       
-      // Check if we need to draw cards to maintain minimum hand size
-      const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
-      const updatedDeck = [...state.deck];
-      const drawnCards = [];
+      const updatedPlayers = [...players];
+      updatedPlayers[playerIndex] = { ...player, hand: updatedHand };
       
-      for (let i = 0; i < cardsToDrawCount && updatedDeck.length > 0; i++) {
-        drawnCards.push(updatedDeck.pop()!);
-      }
-      
-      // Add the drawn cards to the player's hand
-      const finalHand = [...updatedHand, ...drawnCards];
-      
-      const { error: playerError } = await supabase
-        .from('players')
-        .update({ hand: finalHand })
-        .eq('id', player.id)
-        .eq('game_id', state.gameId);
-        
-      if (playerError) throw playerError;
-      
-      const updatedPile = [...state.pile, cardToPlay];
-      
-      const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-      const nextIndex = (playerIndex + 1) % state.players.length;
-      const nextPlayerId = state.players[nextIndex].id;
-      
-      const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
-      
-      const { error: gameError } = await supabase
-        .from('games')
-        .update({ 
-          pile: updatedPile,
-          current_player_id: nextPlayerId,
-          ended: gameOver,
-          deck: updatedDeck  // Update the deck after drawing cards
-        })
-        .eq('id', state.gameId);
-        
-      if (gameError) throw gameError;
-      
-      if (gameOver) {
-        toast.success(`${player.name} has won the game!`);
-      } else if (finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 1) {
-        toast.info(`${player.name} is down to their last card!`);
-      }
-      
-      if (drawnCards.length > 0 && updatedDeck.length === 0) {
-        toast.info('Deck is now empty!');
-      } else if (drawnCards.length > 0) {
-        toast.info(`Drew ${drawnCards.length} card${drawnCards.length > 1 ? 's' : ''} from the deck`);
-      }
-      
-      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return {
+        ...state,
+        players: updatedPlayers,
+        pile: [...pile, cardToPlay]
+      };
     }
     case 'DRAW_CARD': {
       const { deck, players, currentPlayerId } = state;
@@ -923,8 +877,8 @@ const useGameContext = () => {
       
       const updatedPile = [...state.pile, cardToPlay];
       
-      const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-      const nextIndex = (playerIndex + 1) % state.players.length;
+      const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+      const nextIndex = (currentPlayerIndex + 1) % state.players.length;
       const nextPlayerId = state.players[nextIndex].id;
       
       const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
@@ -1010,138 +964,3 @@ const useGameContext = () => {
       console.error('Error drawing card:', error);
       toast.error('Failed to draw card');
       dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
-  const resetGame = async () => {
-    try {
-      if (!state.gameId) {
-        dispatch({ type: 'RESET_GAME' });
-        return;
-      }
-      
-      dispatch({ type: 'SET_LOADING', isLoading: true });
-      
-      const { error } = await supabase
-        .from('games')
-        .delete()
-        .eq('id', state.gameId);
-        
-      if (error) throw error;
-      
-      dispatch({ type: 'RESET_GAME' });
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      
-      toast.info('Game has been reset');
-      navigate('/');
-    } catch (error) {
-      console.error('Error resetting game:', error);
-      toast.error('Failed to reset game');
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
-  const invitePlayer = async (email: string) => {
-    if (!state.gameId) {
-      toast.error("No active game to invite players to");
-      return;
-    }
-    
-    try {
-      dispatch({ type: 'SET_LOADING', isLoading: true });
-      
-      // In a real app, we would send an actual email here
-      // For now, we'll just show a success message
-      
-      const inviteLink = `${window.location.origin}/join/${state.gameId}`;
-      
-      console.log(`Would send invite to ${email} with link: ${inviteLink}`);
-      
-      // Dispatch the action to update the UI if needed
-      dispatch({ type: 'INVITE_PLAYER', email });
-      
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      toast.success(`Invitation sent to ${email}`);
-    } catch (error) {
-      console.error('Error inviting player:', error);
-      toast.error('Failed to send invitation');
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
-  const addTestPlayer = async (playerName: string) => {
-    if (!state.gameId || state.gameStarted) {
-      toast.error("Cannot add test players after game has started");
-      return;
-    }
-    
-    if (!playerName.trim()) {
-      toast.error("Please enter a name for the test player");
-      return;
-    }
-    
-    try {
-      const existingNames = state.players.map(p => p.name);
-      if (existingNames.includes(playerName)) {
-        toast.error("A player with this name already exists");
-        return;
-      }
-      
-      const testPlayerId = generateId();
-      
-      const { error: playerError } = await supabase
-        .from('players')
-        .insert([{
-          id: testPlayerId,
-          name: playerName,
-          game_id: state.gameId,
-          is_host: false,
-          hand: [],
-          face_down_cards: [],
-          face_up_cards: [],
-          is_active: true,
-          is_ready: false
-        }]);
-        
-      if (playerError) throw playerError;
-      
-      dispatch({ type: 'ADD_TEST_PLAYER', playerName });
-      toast.success(`Test player ${playerName} added to the game`);
-    } catch (error) {
-      console.error('Error adding test player:', error);
-      toast.error('Failed to add test player');
-    }
-  };
-
-  return {
-    state,
-    createGame,
-    joinGame,
-    startGame,
-    selectFaceUpCard,
-    completeSetup,
-    playCard,
-    drawCard,
-    resetGame,
-    invitePlayer,
-    addTestPlayer
-  };
-};
-
-export const useGame = () => {
-  const context = useContext(GameContext);
-  if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider');
-  }
-  return context;
-};
-
-export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const gameContext = useGameContext();
-  
-  return (
-    <GameContext.Provider value={gameContext}>
-      {children}
-    </GameContext.Provider>
-  );
-};
