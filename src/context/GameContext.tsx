@@ -785,8 +785,8 @@ const useGameContext = () => {
       const cardToPlay = player.hand[cardIndex];
       const topCard = state.pile[state.pile.length - 1];
       
-      if (topCard && cardToPlay.rank !== topCard.rank && cardToPlay.suit !== topCard.suit) {
-        toast.error("Invalid move! Card must match suit or rank of the top card.");
+      if (topCard && cardToPlay.rank !== topCard.rank) {
+        toast.error("Invalid move! Card must match the rank of the top card.");
         return;
       }
       

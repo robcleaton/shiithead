@@ -69,7 +69,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
             >
               <h3 className="text-lg font-semibold mb-2 text-karma-primary">Special Cards</h3>
               <ul className="list-disc pl-5 space-y-2">
-                <li><strong>2:</strong> Can be placed on any card regardless of suit or rank. The player that lays it has another go and can place any card on top.</li>
+                <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top.</li>
                 <li><strong>7:</strong> When played, the next player must play a 7 or a card with a lower rank.</li>
                 <li><strong>8:</strong> Skip the next player's turn.</li>
               </ul>
