@@ -84,7 +84,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
       </div>
       <div className="card-back absolute inset-0 bg-karma-card-back bg-card-texture rounded-lg border border-gray-700">
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-gray-700/90 flex items-center justify-center backdrop-blur-sm border border-white/20">
+          <div className="w-12 h-12 rounded-full bg-gray-700/90 flex items-center justify-center border border-white/20">
             <span className="text-white text-xl font-semibold">K</span>
           </div>
         </div>

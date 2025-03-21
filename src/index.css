@@ -98,7 +98,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-md;
+    @apply bg-white/80 border border-white/20 shadow-md;
   }
 
   .card-transform {

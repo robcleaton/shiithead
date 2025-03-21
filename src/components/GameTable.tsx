@@ -16,7 +16,7 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
 
   return (
     <motion.div 
-      className="flex flex-col items-center justify-center p-6 rounded-xl bg-karma-muted/60 backdrop-blur-sm border border-karma-border shadow-lg"
+      className="flex flex-col items-center justify-center p-6 rounded-xl bg-karma-muted/60 border border-karma-border shadow-lg"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
