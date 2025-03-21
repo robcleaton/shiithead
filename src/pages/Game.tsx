@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/context/GameContext';
@@ -13,6 +13,11 @@ import { toast } from 'sonner';
 const Game = () => {
   const { state, playCard, drawCard, resetGame } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
+
+  useEffect(() => {
+    console.log('Game component rendered. Game started:', state.gameStarted);
+    console.log('Players in game:', state.players);
+  }, [state]);
 
   const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
   const player = state.players.find(p => p.id === state.playerId);

@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -77,6 +78,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'CREATE_GAME': {
       const playerId = state.playerId;
+      console.log('Creating game with player ID:', playerId, 'and name:', action.playerName);
+      
       return {
         ...state,
         gameId: action.gameId,
@@ -87,9 +90,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     }
     case 'JOIN_GAME': {
       const playerId = state.playerId;
+      console.log('Joining game. Player ID:', playerId, 'Game ID:', action.gameId, 'Name:', action.playerName);
+      
       const existingPlayerIndex = state.players.findIndex(p => p.id === playerId);
       
       if (existingPlayerIndex >= 0) {
+        console.log('Player already exists in the game, updating name');
         const updatedPlayers = [...state.players];
         updatedPlayers[existingPlayerIndex] = {
           ...updatedPlayers[existingPlayerIndex],
@@ -104,6 +110,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         };
       }
       
+      console.log('Adding new player to the game');
       return {
         ...state,
         gameId: action.gameId,
@@ -230,7 +237,16 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return state;
       }
       
+      console.log('Adding test player:', action.playerName);
       const testPlayerId = generateId();
+      
+      // Check for duplicate test player names
+      const existingNames = state.players.map(p => p.name);
+      if (existingNames.includes(action.playerName)) {
+        toast.error("A player with this name already exists");
+        return state;
+      }
+      
       return {
         ...state,
         players: [
@@ -254,6 +270,10 @@ const GameContext = createContext<ReturnType<typeof useGameContext> | undefined>
 
 const useGameContext = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+
+  useEffect(() => {
+    console.log('GameContext state updated:', state);
+  }, [state]);
 
   const createGame = (playerName: string) => {
     const gameId = generateId();
@@ -326,6 +346,11 @@ const useGameContext = () => {
   };
 
   const addTestPlayer = (playerName: string) => {
+    if (!playerName.trim()) {
+      toast.error("Please enter a name for the test player");
+      return;
+    }
+    
     dispatch({ type: 'ADD_TEST_PLAYER', playerName });
     toast.success(`Test player ${playerName} added to the game`);
   };
@@ -361,4 +386,3 @@ export const useGame = () => {
   }
   return context;
 };
-

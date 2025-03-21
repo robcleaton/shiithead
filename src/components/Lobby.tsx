@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGame } from '@/context/GameContext';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, Copy, UserPlus, PlusCircle } from 'lucide-react';
+import { Send, Copy, UserPlus, PlusCircle, UserRoundCheck } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Lobby = () => {
   const { createGame, joinGame, startGame, state, invitePlayer, addTestPlayer } = useGame();
@@ -55,7 +57,6 @@ const Lobby = () => {
       return;
     }
     createGame(playerName);
-    navigate('/game');
   };
 
   const handleJoinGame = () => {
@@ -68,7 +69,6 @@ const Lobby = () => {
       return;
     }
     joinGame(gameId, playerName);
-    navigate('/game');
   };
 
   const handleStartGame = () => {
@@ -261,23 +261,34 @@ const Lobby = () => {
                     </div>
                   )}
                   <ul className="space-y-2">
-                    {state.players.map((player, index) => (
-                      <motion.li
-                        key={player.id}
-                        className="flex items-center gap-2 bg-white/40 p-2 rounded-lg"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        <div className="w-8 h-8 rounded-full bg-karma-primary flex items-center justify-center text-white">
-                          {player.name.charAt(0).toUpperCase()}
-                        </div>
-                        <span>{player.name}</span>
-                        {player.isHost && (
-                          <span className="ml-auto text-xs bg-karma-secondary px-2 py-0.5 rounded">Host</span>
-                        )}
-                      </motion.li>
-                    ))}
+                    {state.players.length === 0 ? (
+                      <li className="flex items-center justify-center p-4 text-gray-500 italic">
+                        No players have joined yet
+                      </li>
+                    ) : (
+                      state.players.map((player, index) => (
+                        <motion.li
+                          key={player.id}
+                          className="flex items-center gap-3 bg-white/40 p-3 rounded-lg shadow-sm border border-gray-100"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <Avatar className="h-8 w-8 bg-karma-primary text-white">
+                            <AvatarFallback>{player.name.charAt(0).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">{player.name}</span>
+                          {player.id === state.playerId && (
+                            <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <UserRoundCheck className="w-3 h-3" /> You
+                            </span>
+                          )}
+                          {player.isHost && (
+                            <span className="ml-auto text-xs bg-karma-secondary px-2 py-0.5 rounded-full">Host</span>
+                          )}
+                        </motion.li>
+                      ))
+                    )}
                   </ul>
                 </div>
                 
