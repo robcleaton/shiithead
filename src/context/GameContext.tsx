@@ -836,8 +836,6 @@ const useGameContext = () => {
       
       if (cardToPlay.rank === '2') {
         nextIndex = currentPlayerIndex;
-      } else if (cardToPlay.rank === '8') {
-        nextIndex = (currentPlayerIndex + 2) % state.players.length;
       } else if (cardToPlay.rank === '10') {
         nextIndex = currentPlayerIndex;
       } else {
@@ -864,8 +862,6 @@ const useGameContext = () => {
         toast.success(`${player.name} played a 2 - they get another turn!`);
       } else if (cardToPlay.rank === '7') {
         toast.success(`${player.name} played a 7 - the next player must play a card of rank 7 or lower!`);
-      } else if (cardToPlay.rank === '8') {
-        toast.success(`${player.name} played an 8 - ${state.players[(currentPlayerIndex + 1) % state.players.length].name}'s turn is skipped!`);
       } else if (cardToPlay.rank === '10') {
         toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
       }
