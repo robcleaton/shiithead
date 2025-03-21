@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGame } from '@/context/GameContext';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, UserPlus, PlusCircle, UserRoundCheck } from 'lucide-react';
+import { Copy, UserPlus, PlusCircle, UserRoundCheck, Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Lobby = () => {
@@ -219,7 +220,7 @@ const Lobby = () => {
                 
                 <div className="space-y-2">
                   <h3 className="font-semibold flex items-center gap-2">
-                    <UserPlus className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                     Players ({state.players.length})
                   </h3>
                   {state.players.length < 2 && (
