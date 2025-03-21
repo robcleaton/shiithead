@@ -1,5 +1,4 @@
 
-import { motion } from 'framer-motion';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
 
@@ -18,12 +17,7 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
   const marginLeft = cardArray.length > 0 ? `-${Math.min(cardArray.length * 8, 40)}px` : '0';
   
   return (
-    <motion.div
-      className="relative"
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-    >
+    <div className="relative">
       <div className={`p-4 rounded-xl ${isActive ? 'bg-karma-primary/10 border border-karma-primary/30' : 'bg-transparent'} transition-all duration-300`}>
         <div className="mb-2 text-center">
           <span className={`text-sm font-medium px-3 py-1 rounded-full ${isActive ? 'bg-karma-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
@@ -56,7 +50,7 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

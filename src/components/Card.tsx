@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CardValue } from '@/context/GameContext';
@@ -38,11 +37,8 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0 }: CardProps)
 
   if (!card) {
     return (
-      <motion.div 
+      <div 
         className="playing-card bg-karma-card-back bg-card-texture"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
       />
     );
   }
@@ -58,24 +54,10 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0 }: CardProps)
   const suitColor = getSuitColor(suit);
 
   return (
-    <motion.div
-      className={`playing-card card-transform ${isFlipped ? 'flipped' : ''} ${isPlayable ? 'cursor-pointer hover:scale-105' : ''}`}
+    <div
+      className={`playing-card ${isPlayable ? 'cursor-pointer hover:scale-105' : ''}`}
       onClick={handleClick}
-      initial={{ y: 100, opacity: 0, rotateY: 180 }}
-      animate={{ 
-        y: 0, 
-        opacity: 1,
-        rotateY: isFlipped ? 180 : 0,
-        scale: isPlayable ? 1.05 : 1,
-        boxShadow: isPlayable ? '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-      }}
-      transition={{ 
-        type: 'spring',
-        stiffness: 300,
-        damping: 20,
-        delay: delay * 0.1
-      }}
-      whileHover={isPlayable ? { y: -15, transition: { duration: 0.2 } } : {}}
+      style={isPlayable ? { boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' } : {}}
     >
       <div className="card-frontface absolute inset-0 bg-white rounded-lg border border-gray-200">
         <div className={`absolute top-2 left-2 ${suitColor} font-bold text-xl`}>
@@ -101,7 +83,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0 }: CardProps)
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
