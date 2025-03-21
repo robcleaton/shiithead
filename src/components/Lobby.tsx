@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -28,6 +27,13 @@ const Lobby = () => {
     }
   }, [joinGameId, state.gameId]);
 
+  // Redirect to game page when joining from an invite and game state is updated
+  useEffect(() => {
+    if (state.gameId && joinGameId) {
+      navigate('/game');
+    }
+  }, [state.gameId, joinGameId, navigate]);
+
   const handleCreateGame = () => {
     if (!playerName.trim()) {
       toast.error('Please enter your name');
@@ -46,10 +52,8 @@ const Lobby = () => {
       return;
     }
     joinGame(gameId, playerName);
-    // Clear the URL parameter after joining
-    if (joinGameId) {
-      navigate('/');
-    }
+    // Navigate to the game page after joining
+    navigate('/game');
   };
 
   const handleStartGame = () => {
