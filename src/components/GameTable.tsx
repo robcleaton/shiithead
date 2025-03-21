@@ -34,12 +34,7 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
       
       <div className="flex justify-center items-center gap-20 my-8">
         {/* Draw Pile */}
-        <motion.div 
-          className="relative flex flex-col items-center"
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="relative flex flex-col items-center">
           <div className="relative w-24 h-36">
             {Array.from({ length: Math.min(deckCount, 5) }).map((_, i) => (
               <div 
@@ -62,49 +57,28 @@ const GameTable = ({ pile, deckCount, onDrawCard, currentPlayer }: GameTableProp
           >
             Draw Card
           </Button>
-        </motion.div>
+        </div>
         
         {/* Discard Pile */}
-        <motion.div 
-          className="relative flex flex-col items-center"
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
+        <div className="relative flex flex-col items-center">
           <div className="relative w-24 h-36">
             {pile.slice(-5).map((card, i, arr) => (
-              <motion.div 
+              <div 
                 key={`pile-${i}`}
                 className="absolute"
-                initial={{ 
-                  rotate: 0, 
-                  scale: 0.9, 
-                  opacity: 0,
-                  x: -100,
-                  y: -50
-                }}
-                animate={{ 
-                  rotate: (i - arr.length + 1) * 5, 
-                  scale: 1, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
+                style={{ 
+                  transform: `rotate(${(i - arr.length + 1) * 5}deg)`,
                   zIndex: i
-                }}
-                transition={{ 
-                  type: 'spring', 
-                  stiffness: 300, 
-                  damping: 20 
                 }}
               >
                 <Card card={card} index={i} />
-              </motion.div>
+              </div>
             ))}
           </div>
           <span className="mt-3 text-sm font-medium bg-karma-primary/10 px-2 py-1 rounded text-karma-primary">
             Pile: {pile.length} cards
           </span>
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   );
