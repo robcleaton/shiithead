@@ -964,3 +964,93 @@ const useGameContext = () => {
       console.error('Error drawing card:', error);
       toast.error('Failed to draw card');
       dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
+  const addTestPlayer = async (playerName: string) => {
+    if (!state.gameId || state.gameStarted) {
+      toast.error("Cannot add test players after game has started");
+      return;
+    }
+    
+    try {
+      const testPlayerId = generateId();
+      
+      // Check for duplicate test player names
+      const existingNames = state.players.map(p => p.name);
+      if (existingNames.includes(playerName)) {
+        toast.error("A player with this name already exists");
+        return;
+      }
+      
+      const { error } = await supabase
+        .from('players')
+        .insert([{
+          id: testPlayerId,
+          name: playerName,
+          game_id: state.gameId,
+          is_host: false,
+          hand: [],
+          face_down_cards: [],
+          face_up_cards: [],
+          is_active: true,
+          is_ready: false
+        }]);
+        
+      if (error) throw error;
+      
+      dispatch({ type: 'ADD_TEST_PLAYER', playerName });
+    } catch (error) {
+      console.error('Error adding test player:', error);
+      toast.error('Failed to add test player');
+    }
+  };
+
+  const invitePlayer = async (email: string) => {
+    if (!state.gameId) {
+      toast.error("No active game to invite players to");
+      return;
+    }
+    
+    // For now, we'll just simulate sending an invitation
+    toast.success(`Invitation sent to ${email}`);
+    dispatch({ type: 'INVITE_PLAYER', email });
+    
+    // In a real implementation, you would:
+    // 1. Store the invitation in the database
+    // 2. Send an email with a link to join the game
+    // 3. When the user clicks the link, they would be taken to the join page with the game ID pre-filled
+  };
+
+  return {
+    state,
+    createGame,
+    joinGame,
+    startGame,
+    selectFaceUpCard,
+    completeSetup,
+    playCard,
+    drawCard,
+    invitePlayer,
+    addTestPlayer
+  };
+};
+
+export const GameProvider = ({ children }: { children: ReactNode }) => {
+  const gameContext = useGameContext();
+  
+  return (
+    <GameContext.Provider value={gameContext}>
+      {children}
+    </GameContext.Provider>
+  );
+};
+
+export const useGame = () => {
+  const context = useContext(GameContext);
+  if (context === undefined) {
+    throw new Error('useGame must be used within a GameProvider');
+  }
+  return context;
+};
+
