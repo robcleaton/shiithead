@@ -1,12 +1,103 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <header className="container mx-auto px-6 py-6 flex justify-between items-center">
+        <motion.div 
+          className="text-2xl font-bold text-karma-primary"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Karma
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Link to="/game">
+            <Button variant="outline" size="sm">Play Now</Button>
+          </Link>
+        </motion.div>
+      </header>
+
+      <main className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center">
+        <div className="max-w-4xl w-full text-center">
+          <motion.div
+            className="relative mb-12 perspective"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7 }}
+          >
+            <motion.div 
+              className="w-32 h-48 mx-auto playing-card bg-karma-card-back bg-card-texture absolute left-1/2 -translate-x-1/2"
+              initial={{ rotateY: 0, x: -80 }}
+              animate={{ rotateY: 15, x: -80 }}
+              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+            />
+            <motion.div 
+              className="w-32 h-48 mx-auto playing-card bg-white absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
+              initial={{ rotateY: 0 }}
+              animate={{ rotateY: 0 }}
+              transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
+            >
+              <div className="text-6xl text-karma-card-red">♥</div>
+            </motion.div>
+            <motion.div 
+              className="w-32 h-48 mx-auto playing-card bg-karma-card-back bg-card-texture absolute left-1/2 -translate-x-1/2"
+              initial={{ rotateY: 0, x: 80 }}
+              animate={{ rotateY: -15, x: 80 }}
+              transition={{ duration: 1, delay: 0.9, ease: "easeOut" }}
+            />
+          </motion.div>
+
+          <motion.h1 
+            className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-karma-primary to-karma-accent"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            Karma Card Game
+          </motion.h1>
+          
+          <motion.p 
+            className="text-xl text-karma-foreground/80 mb-12 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            Play the classic Karma card game online with friends. Create a game, share the code, and enjoy this timeless card game with beautiful animations and intuitive design.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+          >
+            <Link to="/game">
+              <Button size="lg" className="bg-karma-primary hover:bg-karma-primary/90 text-white px-8 py-6 text-lg">
+                Start Playing
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </main>
+
+      <footer className="container mx-auto px-6 py-8">
+        <motion.div 
+          className="text-center text-sm text-karma-foreground/60"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 1 }}
+        >
+          <p>A beautiful implementation of the Karma card game.</p>
+        </motion.div>
+      </footer>
     </div>
   );
 };
