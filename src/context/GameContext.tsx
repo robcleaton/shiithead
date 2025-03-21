@@ -283,17 +283,64 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return state;
       }
       
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
       const updatedHand = [...player.hand];
       updatedHand.splice(action.cardIndex, 1);
       
-      const updatedPlayers = [...players];
-      updatedPlayers[playerIndex] = { ...player, hand: updatedHand };
+      // Check if we need to draw cards to maintain minimum hand size
+      const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
+      const updatedDeck = [...state.deck];
+      const drawnCards = [];
       
-      return {
-        ...state,
-        players: updatedPlayers,
-        pile: [...pile, cardToPlay]
-      };
+      for (let i = 0; i < cardsToDrawCount && updatedDeck.length > 0; i++) {
+        drawnCards.push(updatedDeck.pop()!);
+      }
+      
+      // Add the drawn cards to the player's hand
+      const finalHand = [...updatedHand, ...drawnCards];
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ hand: finalHand })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
+      
+      const updatedPile = [...state.pile, cardToPlay];
+      
+      const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+      const nextIndex = (playerIndex + 1) % state.players.length;
+      const nextPlayerId = state.players[nextIndex].id;
+      
+      const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          pile: updatedPile,
+          current_player_id: nextPlayerId,
+          ended: gameOver,
+          deck: updatedDeck  // Update the deck after drawing cards
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      if (gameOver) {
+        toast.success(`${player.name} has won the game!`);
+      } else if (finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 1) {
+        toast.info(`${player.name} is down to their last card!`);
+      }
+      
+      if (drawnCards.length > 0 && updatedDeck.length === 0) {
+        toast.info('Deck is now empty!');
+      } else if (drawnCards.length > 0) {
+        toast.info(`Drew ${drawnCards.length} card${drawnCards.length > 1 ? 's' : ''} from the deck`);
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: false });
     }
     case 'DRAW_CARD': {
       const { deck, players, currentPlayerId } = state;
@@ -854,9 +901,21 @@ const useGameContext = () => {
       const updatedHand = [...player.hand];
       updatedHand.splice(cardIndex, 1);
       
+      // Check if we need to draw cards to maintain minimum hand size
+      const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
+      const updatedDeck = [...state.deck];
+      const drawnCards = [];
+      
+      for (let i = 0; i < cardsToDrawCount && updatedDeck.length > 0; i++) {
+        drawnCards.push(updatedDeck.pop()!);
+      }
+      
+      // Add the drawn cards to the player's hand
+      const finalHand = [...updatedHand, ...drawnCards];
+      
       const { error: playerError } = await supabase
         .from('players')
-        .update({ hand: updatedHand })
+        .update({ hand: finalHand })
         .eq('id', player.id)
         .eq('game_id', state.gameId);
         
@@ -868,14 +927,15 @@ const useGameContext = () => {
       const nextIndex = (playerIndex + 1) % state.players.length;
       const nextPlayerId = state.players[nextIndex].id;
       
-      const gameOver = updatedHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
+      const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
       
       const { error: gameError } = await supabase
         .from('games')
         .update({ 
           pile: updatedPile,
           current_player_id: nextPlayerId,
-          ended: gameOver
+          ended: gameOver,
+          deck: updatedDeck  // Update the deck after drawing cards
         })
         .eq('id', state.gameId);
         
@@ -883,8 +943,14 @@ const useGameContext = () => {
       
       if (gameOver) {
         toast.success(`${player.name} has won the game!`);
-      } else if (updatedHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 1) {
+      } else if (finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 1) {
         toast.info(`${player.name} is down to their last card!`);
+      }
+      
+      if (drawnCards.length > 0 && updatedDeck.length === 0) {
+        toast.info('Deck is now empty!');
+      } else if (drawnCards.length > 0) {
+        toast.info(`Drew ${drawnCards.length} card${drawnCards.length > 1 ? 's' : ''} from the deck`);
       }
       
       dispatch({ type: 'SET_LOADING', isLoading: false });
