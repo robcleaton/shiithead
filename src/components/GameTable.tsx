@@ -26,18 +26,12 @@ const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, curr
         {/* Deck */}
         <div className="relative">
           <div className="flex flex-col items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onDrawCard}
-              disabled={deckCount === 0}
-              className="mb-2 bg-karma-card-back text-white hover:bg-karma-card-back/90"
-            >
-              <Layers className="mr-2 h-4 w-4" />
-              Draw
-            </Button>
+            {deckCount > 0 && (
+              <div className="w-16 h-20 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md mb-2"></div>
+            )}
             <div className="text-xs text-karma-foreground/70">{deckCount} cards left</div>
           </div>
+          
           {deckCount > 0 && (
             <div className="absolute inset-0 flex items-center justify-center transform -rotate-3 -translate-x-1 -translate-y-2 pointer-events-none z-0">
               <div className="w-16 h-20 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md"></div>
@@ -60,6 +54,20 @@ const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, curr
             </div>
           )}
         </div>
+      </div>
+      
+      {/* Draw button moved below cards and centered */}
+      <div className="flex justify-center mt-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onDrawCard}
+          disabled={deckCount === 0}
+          className="bg-karma-card-back text-white hover:bg-karma-card-back/90"
+        >
+          <Layers className="mr-2 h-4 w-4" />
+          Draw
+        </Button>
       </div>
       
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
