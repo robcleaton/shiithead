@@ -778,8 +778,14 @@ const useGameContext = () => {
       
       if (state.pile.length > 0) {
         const topCard = state.pile[state.pile.length - 1];
-        if (cardToPlay.rank !== '7' && topCard && cardToPlay.rank !== topCard.rank) {
-          toast.error("Invalid move! Card must match the rank of the top card or be a 7.");
+        if (cardToPlay.rank === '10') {
+          if (topCard && topCard.rank === '7') {
+            toast.error("Cannot play a 10 on top of a 7!");
+            return;
+          }
+        }
+        else if (cardToPlay.rank !== '7' && topCard && cardToPlay.rank !== topCard.rank) {
+          toast.error("Invalid move! Card must match the rank of the top card, be a 7, or be a 10 (except on 7s).");
           return;
         }
       }
@@ -807,7 +813,12 @@ const useGameContext = () => {
         
       if (playerError) throw playerError;
       
-      const updatedPile = [...state.pile, cardToPlay];
+      let updatedPile: CardValue[] = [];
+      if (cardToPlay.rank === '10') {
+        updatedPile = [cardToPlay];
+      } else {
+        updatedPile = [...state.pile, cardToPlay];
+      }
       
       const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
       const nextIndex = (currentPlayerIndex + 1) % state.players.length;
@@ -829,6 +840,8 @@ const useGameContext = () => {
       
       if (cardToPlay.rank === '7') {
         toast.success(`${player.name} played a 7 - the wild card!`);
+      } else if (cardToPlay.rank === '10') {
+        toast.success(`${player.name} played a 10 - the pile has been burned!`);
       }
       
       if (gameOver) {
