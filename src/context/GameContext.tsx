@@ -778,8 +778,8 @@ const useGameContext = () => {
       
       if (state.pile.length > 0) {
         const topCard = state.pile[state.pile.length - 1];
-        if (topCard && cardToPlay.rank !== topCard.rank) {
-          toast.error("Invalid move! Card must match the rank of the top card.");
+        if (cardToPlay.rank !== '7' && topCard && cardToPlay.rank !== topCard.rank) {
+          toast.error("Invalid move! Card must match the rank of the top card or be a 7.");
           return;
         }
       }
@@ -826,6 +826,10 @@ const useGameContext = () => {
         .eq('id', state.gameId);
         
       if (gameError) throw gameError;
+      
+      if (cardToPlay.rank === '7') {
+        toast.success(`${player.name} played a 7 - the wild card!`);
+      }
       
       if (gameOver) {
         toast.success(`${player.name} has won the game!`);
