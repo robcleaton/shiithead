@@ -10,6 +10,9 @@ interface PlayerHandProps {
 }
 
 const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
+  // Add console log to help debug
+  console.log('PlayerHand rendering with cards:', cards);
+  
   return (
     <motion.div
       className="relative"
@@ -25,21 +28,27 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
         </div>
         <div className="flex items-center justify-center">
           <div className="flex items-center" style={{ marginLeft: `-${Math.min(cards.length * 8, 40)}px` }}>
-            {cards.map((card, index) => (
-              <div 
-                key={`${card.suit}-${card.rank}-${index}`} 
-                className="ml-4 first:ml-0 transform transition-transform hover:z-10"
-                style={{ marginLeft: `-${Math.min(cards.length * 3, 20)}px` }}
-              >
-                <Card 
-                  card={card} 
-                  index={index} 
-                  isPlayable={isActive}
-                  onPlay={() => onPlayCard(index)}
-                  delay={index}
-                />
+            {cards.length === 0 ? (
+              <div className="text-center p-4 text-gray-500">
+                Loading cards...
               </div>
-            ))}
+            ) : (
+              cards.map((card, index) => (
+                <div 
+                  key={`${card.suit}-${card.rank}-${index}`} 
+                  className="ml-4 first:ml-0 transform transition-transform hover:z-10"
+                  style={{ marginLeft: `-${Math.min(cards.length * 3, 20)}px` }}
+                >
+                  <Card 
+                    card={card} 
+                    index={index} 
+                    isPlayable={isActive}
+                    onPlay={() => onPlayCard(index)}
+                    delay={index}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

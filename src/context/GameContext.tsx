@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -384,7 +383,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   }
 };
 
-// Helper function to safely convert Json to CardValue[]
 const jsonToCardValues = (json: Json | null): CardValue[] => {
   if (!json) return [];
   
@@ -671,7 +669,11 @@ const useGameContext = () => {
     
     try {
       dispatch({ type: 'SET_LOADING', isLoading: true });
+      console.log('Starting game with players:', state.players);
+      
       const deck = createDeck();
+      console.log('Created deck with', deck.length, 'cards');
+      
       const hands: Record<string, CardValue[]> = {};
       const faceDownCards: Record<string, CardValue[]> = {};
       const updatedDeck = [...deck];
@@ -694,6 +696,8 @@ const useGameContext = () => {
           }
         }
         hands[player.id] = hand;
+        
+        console.log(`Dealt ${faceDown.length} face down cards and ${hand.length} hand cards to player ${player.name}`);
       }
       
       const { error: gameError } = await supabase
@@ -704,9 +708,20 @@ const useGameContext = () => {
         })
         .eq('id', state.gameId);
         
-      if (gameError) throw gameError;
+      if (gameError) {
+        console.error('Error updating game:', gameError);
+        throw gameError;
+      }
       
+      console.log('Updated game with setup_phase=true and deck');
+      
+      // Update each player's cards in separate requests
       for (const player of state.players) {
+        console.log(`Updating player ${player.name} with cards:`, {
+          hand: hands[player.id],
+          face_down_cards: faceDownCards[player.id]
+        });
+        
         const { error: playerError } = await supabase
           .from('players')
           .update({ 
@@ -718,7 +733,10 @@ const useGameContext = () => {
           .eq('id', player.id)
           .eq('game_id', state.gameId);
           
-        if (playerError) throw playerError;
+        if (playerError) {
+          console.error('Error updating player:', playerError);
+          throw playerError;
+        }
       }
       
       dispatch({ type: 'START_GAME' });

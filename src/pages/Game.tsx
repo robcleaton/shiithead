@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,15 @@ const Game = () => {
 
   useEffect(() => {
     console.log('Game component rendered. Game started:', state.gameStarted);
+    console.log('Setup phase:', state.setupPhase);
     console.log('Players in game:', state.players);
+    
+    const currentPlayer = state.players.find(p => p.id === state.playerId);
+    if (currentPlayer) {
+      console.log('Current player hand:', currentPlayer.hand);
+      console.log('Face down cards:', currentPlayer.faceDownCards);
+      console.log('Face up cards:', currentPlayer.faceUpCards);
+    }
   }, [state]);
 
   const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
@@ -93,6 +100,9 @@ const Game = () => {
   }
 
   if (state.setupPhase && player) {
+    console.log('Rendering setup phase UI with player:', player);
+    console.log('Player hand:', player.hand);
+    
     return (
       <div className="container mx-auto px-4 py-10 min-h-screen">
         <motion.div 
@@ -142,7 +152,7 @@ const Game = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {player.faceDownCards.map((_, index) => (
+            {player.faceDownCards && player.faceDownCards.map((_, index) => (
               <div 
                 key={index}
                 className="w-14 h-20 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
@@ -157,7 +167,7 @@ const Game = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            {player.faceUpCards.map((card, index) => (
+            {player.faceUpCards && player.faceUpCards.map((card, index) => (
               <div 
                 key={`${card.suit}-${card.rank}-${index}`}
                 className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center border border-gray-200"
@@ -168,7 +178,7 @@ const Game = () => {
                 </div>
               </div>
             ))}
-            {Array(3 - player.faceUpCards.length).fill(0).map((_, i) => (
+            {Array(3 - (player.faceUpCards ? player.faceUpCards.length : 0)).fill(0).map((_, i) => (
               <div 
                 key={`empty-${i}`}
                 className="w-14 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
@@ -180,11 +190,17 @@ const Game = () => {
 
           {/* Player Hand */}
           <div className="w-full max-w-3xl mt-8">
-            <PlayerHand
-              cards={player.hand}
-              isActive={true}
-              onPlayCard={(index) => selectFaceUpCard(index)}
-            />
+            {player.hand && player.hand.length > 0 ? (
+              <PlayerHand
+                cards={player.hand}
+                isActive={true}
+                onPlayCard={(index) => selectFaceUpCard(index)}
+              />
+            ) : (
+              <div className="text-center p-4 text-gray-500">
+                No cards in hand. Please try refreshing the page.
+              </div>
+            )}
           </div>
 
           {player.isReady && (
@@ -332,7 +348,7 @@ const Game = () => {
                   {player.faceDownCards.map((_, index) => (
                     <div 
                       key={`fd-${index}`}
-                      className="w-12 h-16 bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
+                      className="w-12 h-16 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
                     />
                   ))}
                 </div>
