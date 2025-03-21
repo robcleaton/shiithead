@@ -64,15 +64,6 @@ const PlayerHand = ({
     }
   };
   
-  // Calculate fan angle based on number of cards
-  const calculateFanAngle = (totalCards: number, index: number) => {
-    if (totalCards <= 1) return 0;
-    
-    const maxAngle = Math.min(30, 60 / totalCards); // Limit maximum angle
-    const centerIndex = (totalCards - 1) / 2;
-    return (index - centerIndex) * maxAngle;
-  };
-  
   return (
     <div className="relative">
       <div className={`p-4 rounded-xl ${isActive ? 'bg-karma-primary/10 border border-karma-primary/30' : 'bg-transparent'} transition-all duration-300`}>
@@ -89,18 +80,12 @@ const PlayerHand = ({
                 No cards available
               </div>
             ) : (
-              cardArray.map((card, index) => {
-                const angle = calculateFanAngle(cardArray.length, index);
-                const offsetX = Math.sin(angle * Math.PI / 180) * 30;
-                const offsetY = Math.abs(angle) * 0.5;
-                
-                return (
+              <div className="flex justify-center">
+                {cardArray.map((card, index) => (
                   <div 
                     key={`${card.suit}-${card.rank}-${index}`} 
-                    className="absolute"
+                    className="relative mx-1"
                     style={{ 
-                      transform: `translateX(${offsetX}px) translateY(${offsetY}px) rotate(${angle}deg)`,
-                      transformOrigin: 'bottom center',
                       zIndex: index,
                       transition: 'all 0.3s ease',
                     }}
@@ -115,8 +100,8 @@ const PlayerHand = ({
                       isSelected={selectedIndices.includes(index)}
                     />
                   </div>
-                );
-              })
+                ))}
+              </div>
             )}
           </div>
         </div>
