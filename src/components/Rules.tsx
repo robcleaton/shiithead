@@ -72,11 +72,11 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top.</li>
                 <li><strong>3:</strong> Can be placed on any card regardless of rank. No additional effects.</li>
                 <li><strong>7:</strong> Can be played on any card regardless of rank. After a 7 is played, the next player must play a card of rank 7 or lower.</li>
-                <li><strong>8:</strong> Can be played on any card regardless of rank. Skip the next player's turn.</li>
+                <li><strong>8:</strong> Can be played on any card regardless of rank. Skip the next player's turn (window card).</li>
                 <li><strong>10:</strong> Can be played on any card except a 7. It burns the entire discard pile, removing those cards from the game. The player then gets another turn to play any card.</li>
               </ul>
               <p className="mt-2">Aces are high cards (value higher than King) but have no special abilities.</p>
-              <p className="mt-2 italic text-sm text-karma-foreground/70">Note: The 7 and 10 special card rules are currently implemented. Other special cards may have limited functionality in this version of the game.</p>
+              <p className="mt-2 italic text-sm text-karma-foreground/70">Note: Special card rules are implemented in this version of the game.</p>
             </motion.section>
             
             <motion.section
