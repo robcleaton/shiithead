@@ -47,6 +47,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
 
   const handleClick = () => {
     if (isPlayable) {
+      // Use onSelect if provided, otherwise fall back to onPlay
       if (onSelect) {
         onSelect();
       } else if (onPlay) {
