@@ -19,7 +19,6 @@ const Lobby = () => {
   const { gameId: joinGameId } = useParams();
   const navigate = useNavigate();
 
-  // Handle direct game joining via URL
   useEffect(() => {
     if (joinGameId && !state.gameId) {
       setGameId(joinGameId);
@@ -27,7 +26,6 @@ const Lobby = () => {
     }
   }, [joinGameId, state.gameId]);
 
-  // Redirect to game page when joining from an invite and game state is updated
   useEffect(() => {
     if (state.gameId && joinGameId) {
       navigate('/game');
@@ -52,7 +50,6 @@ const Lobby = () => {
       return;
     }
     joinGame(gameId, playerName);
-    // Navigate to the game page after joining
     navigate('/game');
   };
 
@@ -203,6 +200,11 @@ const Lobby = () => {
                     <UserPlus className="w-4 h-4" />
                     Players ({state.players.length})
                   </h3>
+                  {state.players.length < 2 && (
+                    <div className="p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
+                      Invite at least one player to join the game
+                    </div>
+                  )}
                   <ul className="space-y-2">
                     {state.players.map((player, index) => (
                       <motion.li

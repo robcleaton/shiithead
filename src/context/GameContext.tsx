@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -98,6 +97,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
     }
     case 'START_GAME': {
+      // Check if we have enough players
+      if (state.players.length < 2) {
+        toast.error("You need at least 2 players to start the game");
+        return state;
+      }
+      
       const deck = createDeck();
       const firstPlayerId = state.players[0].id;
       return {
@@ -303,13 +308,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     toast.success(`Invitation sent to ${email}!`);
     console.log(`Invitation link: ${inviteLink} would be sent to ${email}`);
   };
-
-  // For demo purposes, let's add mock players
-  useEffect(() => {
-    if (state.gameId && state.players.length === 1) {
-      joinGame(state.gameId, 'AI Player');
-    }
-  }, [state.gameId]);
 
   return (
     <GameContext.Provider
