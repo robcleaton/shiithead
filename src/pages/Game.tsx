@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/context/GameContext';
@@ -7,6 +8,7 @@ import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
 import { HelpCircle, RefreshCw, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion'; // Import motion from framer-motion
 
 const Game = () => {
   const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
