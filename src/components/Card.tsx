@@ -61,10 +61,18 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
 
   return (
     <div
-      className={`playing-card ${isPlayable ? 'cursor-pointer hover:scale-105' : ''} ${isSelected ? 'ring-2 ring-karma-primary transform scale-105' : ''}`}
+      className={`playing-card relative ${isPlayable ? 'cursor-pointer hover:scale-105' : ''} 
+                  ${isSelected ? 'ring-4 ring-karma-primary shadow-lg scale-105 z-10' : ''} 
+                  transition-all duration-200`}
       onClick={handleClick}
-      style={isPlayable ? { boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' } : {}}
     >
+      {isSelected && (
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-karma-primary rounded-full flex items-center justify-center z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      )}
       <div className="card-frontface absolute inset-0 bg-white rounded-lg border border-gray-200">
         <div className={`absolute top-2 left-2 ${suitColor} font-bold text-xl`}>
           {rank}

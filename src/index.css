@@ -132,6 +132,20 @@
     transform: rotateY(180deg);
   }
 
+  /* Selected card animation */
+  @keyframes pulse-border {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(139, 92, 246, 0);
+    }
+  }
+
+  .card-selected {
+    animation: pulse-border 2s infinite;
+  }
+
   /* Intro animation classes */
   .animate-enter {
     animation: fadeSlideUp 0.8s ease-out forwards;
