@@ -51,7 +51,6 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 <li><strong>8:</strong> Skip the next player's turn.</li>
                 <li><strong>Queen:</strong> Reverse the direction of play.</li>
                 <li><strong>Jack:</strong> Choose a new suit to play.</li>
-                <li><strong>King:</strong> The next player must draw four cards and skip their turn.</li>
                 <li><strong>Ace:</strong> Any player can play on an Ace, regardless of the normal playing order. If no one plays within 5 seconds, normal play continues.</li>
               </ul>
               <p className="mt-2 italic text-sm text-karma-foreground/70">Note: Special card rules are not implemented in this version of the game.</p>
