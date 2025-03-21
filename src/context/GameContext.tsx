@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,10 @@ export interface Player {
   name: string;
   isHost: boolean;
   hand: CardValue[];
+  faceDownCards: CardValue[];
+  faceUpCards: CardValue[];
   isActive: boolean;
+  isReady: boolean;
   gameId?: string;
 }
 
@@ -29,6 +33,7 @@ export interface GameState {
   currentPlayerName: string;
   isHost: boolean;
   isLoading: boolean;
+  setupPhase: boolean;
 }
 
 type GameAction =
@@ -39,6 +44,8 @@ type GameAction =
   | { type: 'JOIN_GAME'; gameId: string; playerName: string }
   | { type: 'START_GAME' }
   | { type: 'DEAL_CARDS' }
+  | { type: 'SELECT_FACE_UP_CARD'; cardIndex: number }
+  | { type: 'COMPLETE_SETUP' }
   | { type: 'PLAY_CARD'; cardIndex: number }
   | { type: 'DRAW_CARD' }
   | { type: 'NEXT_TURN' }
@@ -79,7 +86,8 @@ const initialState: GameState = {
   playerId: generateId(),
   currentPlayerName: '',
   isHost: false,
-  isLoading: false
+  isLoading: false,
+  setupPhase: false
 };
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
@@ -106,7 +114,16 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         gameId: action.gameId,
-        players: [{ id: playerId, name: action.playerName, isHost: true, hand: [], isActive: true }],
+        players: [{ 
+          id: playerId, 
+          name: action.playerName, 
+          isHost: true, 
+          hand: [], 
+          faceDownCards: [],
+          faceUpCards: [],
+          isActive: true,
+          isReady: false
+        }],
         currentPlayerName: action.playerName,
         isHost: true
       };
@@ -137,7 +154,16 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return {
         ...state,
         gameId: action.gameId,
-        players: [...state.players, { id: playerId, name: action.playerName, isHost: false, hand: [], isActive: true }],
+        players: [...state.players, { 
+          id: playerId, 
+          name: action.playerName, 
+          isHost: false, 
+          hand: [], 
+          faceDownCards: [],
+          faceUpCards: [],
+          isActive: true,
+          isReady: false 
+        }],
         currentPlayerName: action.playerName
       };
     }
@@ -148,35 +174,101 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       }
       
       const deck = createDeck();
-      const firstPlayerId = state.players[0].id;
       return {
         ...state,
         deck,
-        gameStarted: true,
-        currentPlayerId: firstPlayerId
+        setupPhase: true
       };
     }
     case 'DEAL_CARDS': {
       const { deck, players } = state;
       const updatedDeck = [...deck];
       const updatedPlayers = players.map(player => {
+        // Deal 3 face down cards
+        const faceDownCards = [];
+        for (let i = 0; i < 3; i++) {
+          if (updatedDeck.length > 0) {
+            faceDownCards.push(updatedDeck.pop()!);
+          }
+        }
+        
+        // Deal 6 cards to hand
         const hand = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 6; i++) {
           if (updatedDeck.length > 0) {
             hand.push(updatedDeck.pop()!);
           }
         }
-        return { ...player, hand };
+        
+        return { 
+          ...player, 
+          hand, 
+          faceDownCards,
+          faceUpCards: [],
+          isReady: false
+        };
       });
-
-      const firstCard = updatedDeck.pop();
-      const pile = firstCard ? [firstCard] : [];
 
       return {
         ...state,
         deck: updatedDeck,
         players: updatedPlayers,
-        pile
+        setupPhase: true
+      };
+    }
+    case 'SELECT_FACE_UP_CARD': {
+      const { players, playerId } = state;
+      const playerIndex = players.findIndex(p => p.id === playerId);
+      
+      if (playerIndex === -1) return state;
+      
+      const player = players[playerIndex];
+      
+      // Check if player already has 3 face-up cards
+      if (player.faceUpCards.length >= 3) {
+        toast.error("You've already selected 3 cards to place face-up");
+        return state;
+      }
+      
+      const cardToMove = player.hand[action.cardIndex];
+      const updatedHand = [...player.hand];
+      updatedHand.splice(action.cardIndex, 1);
+      
+      const updatedFaceUpCards = [...player.faceUpCards, cardToMove];
+      
+      const updatedPlayers = [...players];
+      updatedPlayers[playerIndex] = { 
+        ...player, 
+        hand: updatedHand,
+        faceUpCards: updatedFaceUpCards,
+        isReady: updatedFaceUpCards.length === 3
+      };
+      
+      return {
+        ...state,
+        players: updatedPlayers
+      };
+    }
+    case 'COMPLETE_SETUP': {
+      // Check if all players are ready
+      const allReady = state.players.every(p => p.isReady);
+      
+      if (!allReady) {
+        toast.error("Not all players have selected their face-up cards");
+        return state;
+      }
+      
+      const firstPlayerId = state.players[0].id;
+      const firstCard = state.deck.length > 0 ? [state.deck[0]] : [];
+      const updatedDeck = state.deck.slice(1);
+      
+      return {
+        ...state,
+        gameStarted: true,
+        setupPhase: false,
+        currentPlayerId: firstPlayerId,
+        pile: firstCard,
+        deck: updatedDeck
       };
     }
     case 'PLAY_CARD': {
@@ -279,7 +371,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             name: action.playerName, 
             isHost: false, 
             hand: [], 
-            isActive: true 
+            faceDownCards: [],
+            faceUpCards: [],
+            isActive: true,
+            isReady: false
           }
         ]
       };
@@ -348,7 +443,8 @@ const useGameContext = () => {
                 gameOver: gameData.ended,
                 currentPlayerId: gameData.current_player_id,
                 deck: jsonToCardValues(gameData.deck),
-                pile: jsonToCardValues(gameData.pile)
+                pile: jsonToCardValues(gameData.pile),
+                setupPhase: gameData.setup_phase
               }
             });
           }
@@ -377,7 +473,10 @@ const useGameContext = () => {
             name: p.name,
             isHost: p.is_host,
             hand: jsonToCardValues(p.hand),
+            faceDownCards: jsonToCardValues(p.face_down_cards),
+            faceUpCards: jsonToCardValues(p.face_up_cards),
             isActive: p.is_active,
+            isReady: p.is_ready,
             gameId: p.game_id
           }));
           
@@ -411,7 +510,8 @@ const useGameContext = () => {
               gameOver: gameData.ended,
               currentPlayerId: gameData.current_player_id,
               deck: jsonToCardValues(gameData.deck),
-              pile: jsonToCardValues(gameData.pile)
+              pile: jsonToCardValues(gameData.pile),
+              setupPhase: gameData.setup_phase
             }
           });
         }
@@ -422,7 +522,10 @@ const useGameContext = () => {
             name: p.name,
             isHost: p.is_host,
             hand: jsonToCardValues(p.hand),
+            faceDownCards: jsonToCardValues(p.face_down_cards),
+            faceUpCards: jsonToCardValues(p.face_up_cards),
             isActive: p.is_active,
+            isReady: p.is_ready,
             gameId: p.game_id
           }));
           
@@ -467,7 +570,8 @@ const useGameContext = () => {
         .insert([{ 
           id: gameId,
           started: false,
-          ended: false
+          ended: false,
+          setup_phase: false
         }]);
         
       if (gameError) throw gameError;
@@ -480,7 +584,10 @@ const useGameContext = () => {
           game_id: gameId,
           is_host: true,
           hand: [],
-          is_active: true
+          face_down_cards: [],
+          face_up_cards: [],
+          is_active: true,
+          is_ready: false
         }]);
         
       if (playerError) throw playerError;
@@ -536,7 +643,10 @@ const useGameContext = () => {
             game_id: gameId,
             is_host: false,
             hand: [],
-            is_active: true
+            face_down_cards: [],
+            face_up_cards: [],
+            is_active: true,
+            is_ready: false
           }]);
           
         if (playerError) throw playerError;
@@ -563,11 +673,22 @@ const useGameContext = () => {
       dispatch({ type: 'SET_LOADING', isLoading: true });
       const deck = createDeck();
       const hands: Record<string, CardValue[]> = {};
+      const faceDownCards: Record<string, CardValue[]> = {};
       const updatedDeck = [...deck];
       
       for (const player of state.players) {
+        // Deal 3 face down cards
+        const faceDown = [];
+        for (let i = 0; i < 3; i++) {
+          if (updatedDeck.length > 0) {
+            faceDown.push(updatedDeck.pop()!);
+          }
+        }
+        faceDownCards[player.id] = faceDown;
+        
+        // Deal 6 cards to hand
         const hand = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 6; i++) {
           if (updatedDeck.length > 0) {
             hand.push(updatedDeck.pop()!);
           }
@@ -575,16 +696,11 @@ const useGameContext = () => {
         hands[player.id] = hand;
       }
       
-      const pile = updatedDeck.length > 0 ? [updatedDeck.pop()!] : [];
-      const firstPlayerId = state.players[0].id;
-      
       const { error: gameError } = await supabase
         .from('games')
         .update({ 
-          started: true,
-          current_player_id: firstPlayerId,
-          deck: updatedDeck,
-          pile
+          setup_phase: true,
+          deck: updatedDeck
         })
         .eq('id', state.gameId);
         
@@ -593,7 +709,12 @@ const useGameContext = () => {
       for (const player of state.players) {
         const { error: playerError } = await supabase
           .from('players')
-          .update({ hand: hands[player.id] })
+          .update({ 
+            hand: hands[player.id],
+            face_down_cards: faceDownCards[player.id],
+            face_up_cards: [],
+            is_ready: false
+          })
           .eq('id', player.id)
           .eq('game_id', state.gameId);
           
@@ -601,10 +722,94 @@ const useGameContext = () => {
       }
       
       dispatch({ type: 'START_GAME' });
+      dispatch({ type: 'DEAL_CARDS' });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success('Setup phase started! Select 3 cards to place face-up');
+    } catch (error) {
+      console.error('Error starting game:', error);
+      toast.error('Failed to start game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
+  const selectFaceUpCard = async (cardIndex: number) => {
+    try {
+      const player = state.players.find(p => p.id === state.playerId);
+      if (!player) return;
+      
+      if (player.faceUpCards.length >= 3) {
+        toast.error("You've already selected 3 cards to place face-up");
+        return;
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const cardToMove = player.hand[cardIndex];
+      const updatedHand = [...player.hand];
+      updatedHand.splice(cardIndex, 1);
+      
+      const updatedFaceUpCards = [...player.faceUpCards, cardToMove];
+      const isReady = updatedFaceUpCards.length === 3;
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ 
+          hand: updatedHand,
+          face_up_cards: updatedFaceUpCards,
+          is_ready: isReady
+        })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
+      
+      dispatch({ type: 'SELECT_FACE_UP_CARD', cardIndex });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      
+      if (isReady) {
+        toast.success("You've selected all 3 face-up cards!");
+      }
+    } catch (error) {
+      console.error('Error selecting face-up card:', error);
+      toast.error('Failed to select face-up card');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
+  const completeSetup = async () => {
+    // Check if all players are ready
+    const allReady = state.players.every(p => p.isReady);
+    
+    if (!allReady) {
+      toast.error("Not all players have selected their face-up cards");
+      return;
+    }
+    
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const firstPlayerId = state.players[0].id;
+      const updatedDeck = [...state.deck];
+      const firstCard = updatedDeck.length > 0 ? [updatedDeck.shift()!] : [];
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          started: true,
+          setup_phase: false,
+          current_player_id: firstPlayerId,
+          deck: updatedDeck,
+          pile: firstCard
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      dispatch({ type: 'COMPLETE_SETUP' });
       dispatch({ type: 'SET_LOADING', isLoading: false });
       toast.success('Game started!');
     } catch (error) {
-      console.error('Error starting game:', error);
+      console.error('Error completing setup:', error);
       toast.error('Failed to start game');
       dispatch({ type: 'SET_LOADING', isLoading: false });
     }
@@ -647,7 +852,7 @@ const useGameContext = () => {
       const nextIndex = (playerIndex + 1) % state.players.length;
       const nextPlayerId = state.players[nextIndex].id;
       
-      const gameOver = updatedHand.length === 0;
+      const gameOver = updatedHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
       
       const { error: gameError } = await supabase
         .from('games')
@@ -662,8 +867,8 @@ const useGameContext = () => {
       
       if (gameOver) {
         toast.success(`${player.name} has won the game!`);
-      } else if (updatedHand.length === 1) {
-        toast.success(`${player.name} has only one card left!`);
+      } else if (updatedHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 1) {
+        toast.info(`${player.name} is down to their last card!`);
       }
       
       dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -783,7 +988,10 @@ const useGameContext = () => {
           game_id: state.gameId,
           is_host: false,
           hand: [],
-          is_active: true
+          face_down_cards: [],
+          face_up_cards: [],
+          is_active: true,
+          is_ready: false
         }]);
         
       if (playerError) throw playerError;
@@ -808,6 +1016,8 @@ const useGameContext = () => {
     createGame,
     joinGame,
     startGame,
+    selectFaceUpCard,
+    completeSetup,
     playCard,
     drawCard,
     resetGame,

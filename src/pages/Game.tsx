@@ -7,11 +7,11 @@ import PlayerHand from '@/components/PlayerHand';
 import GameTable from '@/components/GameTable';
 import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
-import { HelpCircle, RefreshCw } from 'lucide-react';
+import { HelpCircle, RefreshCw, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Game = () => {
-  const { state, playCard, drawCard, resetGame } = useGame();
+  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const Game = () => {
   }
 
   if (state.gameOver) {
-    const winner = state.players.find(p => p.hand.length === 0);
+    const winner = state.players.find(p => p.hand.length === 0 && p.faceUpCards.length === 0 && p.faceDownCards.length === 0);
     
     return (
       <motion.div 
@@ -92,6 +92,128 @@ const Game = () => {
     );
   }
 
+  if (state.setupPhase && player) {
+    return (
+      <div className="container mx-auto px-4 py-10 min-h-screen">
+        <motion.div 
+          className="flex justify-between items-center mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h1 className="text-2xl font-bold">Shithead - Setup Phase</h1>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRulesOpen(true)}
+              className="flex items-center gap-1"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Rules
+            </Button>
+          </div>
+        </motion.div>
+
+        <div className="flex flex-col gap-8 items-center">
+          <motion.div
+            className="text-center mb-4"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <h2 className="text-xl font-semibold mb-2">Setup Your Cards</h2>
+            <p className="text-karma-foreground/80">
+              Select 3 cards from your hand to place face-up on your 3 face-down cards
+            </p>
+            <div className="mt-4 flex justify-center gap-1 flex-wrap">
+              {state.players.map(p => (
+                <div key={p.id} className={`px-3 py-1 rounded-full text-xs font-medium ${p.isReady ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                  {p.name} {p.isReady ? '✓' : '...'}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Face Down Cards */}
+          <motion.div 
+            className="flex justify-center gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {player.faceDownCards.map((_, index) => (
+              <div 
+                key={index}
+                className="w-14 h-20 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
+              />
+            ))}
+          </motion.div>
+
+          {/* Face Up Cards */}
+          <motion.div 
+            className="flex justify-center gap-4 mt-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            {player.faceUpCards.map((card, index) => (
+              <div 
+                key={`${card.suit}-${card.rank}-${index}`}
+                className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center border border-gray-200"
+              >
+                <div className={`text-2xl ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                  {card.rank}
+                  {card.suit === 'hearts' ? '♥' : card.suit === 'diamonds' ? '♦' : card.suit === 'clubs' ? '♣' : '♠'}
+                </div>
+              </div>
+            ))}
+            {Array(3 - player.faceUpCards.length).fill(0).map((_, i) => (
+              <div 
+                key={`empty-${i}`}
+                className="w-14 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
+              >
+                <span className="text-gray-400 text-xs">Select</span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Player Hand */}
+          <div className="w-full max-w-3xl mt-8">
+            <PlayerHand
+              cards={player.hand}
+              isActive={true}
+              onPlayCard={(index) => selectFaceUpCard(index)}
+            />
+          </div>
+
+          {player.isReady && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="mt-4"
+            >
+              <p className="text-center text-green-600 mb-2">You've selected all your face-up cards</p>
+              {state.isHost && (
+                <Button 
+                  onClick={completeSetup}
+                  className="bg-karma-primary hover:bg-karma-primary/90"
+                  disabled={!state.players.every(p => p.isReady)}
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Start Game
+                </Button>
+              )}
+            </motion.div>
+          )}
+        </div>
+
+        <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
       <motion.div 
@@ -100,7 +222,7 @@ const Game = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-2xl font-bold">Karma Card Game</h1>
+        <h1 className="text-2xl font-bold">Shithead Card Game</h1>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -151,14 +273,39 @@ const Game = () => {
                     {opponent.hand.length} cards
                   </span>
                 </div>
+                
+                {/* Face down and face up cards */}
+                <div className="flex justify-center mb-2">
+                  {opponent.faceDownCards.map((_, index) => (
+                    <div 
+                      key={`fd-${index}`}
+                      className="w-10 h-14 -ml-4 first:ml-0 bg-karma-card-back bg-card-texture rounded-md shadow-sm border border-gray-800/20"
+                    />
+                  ))}
+                </div>
+                
+                <div className="flex justify-center mb-4">
+                  {opponent.faceUpCards.map((card, index) => (
+                    <div 
+                      key={`fu-${index}`}
+                      className="w-10 h-14 -ml-4 first:ml-0 bg-white rounded-md shadow-sm border border-gray-200 flex items-center justify-center"
+                    >
+                      <div className={`text-sm ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                        {card.rank}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Hand cards */}
                 <div className="flex justify-center">
                   {opponent.hand.map((_, index) => (
                     <div 
                       key={index}
-                      className="w-12 h-16 -ml-6 first:ml-0"
-                      style={{ transform: `rotate(${(index - opponent.hand.length / 2) * 5}deg)` }}
+                      className="w-10 h-14 -ml-4 first:ml-0"
+                      style={{ transform: `rotate(${(index - opponent.hand.length / 2) * 3}deg)` }}
                     >
-                      <div className="w-full h-full bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"></div>
+                      <div className="w-full h-full bg-karma-card-back bg-card-texture rounded-md shadow-sm border border-gray-800/20"></div>
                     </div>
                   ))}
                 </div>
@@ -174,16 +321,48 @@ const Game = () => {
           currentPlayer={currentPlayer?.name || 'Unknown'}
         />
 
-        {/* Player Hand */}
-        <div className="w-full max-w-3xl">
-          {player && (
+        {/* Player Cards */}
+        {player && (
+          <div className="w-full max-w-3xl">
+            {/* Player's face down and face up cards */}
+            <div className="flex justify-center gap-1 mb-6">
+              <div className="flex flex-col items-center">
+                <div className="text-xs text-gray-500 mb-1">Face Down</div>
+                <div className="flex gap-2">
+                  {player.faceDownCards.map((_, index) => (
+                    <div 
+                      key={`fd-${index}`}
+                      className="w-12 h-16 bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex flex-col items-center ml-6">
+                <div className="text-xs text-gray-500 mb-1">Face Up</div>
+                <div className="flex gap-2">
+                  {player.faceUpCards.map((card, index) => (
+                    <div 
+                      key={`fu-${index}`}
+                      className="w-12 h-16 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
+                    >
+                      <div className={`text-lg ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                        {card.rank}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Player Hand */}
             <PlayerHand
               cards={player.hand}
               isActive={state.currentPlayerId === state.playerId}
               onPlayCard={(index) => playCard(index)}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
