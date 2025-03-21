@@ -2,29 +2,29 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGame } from '@/context/GameContext';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, UserPlus, PlusCircle, UserRoundCheck, Users } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Users } from 'lucide-react';
+
+// Import refactored components
+import CreateGameForm from './lobby/CreateGameForm';
+import JoinGameForm from './lobby/JoinGameForm';
+import PlayerList from './lobby/PlayerList';
+import TestPlayerForm from './lobby/TestPlayerForm';
+import LobbyHeader from './lobby/LobbyHeader';
 
 const Lobby = () => {
   const { createGame, joinGame, startGame, state, addTestPlayer } = useGame();
-  const [playerName, setPlayerName] = useState('');
-  const [gameId, setGameId] = useState('');
   const [activeTab, setActiveTab] = useState('create');
-  const [testPlayerName, setTestPlayerName] = useState('');
   const { gameId: joinGameId } = useParams();
   const navigate = useNavigate();
   const isDevelopment = import.meta.env.DEV;
 
   useEffect(() => {
     if (joinGameId && !state.gameId) {
-      setGameId(joinGameId);
       setActiveTab('join');
     }
   }, [joinGameId, state.gameId]);
@@ -36,39 +36,9 @@ const Lobby = () => {
   }, [state.gameId, navigate]);
 
   useEffect(() => {
-    if (joinGameId && playerName.trim() && !state.gameId) {
-      const autoJoinHandler = setTimeout(() => {
-        handleJoinGame();
-      }, 500);
-      
-      return () => clearTimeout(autoJoinHandler);
-    }
-  }, [joinGameId, playerName, state.gameId]);
-
-  useEffect(() => {
     console.log('Current game state:', state);
     console.log('Players in lobby:', state.players);
   }, [state]);
-
-  const handleCreateGame = () => {
-    if (!playerName.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-    createGame(playerName);
-  };
-
-  const handleJoinGame = () => {
-    if (!playerName.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-    if (!gameId.trim()) {
-      toast.error('Please enter a game ID');
-      return;
-    }
-    joinGame(gameId, playerName);
-  };
 
   const handleStartGame = () => {
     if (state.players.length < 2) {
@@ -76,21 +46,6 @@ const Lobby = () => {
       return;
     }
     startGame();
-  };
-
-  const handleCopyInviteLink = () => {
-    const inviteLink = `${window.location.origin}/join/${state.gameId}`;
-    navigator.clipboard.writeText(inviteLink);
-    toast.success('Invite link copied to clipboard!');
-  };
-
-  const handleAddTestPlayer = () => {
-    if (!testPlayerName.trim()) {
-      toast.error('Please enter a name for the test player');
-      return;
-    }
-    addTestPlayer(testPlayerName);
-    setTestPlayerName('');
   };
 
   const container = {
@@ -128,49 +83,11 @@ const Lobby = () => {
                   <TabsTrigger value="create">Create Game</TabsTrigger>
                   <TabsTrigger value="join">Join Game</TabsTrigger>
                 </TabsList>
-                <TabsContent value="create" className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Your Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="Enter your name"
-                      value={playerName}
-                      onChange={(e) => setPlayerName(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-                  <Button onClick={handleCreateGame} className="w-full bg-karma-primary hover:bg-karma-primary/90">
-                    Create New Game
-                  </Button>
+                <TabsContent value="create">
+                  <CreateGameForm createGame={createGame} />
                 </TabsContent>
-                <TabsContent value="join" className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="join-name">Your Name</Label>
-                    <Input
-                      id="join-name"
-                      placeholder="Enter your name"
-                      value={playerName}
-                      onChange={(e) => setPlayerName(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="game-id">Game ID</Label>
-                    <Input
-                      id="game-id"
-                      placeholder="Enter game ID"
-                      value={gameId}
-                      onChange={(e) => setGameId(e.target.value)}
-                    />
-                  </div>
-                  <Button onClick={handleJoinGame} className="w-full bg-karma-primary hover:bg-karma-primary/90">
-                    Join Game
-                  </Button>
-                  {joinGameId && (
-                    <p className="text-sm text-center mt-2 text-karma-foreground/70">
-                      Enter your name to join game {joinGameId}
-                    </p>
-                  )}
+                <TabsContent value="join">
+                  <JoinGameForm joinGame={joinGame} initialGameId={joinGameId} />
                 </TabsContent>
               </Tabs>
             ) : (
@@ -181,40 +98,10 @@ const Lobby = () => {
                 className="space-y-6"
               >
                 <div className="space-y-4">
-                  <div className="bg-karma-secondary/50 p-4 rounded-lg">
-                    <p className="text-sm text-karma-foreground/70 mb-2">Game ID (Share with friends)</p>
-                    <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
-                      <span className="truncate">{state.gameId}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={handleCopyInviteLink}
-                        className="ml-2"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  <LobbyHeader gameId={state.gameId} />
                   
                   {isDevelopment && state.isHost && (
-                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                      <p className="text-sm font-medium mb-2 text-yellow-800">Add Test Players (Dev Mode)</p>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          placeholder="Test Player Name"
-                          value={testPlayerName}
-                          onChange={(e) => setTestPlayerName(e.target.value)}
-                        />
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          onClick={handleAddTestPlayer}
-                          className="flex-shrink-0 bg-yellow-100"
-                        >
-                          <PlusCircle className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
+                    <TestPlayerForm addTestPlayer={addTestPlayer} />
                   )}
                 </div>
                 
@@ -228,36 +115,8 @@ const Lobby = () => {
                       Invite at least one player to join the game
                     </div>
                   )}
-                  <ul className="space-y-2">
-                    {state.players.length === 0 ? (
-                      <li className="flex items-center justify-center p-4 text-gray-500 italic">
-                        No players have joined yet
-                      </li>
-                    ) : (
-                      state.players.map((player, index) => (
-                        <motion.li
-                          key={player.id}
-                          className="flex items-center gap-3 bg-white/40 p-3 rounded-lg shadow-sm border border-gray-100"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <Avatar className="h-8 w-8 bg-karma-primary text-white">
-                            <AvatarFallback>{player.name.charAt(0).toUpperCase()}</AvatarFallback>
-                          </Avatar>
-                          <span className="font-medium">{player.name}</span>
-                          {player.id === state.playerId && (
-                            <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <UserRoundCheck className="w-3 h-3" /> You
-                            </span>
-                          )}
-                          {player.isHost && (
-                            <span className="ml-auto text-xs bg-karma-secondary px-2 py-0.5 rounded-full">Host</span>
-                          )}
-                        </motion.li>
-                      ))
-                    )}
-                  </ul>
+                  
+                  <PlayerList players={state.players} currentPlayerId={state.playerId} />
                 </div>
                 
                 {state.isHost && (
