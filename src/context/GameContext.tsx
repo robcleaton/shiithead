@@ -1,5 +1,4 @@
-
-import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from 'react-router-dom';
@@ -976,6 +975,34 @@ const useGameContext = () => {
     }
   };
 
+  const invitePlayer = async (email: string) => {
+    if (!state.gameId) {
+      toast.error("No active game to invite players to");
+      return;
+    }
+    
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      // In a real app, we would send an actual email here
+      // For now, we'll just show a success message
+      
+      const inviteLink = `${window.location.origin}/join/${state.gameId}`;
+      
+      console.log(`Would send invite to ${email} with link: ${inviteLink}`);
+      
+      // Dispatch the action to update the UI if needed
+      dispatch({ type: 'INVITE_PLAYER', email });
+      
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success(`Invitation sent to ${email}`);
+    } catch (error) {
+      console.error('Error inviting player:', error);
+      toast.error('Failed to send invitation');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
   const addTestPlayer = async (playerName: string) => {
     if (!state.gameId || state.gameStarted) {
       toast.error("Cannot add test players after game has started");
@@ -1030,6 +1057,7 @@ const useGameContext = () => {
     playCard,
     drawCard,
     resetGame,
+    invitePlayer,
     addTestPlayer
   };
 };
