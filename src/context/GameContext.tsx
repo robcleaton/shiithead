@@ -58,7 +58,7 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 
 const createDeck = (): CardValue[] => {
   const suits: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
-  const ranks: Rank[] = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const ranks: Rank[] = ['A', '2', '3', '4', '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K'];
   const deck: CardValue[] = [];
 
   for (const suit of suits) {
@@ -697,14 +697,20 @@ const useGameContext = () => {
         }
       }
       
-      const updatedPlayer = {
-        ...player,
-        hand: updatedHand,
-        faceUpCards: [...player.faceUpCards, ...selectedCards]
-      };
+      const updatedFaceUpCards = [...player.faceUpCards, ...selectedCards];
+      const isReady = updatedFaceUpCards.length === 3;
       
-      const updatedPlayers = [...state.players];
-      updatedPlayers[playerIndex] = updatedPlayer;
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ 
+          hand: updatedHand,
+          face_up_cards: updatedFaceUpCards,
+          is_ready: isReady
+        })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
       
       dispatch({ type: 'SELECT_MULTIPLE_FACE_UP_CARDS', cardIndices: cardIndices });
       dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -965,76 +971,4 @@ const useGameContext = () => {
           is_host: false,
           hand: [],
           face_down_cards: [],
-          face_up_cards: [],
-          is_active: true,
-          is_ready: false
-        }]);
-        
-      if (playerError) throw playerError;
-      
-      dispatch({ type: 'ADD_TEST_PLAYER', playerName });
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      toast.success(`Added test player: ${playerName}`);
-    } catch (error) {
-      console.error('Error adding test player:', error);
-      toast.error('Failed to add test player');
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
-  const invitePlayer = async (email: string) => {
-    if (!state.gameId) {
-      toast.error("No active game to invite players to");
-      return;
-    }
-    
-    try {
-      dispatch({ type: 'SET_LOADING', isLoading: true });
-      
-      const inviteLink = `${window.location.origin}/join/${state.gameId}`;
-      
-      console.log(`Sending invite to ${email} with link: ${inviteLink}`);
-      
-      dispatch({ type: 'INVITE_PLAYER', email });
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      toast.success(`Invitation sent to ${email}`);
-    } catch (error) {
-      console.error('Error inviting player:', error);
-      toast.error('Failed to send invitation');
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
-  return {
-    state,
-    createGame,
-    joinGame,
-    startGame,
-    selectFaceUpCard,
-    selectMultipleFaceUpCards,
-    completeSetup,
-    playCard,
-    drawCard,
-    resetGame,
-    addTestPlayer,
-    invitePlayer
-  };
-};
-
-export const useGame = () => {
-  const context = useContext(GameContext);
-  if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider');
-  }
-  return context;
-};
-
-export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const gameContext = useGameContext();
-  
-  return (
-    <GameContext.Provider value={gameContext}>
-      {children}
-    </GameContext.Provider>
-  );
-};
+          face_up
