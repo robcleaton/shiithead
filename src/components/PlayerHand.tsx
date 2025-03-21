@@ -27,7 +27,7 @@ const PlayerHand = ({ cards, isActive, onPlayCard }: PlayerHandProps) => {
           </span>
         </div>
         <div className="flex items-center justify-center">
-          <div className="flex items-center" style={{ marginLeft: `${cards.length > 0 ? `-${Math.min(cards.length * 8, 40)}px` : '0'}` }}>
+          <div className="flex items-center" style={{ marginLeft: `${cards && cards.length > 0 ? `-${Math.min(cards.length * 8, 40)}px` : '0'}` }}>
             {!cards || cards.length === 0 ? (
               <div className="text-center p-4 text-gray-500">
                 No cards available
