@@ -194,7 +194,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         const hand = [];
         for (let i = 0; i < 6; i++) {
           if (updatedDeck.length > 0) {
-            hand.push(updatedDeck.pop()!);
+            hand.push updatedDeck.pop()!);
           }
         }
         
@@ -784,7 +784,7 @@ const useGameContext = () => {
       dispatch({ type: 'SET_LOADING', isLoading: false });
       
       if (isReady) {
-        toast.success("You've selected all 3 face-up cards!");
+        toast.success("You've selected all your face-up cards!");
       }
     } catch (error) {
       console.error('Error selecting face-up card:', error);
@@ -965,3 +965,4 @@ const useGameContext = () => {
       toast.error('Failed to draw card');
       dispatch({ type: 'SET_LOADING', isLoading: false });
     }
+  };
