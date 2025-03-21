@@ -1,6 +1,7 @@
-
-import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from 'react-router-dom';
 
 export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
 export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
@@ -12,6 +13,7 @@ export interface Player {
   isHost: boolean;
   hand: CardValue[];
   isActive: boolean;
+  gameId?: string;
 }
 
 export interface GameState {
@@ -25,9 +27,13 @@ export interface GameState {
   playerId: string;
   currentPlayerName: string;
   isHost: boolean;
+  isLoading: boolean;
 }
 
 type GameAction =
+  | { type: 'SET_LOADING'; isLoading: boolean }
+  | { type: 'SET_GAME_STATE'; gameState: Partial<GameState> }
+  | { type: 'SET_PLAYERS'; players: Player[] }
   | { type: 'CREATE_GAME'; gameId: string; playerName: string }
   | { type: 'JOIN_GAME'; gameId: string; playerName: string }
   | { type: 'START_GAME' }
@@ -71,11 +77,27 @@ const initialState: GameState = {
   gameId: null,
   playerId: generateId(),
   currentPlayerName: '',
-  isHost: false
+  isHost: false,
+  isLoading: false
 };
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
+    case 'SET_LOADING':
+      return {
+        ...state,
+        isLoading: action.isLoading
+      };
+    case 'SET_GAME_STATE':
+      return {
+        ...state,
+        ...action.gameState
+      };
+    case 'SET_PLAYERS':
+      return {
+        ...state,
+        players: action.players
+      };
     case 'CREATE_GAME': {
       const playerId = state.playerId;
       console.log('Creating game with player ID:', playerId, 'and name:', action.playerName);
@@ -270,49 +292,365 @@ const GameContext = createContext<ReturnType<typeof useGameContext> | undefined>
 
 const useGameContext = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
-    console.log('GameContext state updated:', state);
-  }, [state]);
+    if (!state.gameId) return;
+    
+    dispatch({ type: 'SET_LOADING', isLoading: true });
+    
+    const gameChannel = supabase
+      .channel('game_updates')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'games',
+        filter: `id=eq.${state.gameId}`
+      }, async (payload) => {
+        console.log('Game update:', payload);
+        
+        if (payload.eventType === 'UPDATE') {
+          const { data: gameData } = await supabase
+            .from('games')
+            .select('*')
+            .eq('id', state.gameId)
+            .single();
+            
+          if (gameData) {
+            dispatch({ 
+              type: 'SET_GAME_STATE', 
+              gameState: {
+                gameStarted: gameData.started,
+                gameOver: gameData.ended,
+                currentPlayerId: gameData.current_player_id,
+                deck: gameData.deck,
+                pile: gameData.pile
+              }
+            });
+          }
+        }
+      })
+      .subscribe();
+      
+    const playersChannel = supabase
+      .channel('player_updates')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'players',
+        filter: `game_id=eq.${state.gameId}`
+      }, async (payload) => {
+        console.log('Players update:', payload);
+        
+        const { data: playersData } = await supabase
+          .from('players')
+          .select('*')
+          .eq('game_id', state.gameId);
+          
+        if (playersData) {
+          const mappedPlayers = playersData.map(p => ({
+            id: p.id,
+            name: p.name,
+            isHost: p.is_host,
+            hand: p.hand,
+            isActive: p.is_active,
+            gameId: p.game_id
+          }));
+          
+          dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+        }
+      })
+      .subscribe();
+    
+    const fetchGameData = async () => {
+      try {
+        const { data: gameData, error: gameError } = await supabase
+          .from('games')
+          .select('*')
+          .eq('id', state.gameId)
+          .single();
+          
+        if (gameError) throw gameError;
+        
+        const { data: playersData, error: playersError } = await supabase
+          .from('players')
+          .select('*')
+          .eq('game_id', state.gameId);
+          
+        if (playersError) throw playersError;
+        
+        if (gameData) {
+          dispatch({ 
+            type: 'SET_GAME_STATE', 
+            gameState: {
+              gameStarted: gameData.started,
+              gameOver: gameData.ended,
+              currentPlayerId: gameData.current_player_id,
+              deck: gameData.deck,
+              pile: gameData.pile
+            }
+          });
+        }
+        
+        if (playersData) {
+          const mappedPlayers = playersData.map(p => ({
+            id: p.id,
+            name: p.name,
+            isHost: p.is_host,
+            hand: p.hand,
+            isActive: p.is_active,
+            gameId: p.game_id
+          }));
+          
+          const currentPlayer = playersData.find(p => p.id === state.playerId);
+          if (currentPlayer) {
+            dispatch({ 
+              type: 'SET_GAME_STATE', 
+              gameState: {
+                isHost: currentPlayer.is_host,
+                currentPlayerName: currentPlayer.name
+              }
+            });
+          }
+          
+          dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+        }
+        
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+      } catch (error) {
+        console.error('Error fetching game data:', error);
+        toast.error('Error loading game data');
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+      }
+    };
+    
+    fetchGameData();
+    
+    return () => {
+      supabase.removeChannel(gameChannel);
+      supabase.removeChannel(playersChannel);
+    };
+  }, [state.gameId]);
 
-  const createGame = (playerName: string) => {
-    const gameId = generateId();
-    dispatch({ type: 'CREATE_GAME', gameId, playerName });
-    toast.success(`Game created! Share the game ID: ${gameId}`);
+  const createGame = async (playerName: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      const gameId = generateId();
+      const playerId = state.playerId;
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .insert([{ 
+          id: gameId,
+          started: false,
+          ended: false
+        }]);
+        
+      if (gameError) throw gameError;
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .insert([{
+          id: playerId,
+          name: playerName,
+          game_id: gameId,
+          is_host: true,
+          hand: [],
+          is_active: true
+        }]);
+        
+      if (playerError) throw playerError;
+      
+      dispatch({ type: 'CREATE_GAME', gameId, playerName });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success(`Game created! Share the game ID: ${gameId}`);
+      navigate('/game');
+    } catch (error) {
+      console.error('Error creating game:', error);
+      toast.error('Failed to create game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
   };
 
-  const joinGame = (gameId: string, playerName: string) => {
-    dispatch({ type: 'JOIN_GAME', gameId, playerName });
-    toast.success(`Joined game as ${playerName}`);
+  const joinGame = async (gameId: string, playerName: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const { data: gameData, error: gameError } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', gameId)
+        .single();
+        
+      if (gameError) {
+        toast.error('Game not found');
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        return;
+      }
+      
+      const { data: existingPlayer } = await supabase
+        .from('players')
+        .select('*')
+        .eq('id', state.playerId)
+        .eq('game_id', gameId)
+        .maybeSingle();
+      
+      if (existingPlayer) {
+        const { error: updateError } = await supabase
+          .from('players')
+          .update({ name: playerName })
+          .eq('id', state.playerId)
+          .eq('game_id', gameId);
+          
+        if (updateError) throw updateError;
+      } else {
+        const { error: playerError } = await supabase
+          .from('players')
+          .insert([{
+            id: state.playerId,
+            name: playerName,
+            game_id: gameId,
+            is_host: false,
+            hand: [],
+            is_active: true
+          }]);
+          
+        if (playerError) throw playerError;
+      }
+      
+      dispatch({ type: 'JOIN_GAME', gameId, playerName });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success(`Joined game as ${playerName}`);
+      navigate('/game');
+    } catch (error) {
+      console.error('Error joining game:', error);
+      toast.error('Failed to join game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
   };
 
-  const startGame = () => {
-    dispatch({ type: 'START_GAME' });
-    dispatch({ type: 'DEAL_CARDS' });
-    toast.success('Game started!');
+  const startGame = async () => {
+    if (state.players.length < 2) {
+      toast.error('You need at least 2 players to start the game');
+      return;
+    }
+    
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      const deck = createDeck();
+      const hands: Record<string, CardValue[]> = {};
+      const updatedDeck = [...deck];
+      
+      for (const player of state.players) {
+        const hand = [];
+        for (let i = 0; i < 7; i++) {
+          if (updatedDeck.length > 0) {
+            hand.push(updatedDeck.pop()!);
+          }
+        }
+        hands[player.id] = hand;
+      }
+      
+      const pile = updatedDeck.length > 0 ? [updatedDeck.pop()!] : [];
+      const firstPlayerId = state.players[0].id;
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          started: true,
+          current_player_id: firstPlayerId,
+          deck: updatedDeck,
+          pile
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      for (const player of state.players) {
+        const { error: playerError } = await supabase
+          .from('players')
+          .update({ hand: hands[player.id] })
+          .eq('id', player.id)
+          .eq('game_id', state.gameId);
+          
+        if (playerError) throw playerError;
+      }
+      
+      dispatch({ type: 'START_GAME' });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success('Game started!');
+    } catch (error) {
+      console.error('Error starting game:', error);
+      toast.error('Failed to start game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
   };
 
-  const playCard = (cardIndex: number) => {
+  const playCard = async (cardIndex: number) => {
     if (state.currentPlayerId !== state.playerId) {
       toast.error("It's not your turn!");
       return;
     }
     
-    dispatch({ type: 'PLAY_CARD', cardIndex });
-    
-    const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
-    if (currentPlayer && currentPlayer.hand.length === 1) {
-      toast.success(`${currentPlayer.name} has only one card left!`);
-    } else if (currentPlayer && currentPlayer.hand.length === 0) {
-      dispatch({ type: 'END_GAME', winnerId: currentPlayer.id });
-      toast.success(`${currentPlayer.name} has won the game!`);
-      return;
+    try {
+      const player = state.players.find(p => p.id === state.playerId);
+      if (!player) return;
+      
+      const cardToPlay = player.hand[cardIndex];
+      const topCard = state.pile[state.pile.length - 1];
+      
+      if (topCard && cardToPlay.rank !== topCard.rank && cardToPlay.suit !== topCard.suit) {
+        toast.error("Invalid move! Card must match suit or rank of the top card.");
+        return;
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const updatedHand = [...player.hand];
+      updatedHand.splice(cardIndex, 1);
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ hand: updatedHand })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
+      
+      const updatedPile = [...state.pile, cardToPlay];
+      
+      const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+      const nextIndex = (playerIndex + 1) % state.players.length;
+      const nextPlayerId = state.players[nextIndex].id;
+      
+      const gameOver = updatedHand.length === 0;
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          pile: updatedPile,
+          current_player_id: nextPlayerId,
+          ended: gameOver
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      if (gameOver) {
+        toast.success(`${player.name} has won the game!`);
+      } else if (updatedHand.length === 1) {
+        toast.success(`${player.name} has only one card left!`);
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    } catch (error) {
+      console.error('Error playing card:', error);
+      toast.error('Failed to play card');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
     }
-    
-    dispatch({ type: 'NEXT_TURN' });
   };
 
-  const drawCard = () => {
+  const drawCard = async () => {
     if (state.currentPlayerId !== state.playerId) {
       toast.error("It's not your turn!");
       return;
@@ -323,36 +661,122 @@ const useGameContext = () => {
       return;
     }
     
-    dispatch({ type: 'DRAW_CARD' });
-    dispatch({ type: 'NEXT_TURN' });
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const updatedDeck = [...state.deck];
+      const card = updatedDeck.pop()!;
+      
+      const player = state.players.find(p => p.id === state.playerId);
+      if (!player) return;
+      
+      const updatedHand = [...player.hand, card];
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ hand: updatedHand })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
+      
+      const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+      const nextIndex = (playerIndex + 1) % state.players.length;
+      const nextPlayerId = state.players[nextIndex].id;
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          deck: updatedDeck,
+          current_player_id: nextPlayerId
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    } catch (error) {
+      console.error('Error drawing card:', error);
+      toast.error('Failed to draw card');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
   };
 
-  const nextTurn = () => {
-    dispatch({ type: 'NEXT_TURN' });
+  const resetGame = async () => {
+    try {
+      if (!state.gameId) {
+        dispatch({ type: 'RESET_GAME' });
+        return;
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const { error } = await supabase
+        .from('games')
+        .delete()
+        .eq('id', state.gameId);
+        
+      if (error) throw error;
+      
+      dispatch({ type: 'RESET_GAME' });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      
+      toast.info('Game has been reset');
+      navigate('/');
+    } catch (error) {
+      console.error('Error resetting game:', error);
+      toast.error('Failed to reset game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
   };
 
-  const resetGame = () => {
-    dispatch({ type: 'RESET_GAME' });
-    toast.info('Game has been reset');
-  };
-
-  const invitePlayer = (email: string) => {
-    const inviteLink = `${window.location.origin}/join/${state.gameId}`;
+  const addTestPlayer = async (playerName: string) => {
+    if (!state.gameId || state.gameStarted) {
+      toast.error("Cannot add test players after game has started");
+      return;
+    }
     
-    dispatch({ type: 'INVITE_PLAYER', email });
-    
-    toast.success(`Invitation sent to ${email}!`);
-    console.log(`Invitation link: ${inviteLink} would be sent to ${email}`);
-  };
-
-  const addTestPlayer = (playerName: string) => {
     if (!playerName.trim()) {
       toast.error("Please enter a name for the test player");
       return;
     }
     
-    dispatch({ type: 'ADD_TEST_PLAYER', playerName });
-    toast.success(`Test player ${playerName} added to the game`);
+    try {
+      const existingNames = state.players.map(p => p.name);
+      if (existingNames.includes(playerName)) {
+        toast.error("A player with this name already exists");
+        return;
+      }
+      
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      const testPlayerId = generateId();
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .insert([{
+          id: testPlayerId,
+          name: playerName,
+          game_id: state.gameId,
+          is_host: false,
+          hand: [],
+          is_active: true
+        }]);
+        
+      if (playerError) throw playerError;
+      
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success(`Test player ${playerName} added to the game`);
+    } catch (error) {
+      console.error('Error adding test player:', error);
+      toast.error('Failed to add test player');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
+  const invitePlayer = (email: string) => {
+    const inviteLink = `${window.location.origin}/join/${state.gameId}`;
+    toast.success(`Invitation sent to ${email}!`);
+    console.log(`Invitation link: ${inviteLink} would be sent to ${email}`);
   };
 
   return {
@@ -362,7 +786,6 @@ const useGameContext = () => {
     startGame,
     playCard,
     drawCard,
-    nextTurn,
     resetGame,
     invitePlayer,
     addTestPlayer
