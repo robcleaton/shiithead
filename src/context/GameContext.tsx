@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -94,292 +93,7 @@ const GameContext = createContext<ReturnType<typeof useGameContext> | undefined>
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
-    case 'SET_LOADING':
-      return {
-        ...state,
-        isLoading: action.isLoading
-      };
-    case 'SET_GAME_STATE':
-      return {
-        ...state,
-        ...action.gameState
-      };
-    case 'SET_PLAYERS':
-      return {
-        ...state,
-        players: action.players
-      };
-    case 'CREATE_GAME': {
-      const playerId = state.playerId;
-      console.log('Creating game with player ID:', playerId, 'and name:', action.playerName);
-      
-      return {
-        ...state,
-        gameId: action.gameId,
-        players: [{ 
-          id: playerId, 
-          name: action.playerName, 
-          isHost: true, 
-          hand: [], 
-          faceDownCards: [],
-          faceUpCards: [],
-          isActive: true,
-          isReady: false
-        }],
-        currentPlayerName: action.playerName,
-        isHost: true
-      };
-    }
-    case 'JOIN_GAME': {
-      const playerId = state.playerId;
-      console.log('Joining game. Player ID:', playerId, 'Game ID:', action.gameId, 'Name:', action.playerName);
-      
-      const existingPlayerIndex = state.players.findIndex(p => p.id === playerId);
-      
-      if (existingPlayerIndex >= 0) {
-        console.log('Player already exists in the game, updating name');
-        const updatedPlayers = [...state.players];
-        updatedPlayers[existingPlayerIndex] = {
-          ...updatedPlayers[existingPlayerIndex],
-          name: action.playerName
-        };
-        
-        return {
-          ...state,
-          gameId: action.gameId,
-          players: updatedPlayers,
-          currentPlayerName: action.playerName
-        };
-      }
-      
-      console.log('Adding new player to the game');
-      return {
-        ...state,
-        gameId: action.gameId,
-        players: [...state.players, { 
-          id: playerId, 
-          name: action.playerName, 
-          isHost: false, 
-          hand: [], 
-          faceDownCards: [],
-          faceUpCards: [],
-          isActive: true,
-          isReady: false 
-        }],
-        currentPlayerName: action.playerName
-      };
-    }
-    case 'START_GAME': {
-      if (state.players.length < 2) {
-        toast.error("You need at least 2 players to start the game");
-        return state;
-      }
-      
-      // We can't use await in the reducer, so we'll just return the current state
-      // The startGame function will handle the async operations
-      return state;
-    }
-    case 'DEAL_CARDS': {
-      const { deck, players } = state;
-      const updatedDeck = [...deck];
-      const updatedPlayers = players.map(player => {
-        // Deal 3 face down cards
-        const faceDownCards = [];
-        for (let i = 0; i < 3; i++) {
-          if (updatedDeck.length > 0) {
-            faceDownCards.push(updatedDeck.pop()!);
-          }
-        }
-        
-        // Deal 6 cards to hand
-        const hand = [];
-        for (let i = 0; i < 6; i++) {
-          if (updatedDeck.length > 0) {
-            hand.push(updatedDeck.pop()!);
-          }
-        }
-        
-        return { 
-          ...player, 
-          hand, 
-          faceDownCards,
-          faceUpCards: [],
-          isReady: false
-        };
-      });
-
-      return {
-        ...state,
-        deck: updatedDeck,
-        players: updatedPlayers,
-        setupPhase: true
-      };
-    }
-    case 'SELECT_FACE_UP_CARD': {
-      const { players, playerId } = state;
-      const playerIndex = players.findIndex(p => p.id === playerId);
-      
-      if (playerIndex === -1) return state;
-      
-      const player = players[playerIndex];
-      
-      // Check if player already has 3 face-up cards
-      if (player.faceUpCards.length >= 3) {
-        toast.error("You've already selected 3 cards to place face-up");
-        return state;
-      }
-      
-      const cardToMove = player.hand[action.cardIndex];
-      const updatedHand = [...player.hand];
-      updatedHand.splice(action.cardIndex, 1);
-      
-      const updatedFaceUpCards = [...player.faceUpCards, cardToMove];
-      
-      const updatedPlayers = [...players];
-      updatedPlayers[playerIndex] = { 
-        ...player, 
-        hand: updatedHand,
-        faceUpCards: updatedFaceUpCards,
-        isReady: updatedFaceUpCards.length === 3
-      };
-      
-      return {
-        ...state,
-        players: updatedPlayers
-      };
-    }
-    case 'COMPLETE_SETUP': {
-      // Check if all players are ready
-      const allReady = state.players.every(p => p.isReady);
-      
-      if (!allReady) {
-        toast.error("Not all players have selected their face-up cards");
-        return state;
-      }
-      
-      const firstPlayerId = state.players[0].id;
-      const firstCard = state.deck.length > 0 ? [state.deck[0]] : [];
-      const updatedDeck = state.deck.slice(1);
-      
-      return {
-        ...state,
-        gameStarted: true,
-        setupPhase: false,
-        currentPlayerId: firstPlayerId,
-        pile: firstCard,
-        deck: updatedDeck
-      };
-    }
-    case 'PLAY_CARD': {
-      const { players, currentPlayerId, pile } = state;
-      const playerIndex = players.findIndex(p => p.id === currentPlayerId);
-      
-      if (playerIndex === -1) return state;
-      
-      const player = players[playerIndex];
-      const cardToPlay = player.hand[action.cardIndex];
-      
-      const topCard = pile[pile.length - 1];
-      if (topCard && cardToPlay.rank !== topCard.rank && cardToPlay.suit !== topCard.suit) {
-        toast.error("Invalid move! Card must match suit or rank of the top card.");
-        return state;
-      }
-      
-      const updatedHand = [...player.hand];
-      updatedHand.splice(action.cardIndex, 1);
-      
-      const updatedPlayers = [...players];
-      updatedPlayers[playerIndex] = { ...player, hand: updatedHand };
-      
-      return {
-        ...state,
-        players: updatedPlayers,
-        pile: [...pile, cardToPlay]
-      };
-    }
-    case 'DRAW_CARD': {
-      const { deck, players, currentPlayerId } = state;
-      if (deck.length === 0) return state;
-      
-      const updatedDeck = [...deck];
-      const card = updatedDeck.pop()!;
-      
-      const playerIndex = players.findIndex(p => p.id === currentPlayerId);
-      if (playerIndex === -1) return state;
-      
-      const player = players[playerIndex];
-      const updatedPlayers = [...players];
-      updatedPlayers[playerIndex] = { 
-        ...player, 
-        hand: [...player.hand, card] 
-      };
-      
-      return {
-        ...state,
-        players: updatedPlayers,
-        deck: updatedDeck
-      };
-    }
-    case 'NEXT_TURN': {
-      const { players, currentPlayerId } = state;
-      const currentIndex = players.findIndex(p => p.id === currentPlayerId);
-      const nextIndex = (currentIndex + 1) % players.length;
-      
-      return {
-        ...state,
-        currentPlayerId: players[nextIndex].id
-      };
-    }
-    case 'END_GAME': {
-      return {
-        ...state,
-        gameOver: true
-      };
-    }
-    case 'RESET_GAME': {
-      return {
-        ...initialState,
-        playerId: state.playerId
-      };
-    }
-    case 'INVITE_PLAYER': {
-      return state;
-    }
-    case 'ADD_TEST_PLAYER': {
-      if (!state.gameId || state.gameStarted) {
-        toast.error("Cannot add test players after game has started");
-        return state;
-      }
-      
-      console.log('Adding test player:', action.playerName);
-      const testPlayerId = generateId();
-      
-      // Check for duplicate test player names
-      const existingNames = state.players.map(p => p.name);
-      if (existingNames.includes(action.playerName)) {
-        toast.error("A player with this name already exists");
-        return state;
-      }
-      
-      return {
-        ...state,
-        players: [
-          ...state.players,
-          { 
-            id: testPlayerId, 
-            name: action.playerName, 
-            isHost: false, 
-            hand: [], 
-            faceDownCards: [],
-            faceUpCards: [],
-            isActive: true,
-            isReady: false
-          }
-        ]
-      };
-    }
-    default:
-      return state;
+    // ... keep existing code (case statements)
   }
 };
 
@@ -1059,6 +773,34 @@ const useGameContext = () => {
     }
   };
 
+  const invitePlayer = async (email: string) => {
+    if (!state.gameId) {
+      toast.error("No active game to invite players to");
+      return;
+    }
+    
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      // Generate invite link
+      const inviteLink = `${window.location.origin}/join/${state.gameId}`;
+      
+      // In a real implementation, this would send an email
+      // For now, we'll just simulate it with a toast
+      console.log(`Sending invite to ${email} with link: ${inviteLink}`);
+      
+      // You could use a serverless function or a service to send actual emails
+      
+      dispatch({ type: 'INVITE_PLAYER', email });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success(`Invitation sent to ${email}`);
+    } catch (error) {
+      console.error('Error inviting player:', error);
+      toast.error('Failed to send invitation');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
   return {
     state,
     createGame,
@@ -1069,7 +811,8 @@ const useGameContext = () => {
     playCard,
     drawCard,
     resetGame,
-    addTestPlayer
+    addTestPlayer,
+    invitePlayer
   };
 };
 
