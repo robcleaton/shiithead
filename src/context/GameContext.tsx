@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -194,7 +195,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         const hand = [];
         for (let i = 0; i < 6; i++) {
           if (updatedDeck.length > 0) {
-            hand.push updatedDeck.pop()!);
+            hand.push(updatedDeck.pop()!);
           }
         }
         
@@ -966,3 +967,126 @@ const useGameContext = () => {
       dispatch({ type: 'SET_LOADING', isLoading: false });
     }
   };
+  
+  const resetGame = async () => {
+    try {
+      if (!state.gameId) return;
+      
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          started: false,
+          ended: false,
+          setup_phase: false,
+          deck: [],
+          pile: [],
+          current_player_id: null
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      // Reset all players' cards
+      for (const player of state.players) {
+        const { error: playerError } = await supabase
+          .from('players')
+          .update({ 
+            hand: [],
+            face_down_cards: [],
+            face_up_cards: [],
+            is_ready: false
+          })
+          .eq('id', player.id)
+          .eq('game_id', state.gameId);
+          
+        if (playerError) throw playerError;
+      }
+      
+      dispatch({ type: 'RESET_GAME' });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success('Game has been reset');
+    } catch (error) {
+      console.error('Error resetting game:', error);
+      toast.error('Failed to reset game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+  
+  const addTestPlayer = async (playerName: string) => {
+    if (!state.gameId || state.gameStarted) {
+      toast.error("Cannot add test players after game has started");
+      return;
+    }
+    
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      // Check for duplicate player names
+      const existingNames = state.players.map(p => p.name);
+      if (existingNames.includes(playerName)) {
+        toast.error("A player with this name already exists");
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        return;
+      }
+      
+      const testPlayerId = generateId();
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .insert([{
+          id: testPlayerId,
+          name: playerName,
+          game_id: state.gameId,
+          is_host: false,
+          hand: [],
+          face_down_cards: [],
+          face_up_cards: [],
+          is_active: true,
+          is_ready: false
+        }]);
+        
+      if (playerError) throw playerError;
+      
+      dispatch({ type: 'ADD_TEST_PLAYER', playerName });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      toast.success(`Added test player: ${playerName}`);
+    } catch (error) {
+      console.error('Error adding test player:', error);
+      toast.error('Failed to add test player');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
+  return {
+    state,
+    createGame,
+    joinGame,
+    startGame,
+    selectFaceUpCard,
+    completeSetup,
+    playCard,
+    drawCard,
+    resetGame,
+    addTestPlayer
+  };
+};
+
+export const useGame = () => {
+  const context = useContext(GameContext);
+  if (context === undefined) {
+    throw new Error('useGame must be used within a GameProvider');
+  }
+  return context;
+};
+
+export const GameProvider = ({ children }: { children: ReactNode }) => {
+  const gameContext = useGameContext();
+  
+  return (
+    <GameContext.Provider value={gameContext}>
+      {children}
+    </GameContext.Provider>
+  );
+};
