@@ -172,12 +172,90 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         return state;
       }
       
-      const deck = createDeck();
-      return {
-        ...state,
-        deck,
-        setupPhase: true
-      };
+      try {
+        dispatch({ type: 'SET_LOADING', isLoading: true });
+        console.log('Starting game with players:', state.players);
+        
+        const deck = createDeck();
+        console.log('Created deck with', deck.length, 'cards');
+        
+        const hands: Record<string, CardValue[]> = {};
+        const faceDownCards: Record<string, CardValue[]> = {};
+        const updatedDeck = [...deck];
+        
+        for (const player of state.players) {
+          // Deal 3 face down cards
+          const faceDown = [];
+          for (let i = 0; i < 3; i++) {
+            if (updatedDeck.length > 0) {
+              faceDown.push(updatedDeck.pop()!);
+            }
+          }
+          faceDownCards[player.id] = faceDown;
+          
+          // Deal 6 cards to hand
+          const hand = [];
+          for (let i = 0; i < 6; i++) {
+            if (updatedDeck.length > 0) {
+              hand.push(updatedDeck.pop()!);
+            }
+          }
+          hands[player.id] = hand;
+          
+          console.log(`Dealt ${faceDown.length} face down cards and ${hand.length} hand cards to player ${player.name}`);
+        }
+        
+        // First update game state to set up game phase
+        const { error: gameError } = await supabase
+          .from('games')
+          .update({ 
+            setup_phase: true,
+            deck: updatedDeck
+          })
+          .eq('id', state.gameId);
+          
+        if (gameError) {
+          console.error('Error updating game:', gameError);
+          throw gameError;
+        }
+        
+        console.log('Updated game with setup_phase=true and deck');
+        
+        // Update each player's cards in separate requests
+        for (const player of state.players) {
+          console.log(`Updating player ${player.name} with cards:`, {
+            hand: hands[player.id],
+            face_down_cards: faceDownCards[player.id]
+          });
+          
+          const { error: playerError } = await supabase
+            .from('players')
+            .update({ 
+              hand: hands[player.id],
+              face_down_cards: faceDownCards[player.id],
+              face_up_cards: [],
+              is_ready: false
+            })
+            .eq('id', player.id)
+            .eq('game_id', state.gameId);
+            
+          if (playerError) {
+            console.error('Error updating player:', playerError);
+            throw playerError;
+          }
+        }
+        
+        // Update local state with new values
+        dispatch({ type: 'SET_GAME_STATE', gameState: { setupPhase: true } });
+        dispatch({ type: 'DEAL_CARDS' });
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        toast.success('Setup phase started! Select 3 cards to place face-up');
+      } catch (error) {
+        console.error('Error starting game:', error);
+        toast.error('Failed to start game');
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+      }
+      return state;
     }
     case 'DEAL_CARDS': {
       const { deck, players } = state;
@@ -661,95 +739,6 @@ const useGameContext = () => {
     }
   };
 
-  const startGame = async () => {
-    if (state.players.length < 2) {
-      toast.error('You need at least 2 players to start the game');
-      return;
-    }
-    
-    try {
-      dispatch({ type: 'SET_LOADING', isLoading: true });
-      console.log('Starting game with players:', state.players);
-      
-      const deck = createDeck();
-      console.log('Created deck with', deck.length, 'cards');
-      
-      const hands: Record<string, CardValue[]> = {};
-      const faceDownCards: Record<string, CardValue[]> = {};
-      const updatedDeck = [...deck];
-      
-      for (const player of state.players) {
-        // Deal 3 face down cards
-        const faceDown = [];
-        for (let i = 0; i < 3; i++) {
-          if (updatedDeck.length > 0) {
-            faceDown.push(updatedDeck.pop()!);
-          }
-        }
-        faceDownCards[player.id] = faceDown;
-        
-        // Deal 6 cards to hand
-        const hand = [];
-        for (let i = 0; i < 6; i++) {
-          if (updatedDeck.length > 0) {
-            hand.push(updatedDeck.pop()!);
-          }
-        }
-        hands[player.id] = hand;
-        
-        console.log(`Dealt ${faceDown.length} face down cards and ${hand.length} hand cards to player ${player.name}`);
-      }
-      
-      const { error: gameError } = await supabase
-        .from('games')
-        .update({ 
-          setup_phase: true,
-          deck: updatedDeck
-        })
-        .eq('id', state.gameId);
-        
-      if (gameError) {
-        console.error('Error updating game:', gameError);
-        throw gameError;
-      }
-      
-      console.log('Updated game with setup_phase=true and deck');
-      
-      // Update each player's cards in separate requests
-      for (const player of state.players) {
-        console.log(`Updating player ${player.name} with cards:`, {
-          hand: hands[player.id],
-          face_down_cards: faceDownCards[player.id]
-        });
-        
-        const { error: playerError } = await supabase
-          .from('players')
-          .update({ 
-            hand: hands[player.id],
-            face_down_cards: faceDownCards[player.id],
-            face_up_cards: [],
-            is_ready: false
-          })
-          .eq('id', player.id)
-          .eq('game_id', state.gameId);
-          
-        if (playerError) {
-          console.error('Error updating player:', playerError);
-          throw playerError;
-        }
-      }
-      
-      dispatch({ type: 'START_GAME' });
-      dispatch({ type: 'DEAL_CARDS' });
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      toast.success('Setup phase started! Select 3 cards to place face-up');
-    } catch (error) {
-      console.error('Error starting game:', error);
-      toast.error('Failed to start game');
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
   const selectFaceUpCard = async (cardIndex: number) => {
     try {
       const player = state.players.find(p => p.id === state.playerId);
@@ -990,74 +979,3 @@ const useGameContext = () => {
     
     try {
       const existingNames = state.players.map(p => p.name);
-      if (existingNames.includes(playerName)) {
-        toast.error("A player with this name already exists");
-        return;
-      }
-      
-      dispatch({ type: 'SET_LOADING', isLoading: true });
-      const testPlayerId = generateId();
-      
-      const { error: playerError } = await supabase
-        .from('players')
-        .insert([{
-          id: testPlayerId,
-          name: playerName,
-          game_id: state.gameId,
-          is_host: false,
-          hand: [],
-          face_down_cards: [],
-          face_up_cards: [],
-          is_active: true,
-          is_ready: false
-        }]);
-        
-      if (playerError) throw playerError;
-      
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      toast.success(`Test player ${playerName} added to the game`);
-    } catch (error) {
-      console.error('Error adding test player:', error);
-      toast.error('Failed to add test player');
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-    }
-  };
-
-  const invitePlayer = (email: string) => {
-    const inviteLink = `${window.location.origin}/join/${state.gameId}`;
-    toast.success(`Invitation sent to ${email}!`);
-    console.log(`Invitation link: ${inviteLink} would be sent to ${email}`);
-  };
-
-  return {
-    state,
-    createGame,
-    joinGame,
-    startGame,
-    selectFaceUpCard,
-    completeSetup,
-    playCard,
-    drawCard,
-    resetGame,
-    invitePlayer,
-    addTestPlayer
-  };
-};
-
-export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const gameContextValue = useGameContext();
-
-  return (
-    <GameContext.Provider value={gameContextValue}>
-      {children}
-    </GameContext.Provider>
-  );
-};
-
-export const useGame = () => {
-  const context = useContext(GameContext);
-  if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider');
-  }
-  return context;
-};
