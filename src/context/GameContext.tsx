@@ -36,12 +36,11 @@ type GameAction =
   | { type: 'NEXT_TURN' }
   | { type: 'END_GAME'; winnerId: string }
   | { type: 'RESET_GAME' }
-  | { type: 'INVITE_PLAYER'; email: string };
+  | { type: 'INVITE_PLAYER'; email: string }
+  | { type: 'ADD_TEST_PLAYER'; playerName: string };
 
-// Generate a unique ID
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-// Create a shuffled deck
 const createDeck = (): CardValue[] => {
   const suits: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
   const ranks: Rank[] = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -53,7 +52,6 @@ const createDeck = (): CardValue[] => {
     }
   }
 
-  // Shuffle deck using Fisher-Yates algorithm
   for (let i = deck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -97,7 +95,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
     }
     case 'START_GAME': {
-      // Check if we have enough players
       if (state.players.length < 2) {
         toast.error("You need at least 2 players to start the game");
         return state;
@@ -144,7 +141,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const player = players[playerIndex];
       const cardToPlay = player.hand[action.cardIndex];
       
-      // Check if card can be played (same suit or rank as top card)
       const topCard = pile[pile.length - 1];
       if (topCard && cardToPlay.rank !== topCard.rank && cardToPlay.suit !== topCard.suit) {
         toast.error("Invalid move! Card must match suit or rank of the top card.");
@@ -209,9 +205,28 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
     }
     case 'INVITE_PLAYER': {
-      // In a real app, this would trigger sending an email
-      // For now, we'll just simulate it
       return state;
+    }
+    case 'ADD_TEST_PLAYER': {
+      if (!state.gameId || state.gameStarted) {
+        toast.error("Cannot add test players after game has started");
+        return state;
+      }
+      
+      const testPlayerId = generateId();
+      return {
+        ...state,
+        players: [
+          ...state.players,
+          { 
+            id: testPlayerId, 
+            name: action.playerName, 
+            isHost: false, 
+            hand: [], 
+            isActive: true 
+          }
+        ]
+      };
     }
     default:
       return state;
@@ -228,6 +243,7 @@ interface GameContextType {
   nextTurn: () => void;
   resetGame: () => void;
   invitePlayer: (email: string) => void;
+  addTestPlayer: (playerName: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -260,7 +276,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     
     dispatch({ type: 'PLAY_CARD', cardIndex });
     
-    // Check for win condition
     const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
     if (currentPlayer && currentPlayer.hand.length === 1) {
       toast.success(`${currentPlayer.name} has only one card left!`);
@@ -298,15 +313,17 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const invitePlayer = (email: string) => {
-    // In a real implementation, this would send an actual email
-    // For now, we'll just show a success message
     const inviteLink = `${window.location.origin}/join/${state.gameId}`;
     
-    // Simulate email sending
     dispatch({ type: 'INVITE_PLAYER', email });
     
     toast.success(`Invitation sent to ${email}!`);
     console.log(`Invitation link: ${inviteLink} would be sent to ${email}`);
+  };
+
+  const addTestPlayer = (playerName: string) => {
+    dispatch({ type: 'ADD_TEST_PLAYER', playerName });
+    toast.success(`Test player ${playerName} added to the game`);
   };
 
   return (
@@ -320,7 +337,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         drawCard,
         nextTurn,
         resetGame,
-        invitePlayer
+        invitePlayer,
+        addTestPlayer
       }}
     >
       {children}

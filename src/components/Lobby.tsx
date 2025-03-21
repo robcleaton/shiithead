@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -9,18 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGame } from '@/context/GameContext';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, Copy, UserPlus } from 'lucide-react';
+import { Send, Copy, UserPlus, PlusCircle } from 'lucide-react';
 
 const Lobby = () => {
-  const { createGame, joinGame, startGame, state, invitePlayer } = useGame();
+  const { createGame, joinGame, startGame, state, invitePlayer, addTestPlayer } = useGame();
   const [playerName, setPlayerName] = useState('');
   const [gameId, setGameId] = useState('');
   const [activeTab, setActiveTab] = useState('create');
   const [inviteEmail, setInviteEmail] = useState('');
+  const [testPlayerName, setTestPlayerName] = useState('');
   const { gameId: joinGameId } = useParams();
   const navigate = useNavigate();
+  const isDevelopment = import.meta.env.DEV;
 
-  // Handle the invite link by automatically selecting the join tab and filling the game ID
   useEffect(() => {
     if (joinGameId && !state.gameId) {
       setGameId(joinGameId);
@@ -28,14 +28,12 @@ const Lobby = () => {
     }
   }, [joinGameId, state.gameId]);
 
-  // Redirect to game page after joining via invite link
   useEffect(() => {
     if (state.gameId) {
       navigate('/game');
     }
   }, [state.gameId, navigate]);
 
-  // Auto-join functionality when coming from an invite link and player name is entered
   useEffect(() => {
     if (joinGameId && playerName.trim() && !state.gameId) {
       const autoJoinHandler = setTimeout(() => {
@@ -90,6 +88,15 @@ const Lobby = () => {
     
     invitePlayer(inviteEmail);
     setInviteEmail('');
+  };
+
+  const handleAddTestPlayer = () => {
+    if (!testPlayerName.trim()) {
+      toast.error('Please enter a name for the test player');
+      return;
+    }
+    addTestPlayer(testPlayerName);
+    setTestPlayerName('');
   };
 
   const container = {
@@ -211,6 +218,27 @@ const Lobby = () => {
                           className="flex-shrink-0"
                         >
                           <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {isDevelopment && state.isHost && (
+                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                      <p className="text-sm font-medium mb-2 text-yellow-800">Add Test Players (Dev Mode)</p>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Test Player Name"
+                          value={testPlayerName}
+                          onChange={(e) => setTestPlayerName(e.target.value)}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          onClick={handleAddTestPlayer}
+                          className="flex-shrink-0 bg-yellow-100"
+                        >
+                          <PlusCircle className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
