@@ -37,7 +37,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
             <section>
               <h3 className="text-lg font-semibold mb-2">Gameplay</h3>
               <ul className="list-disc pl-5 space-y-2">
-                <li>On your turn, you must play a card that matches either the rank or suit of the top card on the discard pile.</li>
+                <li>On your turn, you must play a card that matches the rank of the top card on the discard pile.</li>
                 <li>If you cannot play a card, you must draw a card from the draw pile. If the drawn card can be played, you may play it immediately.</li>
                 <li>If the draw pile is empty, you skip your turn.</li>
                 <li>Play continues clockwise until a player has no cards left.</li>
