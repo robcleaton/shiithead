@@ -17,6 +17,7 @@ export type Database = {
           ended: boolean
           id: string
           pile: Json
+          setup_phase: boolean
           started: boolean
         }
         Insert: {
@@ -26,6 +27,7 @@ export type Database = {
           ended?: boolean
           id: string
           pile?: Json
+          setup_phase?: boolean
           started?: boolean
         }
         Update: {
@@ -35,6 +37,7 @@ export type Database = {
           ended?: boolean
           id?: string
           pile?: Json
+          setup_phase?: boolean
           started?: boolean
         }
         Relationships: []
@@ -42,29 +45,38 @@ export type Database = {
       players: {
         Row: {
           created_at: string
+          face_down_cards: Json
+          face_up_cards: Json
           game_id: string | null
           hand: Json
           id: string
           is_active: boolean
           is_host: boolean
+          is_ready: boolean
           name: string
         }
         Insert: {
           created_at?: string
+          face_down_cards?: Json
+          face_up_cards?: Json
           game_id?: string | null
           hand?: Json
           id: string
           is_active?: boolean
           is_host?: boolean
+          is_ready?: boolean
           name: string
         }
         Update: {
           created_at?: string
+          face_down_cards?: Json
+          face_up_cards?: Json
           game_id?: string | null
           hand?: Json
           id?: string
           is_active?: boolean
           is_host?: boolean
+          is_ready?: boolean
           name?: string
         }
         Relationships: [
