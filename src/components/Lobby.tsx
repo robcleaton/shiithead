@@ -129,7 +129,7 @@ const Lobby = () => {
       <motion.div variants={item} className="w-full max-w-md">
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-karma-primary">Karma Card Game</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-karma-primary">Shithead Card Game</CardTitle>
             <CardDescription className="text-center">Create or join a game to get started</CardDescription>
           </CardHeader>
           <CardContent>
@@ -312,7 +312,7 @@ const Lobby = () => {
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-xs text-karma-foreground/60">
-              Play the classic Karma card game with friends online
+              Play the classic Shithead card game with friends online
             </p>
           </CardFooter>
         </Card>

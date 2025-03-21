@@ -13,7 +13,7 @@ const Index = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Karma
+          Shithead
         </motion.div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -62,7 +62,7 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            Karma Card Game
+            Shithead Card Game
           </motion.h1>
           
           <motion.p 
@@ -71,7 +71,7 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
           >
-            Play the classic Karma card game online with friends. Create a game, share the code, and enjoy this timeless card game with beautiful animations and intuitive design.
+            Play the classic Shithead card game online with friends. Create a game, share the code, and enjoy this timeless card game with beautiful animations and intuitive design.
           </motion.p>
           
           <motion.div
@@ -95,7 +95,7 @@ const Index = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 1 }}
         >
-          <p>A beautiful implementation of the Karma card game.</p>
+          <p>A beautiful implementation of the Shithead card game.</p>
         </motion.div>
       </footer>
     </div>
