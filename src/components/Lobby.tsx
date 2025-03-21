@@ -44,6 +44,11 @@ const Lobby = () => {
     }
   }, [joinGameId, playerName, state.gameId]);
 
+  useEffect(() => {
+    console.log('Current game state:', state);
+    console.log('Players in lobby:', state.players);
+  }, [state]);
+
   const handleCreateGame = () => {
     if (!playerName.trim()) {
       toast.error('Please enter your name');

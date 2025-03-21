@@ -87,6 +87,23 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     }
     case 'JOIN_GAME': {
       const playerId = state.playerId;
+      const existingPlayerIndex = state.players.findIndex(p => p.id === playerId);
+      
+      if (existingPlayerIndex >= 0) {
+        const updatedPlayers = [...state.players];
+        updatedPlayers[existingPlayerIndex] = {
+          ...updatedPlayers[existingPlayerIndex],
+          name: action.playerName
+        };
+        
+        return {
+          ...state,
+          gameId: action.gameId,
+          players: updatedPlayers,
+          currentPlayerName: action.playerName
+        };
+      }
+      
       return {
         ...state,
         gameId: action.gameId,
@@ -233,22 +250,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   }
 };
 
-interface GameContextType {
-  state: GameState;
-  createGame: (playerName: string) => void;
-  joinGame: (gameId: string, playerName: string) => void;
-  startGame: () => void;
-  playCard: (cardIndex: number) => void;
-  drawCard: () => void;
-  nextTurn: () => void;
-  resetGame: () => void;
-  invitePlayer: (email: string) => void;
-  addTestPlayer: (playerName: string) => void;
-}
+const GameContext = createContext<ReturnType<typeof useGameContext> | undefined>(undefined);
 
-const GameContext = createContext<GameContextType | undefined>(undefined);
-
-export const GameProvider = ({ children }: { children: ReactNode }) => {
+const useGameContext = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
   const createGame = (playerName: string) => {
@@ -326,21 +330,25 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     toast.success(`Test player ${playerName} added to the game`);
   };
 
+  return {
+    state,
+    createGame,
+    joinGame,
+    startGame,
+    playCard,
+    drawCard,
+    nextTurn,
+    resetGame,
+    invitePlayer,
+    addTestPlayer
+  };
+};
+
+export const GameProvider = ({ children }: { children: ReactNode }) => {
+  const gameContextValue = useGameContext();
+
   return (
-    <GameContext.Provider
-      value={{
-        state,
-        createGame,
-        joinGame,
-        startGame,
-        playCard,
-        drawCard,
-        nextTurn,
-        resetGame,
-        invitePlayer,
-        addTestPlayer
-      }}
-    >
+    <GameContext.Provider value={gameContextValue}>
       {children}
     </GameContext.Provider>
   );
@@ -353,3 +361,4 @@ export const useGame = () => {
   }
   return context;
 };
+
