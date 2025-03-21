@@ -36,7 +36,8 @@ type GameAction =
   | { type: 'DRAW_CARD' }
   | { type: 'NEXT_TURN' }
   | { type: 'END_GAME'; winnerId: string }
-  | { type: 'RESET_GAME' };
+  | { type: 'RESET_GAME' }
+  | { type: 'INVITE_PLAYER'; email: string };
 
 // Generate a unique ID
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -202,6 +203,11 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         playerId: state.playerId
       };
     }
+    case 'INVITE_PLAYER': {
+      // In a real app, this would trigger sending an email
+      // For now, we'll just simulate it
+      return state;
+    }
     default:
       return state;
   }
@@ -216,6 +222,7 @@ interface GameContextType {
   drawCard: () => void;
   nextTurn: () => void;
   resetGame: () => void;
+  invitePlayer: (email: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -285,6 +292,18 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     toast.info('Game has been reset');
   };
 
+  const invitePlayer = (email: string) => {
+    // In a real implementation, this would send an actual email
+    // For now, we'll just show a success message
+    const inviteLink = `${window.location.origin}/join/${state.gameId}`;
+    
+    // Simulate email sending
+    dispatch({ type: 'INVITE_PLAYER', email });
+    
+    toast.success(`Invitation sent to ${email}!`);
+    console.log(`Invitation link: ${inviteLink} would be sent to ${email}`);
+  };
+
   // For demo purposes, let's add mock players
   useEffect(() => {
     if (state.gameId && state.players.length === 1) {
@@ -302,7 +321,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         playCard,
         drawCard,
         nextTurn,
-        resetGame
+        resetGame,
+        invitePlayer
       }}
     >
       {children}

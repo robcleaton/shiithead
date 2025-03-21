@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,12 +8,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGame } from '@/context/GameContext';
 import { toast } from 'sonner';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Send, Copy, UserPlus } from 'lucide-react';
 
 const Lobby = () => {
-  const { createGame, joinGame, startGame, state } = useGame();
+  const { createGame, joinGame, startGame, state, invitePlayer } = useGame();
   const [playerName, setPlayerName] = useState('');
   const [gameId, setGameId] = useState('');
   const [activeTab, setActiveTab] = useState('create');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const { gameId: joinGameId } = useParams();
+  const navigate = useNavigate();
+
+  // Handle direct game joining via URL
+  useEffect(() => {
+    if (joinGameId && !state.gameId) {
+      setGameId(joinGameId);
+      setActiveTab('join');
+    }
+  }, [joinGameId, state.gameId]);
 
   const handleCreateGame = () => {
     if (!playerName.trim()) {
@@ -33,6 +46,10 @@ const Lobby = () => {
       return;
     }
     joinGame(gameId, playerName);
+    // Clear the URL parameter after joining
+    if (joinGameId) {
+      navigate('/');
+    }
   };
 
   const handleStartGame = () => {
@@ -41,6 +58,22 @@ const Lobby = () => {
       return;
     }
     startGame();
+  };
+
+  const handleCopyInviteLink = () => {
+    const inviteLink = `${window.location.origin}/join/${state.gameId}`;
+    navigator.clipboard.writeText(inviteLink);
+    toast.success('Invite link copied to clipboard!');
+  };
+
+  const handleSendInvite = () => {
+    if (!inviteEmail.trim() || !inviteEmail.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    invitePlayer(inviteEmail);
+    setInviteEmail('');
   };
 
   const container = {
@@ -123,13 +156,49 @@ const Lobby = () => {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <div className="bg-karma-secondary/50 p-4 rounded-lg text-center">
-                  <p className="text-sm text-karma-foreground/70">Game ID (Share with friends)</p>
-                  <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 mt-1">{state.gameId}</div>
+                <div className="space-y-4">
+                  <div className="bg-karma-secondary/50 p-4 rounded-lg">
+                    <p className="text-sm text-karma-foreground/70 mb-2">Game ID (Share with friends)</p>
+                    <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
+                      <span className="truncate">{state.gameId}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={handleCopyInviteLink}
+                        className="ml-2"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {state.isHost && (
+                    <div className="bg-karma-accent/10 p-4 rounded-lg">
+                      <p className="text-sm font-medium mb-2">Invite players by email</p>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="friend@example.com"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          onClick={handleSendInvite}
+                          className="flex-shrink-0"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Players ({state.players.length})</h3>
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <UserPlus className="w-4 h-4" />
+                    Players ({state.players.length})
+                  </h3>
                   <ul className="space-y-2">
                     {state.players.map((player, index) => (
                       <motion.li
