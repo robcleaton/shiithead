@@ -1022,6 +1022,33 @@ const useGameContext = () => {
     // 3. When the user clicks the link, they would be taken to the join page with the game ID pre-filled
   };
 
+  const resetGame = async () => {
+    try {
+      dispatch({ type: 'SET_LOADING', isLoading: true });
+      
+      if (state.gameId) {
+        // Remove the player from the game in the database
+        const { error: playerError } = await supabase
+          .from('players')
+          .delete()
+          .eq('id', state.playerId)
+          .eq('game_id', state.gameId);
+          
+        if (playerError) {
+          console.error('Error removing player from game:', playerError);
+        }
+      }
+      
+      dispatch({ type: 'RESET_GAME' });
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      navigate('/');
+    } catch (error) {
+      console.error('Error resetting game:', error);
+      toast.error('Failed to reset game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
   return {
     state,
     createGame,
@@ -1032,25 +1059,7 @@ const useGameContext = () => {
     playCard,
     drawCard,
     invitePlayer,
-    addTestPlayer
-  };
-};
+    addTestPlayer,
+    resetGame
 
-export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const gameContext = useGameContext();
-  
-  return (
-    <GameContext.Provider value={gameContext}>
-      {children}
-    </GameContext.Provider>
-  );
-};
-
-export const useGame = () => {
-  const context = useContext(GameContext);
-  if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider');
-  }
-  return context;
-};
 
