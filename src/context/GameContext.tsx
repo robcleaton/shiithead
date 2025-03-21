@@ -2,6 +2,7 @@ import { createContext, useContext, useReducer, ReactNode, useEffect, useState }
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from 'react-router-dom';
+import { Json } from '@/integrations/supabase/types';
 
 export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
 export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
@@ -288,6 +289,29 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   }
 };
 
+// Helper function to safely convert Json to CardValue[]
+const jsonToCardValues = (json: Json | null): CardValue[] => {
+  if (!json) return [];
+  
+  try {
+    if (Array.isArray(json)) {
+      return json.map(card => {
+        if (typeof card === 'object' && card !== null && 'suit' in card && 'rank' in card) {
+          return {
+            suit: card.suit as Suit,
+            rank: card.rank as Rank
+          };
+        }
+        throw new Error('Invalid card format');
+      });
+    }
+    return [];
+  } catch (error) {
+    console.error('Error converting JSON to CardValue[]:', error);
+    return [];
+  }
+};
+
 const GameContext = createContext<ReturnType<typeof useGameContext> | undefined>(undefined);
 
 const useGameContext = () => {
@@ -323,8 +347,8 @@ const useGameContext = () => {
                 gameStarted: gameData.started,
                 gameOver: gameData.ended,
                 currentPlayerId: gameData.current_player_id,
-                deck: gameData.deck,
-                pile: gameData.pile
+                deck: jsonToCardValues(gameData.deck),
+                pile: jsonToCardValues(gameData.pile)
               }
             });
           }
@@ -352,7 +376,7 @@ const useGameContext = () => {
             id: p.id,
             name: p.name,
             isHost: p.is_host,
-            hand: p.hand,
+            hand: jsonToCardValues(p.hand),
             isActive: p.is_active,
             gameId: p.game_id
           }));
@@ -386,8 +410,8 @@ const useGameContext = () => {
               gameStarted: gameData.started,
               gameOver: gameData.ended,
               currentPlayerId: gameData.current_player_id,
-              deck: gameData.deck,
-              pile: gameData.pile
+              deck: jsonToCardValues(gameData.deck),
+              pile: jsonToCardValues(gameData.pile)
             }
           });
         }
@@ -397,7 +421,7 @@ const useGameContext = () => {
             id: p.id,
             name: p.name,
             isHost: p.is_host,
-            hand: p.hand,
+            hand: jsonToCardValues(p.hand),
             isActive: p.is_active,
             gameId: p.game_id
           }));
