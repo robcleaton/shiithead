@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState, Player, CardValue } from '@/types/game';
+import { GameState, Player, CardValue, Rank } from '@/types/game';
 import { createDeck, generateId, jsonToCardValues } from '@/utils/gameUtils';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';

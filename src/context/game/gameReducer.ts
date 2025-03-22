@@ -1,5 +1,5 @@
 
-import { GameState, GameAction, Player } from '@/types/game';
+import { GameState, GameAction, Player, CardValue } from '@/types/game';
 import { generateId } from '@/utils/gameUtils';
 
 export const initialState: GameState = {
