@@ -123,7 +123,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               <CollapsibleContent className="px-4 pb-4">
                 <ul className="list-disc pl-5 space-y-2">
                   <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top.</li>
-                  <li><strong>3:</strong> Can be placed on any card regardless of rank. No additional effects.</li>
+                  <li><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</li>
                   <li><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</li>
                   <li><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</li>
                   <li><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</li>
@@ -166,7 +166,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               <CollapsibleContent className="px-4 pb-4">
                 <ul className="list-disc pl-5 space-y-2">
                   <li>During setup, place your highest cards face-up to ensure you can play over most cards.</li>
-                  <li>Save special cards (2s, 10s) for when you're playing your face-down cards.</li>
+                  <li>Save special cards (2s, 3s, 10s) for when you're playing your face-down cards.</li>
                   <li>Try to remember what cards have been played to anticipate what's coming.</li>
                   <li>If possible, keep cards of the same rank in your hand to play multiple cards at once.</li>
                   <li>When playing face-down cards, it's best to have burned the pile right before, so you can play any card.</li>
