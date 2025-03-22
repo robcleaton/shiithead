@@ -7,18 +7,24 @@ import { gameReducer, initialState } from './gameReducer';
 import { GameState, Player, CardValue } from '@/types/game';
 import { jsonToCardValues } from '@/utils/gameUtils';
 import { 
-  createGame as createGameAction, 
-  joinGame as joinGameAction,
-  startGame as startGameAction,
-  selectFaceUpCard as selectFaceUpCardAction,
-  selectMultipleFaceUpCards as selectMultipleFaceUpCardsAction,
-  completeSetup as completeSetupAction,
-  playCard as playCardAction,
-  drawCard as drawCardAction,
-  resetGame as resetGameAction,
-  addTestPlayer as addTestPlayerAction,
-  invitePlayer as invitePlayerAction
-} from './gameActions';
+  createGame,
+  joinGame,
+  startGame,
+  completeSetup,
+  resetGame
+} from './actions/gameSetupActions';
+
+import {
+  playCard,
+  drawCard
+} from './actions/gamePlayActions';
+
+import {
+  selectFaceUpCard,
+  selectMultipleFaceUpCards,
+  addTestPlayer,
+  invitePlayer
+} from './actions/playerActions';
 
 type GameContextType = ReturnType<typeof useGameContext>;
 
@@ -174,63 +180,19 @@ const useGameContext = () => {
     };
   }, [state.gameId]);
 
-  const createGame = (playerName: string) => {
-    createGameAction(dispatch, playerName, state.playerId, navigate);
-  };
-
-  const joinGame = (gameId: string, playerName: string) => {
-    joinGameAction(dispatch, gameId, playerName, state.playerId, navigate);
-  };
-
-  const startGame = () => {
-    startGameAction(dispatch, state);
-  };
-
-  const selectFaceUpCard = (cardIndex: number) => {
-    selectFaceUpCardAction(dispatch, state, cardIndex);
-  };
-
-  const selectMultipleFaceUpCards = (cardIndices: number[]) => {
-    selectMultipleFaceUpCardsAction(dispatch, state, cardIndices);
-  };
-
-  const completeSetup = () => {
-    completeSetupAction(dispatch, state);
-  };
-
-  const playCard = (cardIndex: number) => {
-    playCardAction(dispatch, state, cardIndex);
-  };
-
-  const drawCard = () => {
-    drawCardAction(dispatch, state);
-  };
-
-  const resetGame = () => {
-    resetGameAction(dispatch, state);
-  };
-
-  const addTestPlayer = (playerName: string) => {
-    addTestPlayerAction(dispatch, state, playerName);
-  };
-
-  const invitePlayer = (email: string) => {
-    invitePlayerAction(dispatch, state, email);
-  };
-
   return {
     state,
-    createGame,
-    joinGame,
-    startGame,
-    selectFaceUpCard,
-    selectMultipleFaceUpCards,
-    completeSetup,
-    playCard,
-    drawCard,
-    resetGame,
-    addTestPlayer,
-    invitePlayer
+    createGame: (playerName: string) => createGame(dispatch, playerName, state.playerId, navigate),
+    joinGame: (gameId: string, playerName: string) => joinGame(dispatch, gameId, playerName, state.playerId, navigate),
+    startGame: () => startGame(dispatch, state),
+    selectFaceUpCard: (cardIndex: number) => selectFaceUpCard(dispatch, state, cardIndex),
+    selectMultipleFaceUpCards: (cardIndices: number[]) => selectMultipleFaceUpCards(dispatch, state, cardIndices),
+    completeSetup: () => completeSetup(dispatch, state),
+    playCard: (cardIndex: number) => playCard(dispatch, state, cardIndex),
+    drawCard: () => drawCard(dispatch, state),
+    resetGame: () => resetGame(dispatch, state),
+    addTestPlayer: (playerName: string) => addTestPlayer(dispatch, state, playerName),
+    invitePlayer: (email: string) => invitePlayer(dispatch, state, email)
   };
 };
 
