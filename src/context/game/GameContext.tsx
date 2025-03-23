@@ -188,7 +188,7 @@ const useGameContext = () => {
     selectFaceUpCard: (cardIndex: number) => selectFaceUpCard(dispatch, state, cardIndex),
     selectMultipleFaceUpCards: (cardIndices: number[]) => selectMultipleFaceUpCards(dispatch, state, cardIndices),
     completeSetup: () => completeSetup(dispatch, state),
-    playCard: (cardIndex: number) => playCard(dispatch, state, cardIndex),
+    playCard: (cardIndex: number | number[]) => playCard(dispatch, state, cardIndex),
     drawCard: () => drawCard(dispatch, state),
     resetGame: () => resetGame(dispatch, state),
     addTestPlayer: (playerName: string) => addTestPlayer(dispatch, state, playerName),

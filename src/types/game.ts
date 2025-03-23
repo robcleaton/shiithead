@@ -41,7 +41,7 @@ export type GameAction =
   | { type: 'SELECT_FACE_UP_CARD'; cardIndex: number }
   | { type: 'SELECT_MULTIPLE_FACE_UP_CARDS'; cardIndices: number[] }
   | { type: 'COMPLETE_SETUP' }
-  | { type: 'PLAY_CARD'; cardIndex: number }
+  | { type: 'PLAY_CARD'; cardIndex: number | number[] }
   | { type: 'DRAW_CARD' }
   | { type: 'NEXT_TURN' }
   | { type: 'END_GAME'; winnerId: string }
