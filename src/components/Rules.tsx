@@ -69,23 +69,6 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               </CollapsibleContent>
             </Collapsible>
             
-            {/* Card Ranking Section */}
-            <Collapsible
-              open={expandedSection === "cardRanking"}
-              onOpenChange={() => toggleSection("cardRanking")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
-            >
-              <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Card Ranking</h3>
-                {expandedSection === "cardRanking" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-4">
-                <p className="mb-2">Cards are ranked from lowest to highest as follows:</p>
-                <p className="mb-2">2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A</p>
-                <p>Note that in some variations, 2 is considered high (above Ace) or special cards have different effects.</p>
-              </CollapsibleContent>
-            </Collapsible>
-            
             {/* Gameplay Section */}
             <Collapsible
               open={expandedSection === "gameplay"}
