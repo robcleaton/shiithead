@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
@@ -74,12 +73,8 @@ const PlayerHand = ({
     }
     // For playing multiple cards of the same rank
     else if (!isSetupPhase && selectedIndices.length > 1) {
-      // Use onPlayMultipleCards if provided, otherwise fall back to onPlayCard
-      if (onPlayMultipleCards) {
-        onPlayMultipleCards(selectedIndices);
-      } else {
-        onPlayCard(selectedIndices);
-      }
+      // Use onPlayCard directly with multiple cards
+      onPlayCard(selectedIndices);
       setSelectedIndices([]);
     }
   };
