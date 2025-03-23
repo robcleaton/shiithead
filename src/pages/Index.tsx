@@ -2,8 +2,13 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import Rules from '@/components/Rules';
+import { BookOpen } from 'lucide-react';
 
 const Index = () => {
+  const [showRules, setShowRules] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="container mx-auto px-6 py-6 flex justify-between items-center">
@@ -14,6 +19,21 @@ const Index = () => {
           transition={{ duration: 0.5 }}
         >
           Shithead
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={() => setShowRules(true)}
+          >
+            <BookOpen size={16} />
+            Rules
+          </Button>
         </motion.div>
       </header>
 
@@ -41,6 +61,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link to="/game">
               <Button size="lg" className="bg-karma-primary hover:bg-karma-primary/90 text-white px-8 py-6 text-lg">
@@ -61,6 +82,8 @@ const Index = () => {
           <p>A beautiful implementation of the Shithead card game.</p>
         </motion.div>
       </footer>
+
+      <Rules open={showRules} onOpenChange={setShowRules} />
     </div>
   );
 };
