@@ -132,27 +132,6 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               </CollapsibleContent>
             </Collapsible>
             
-            {/* Strategy Tips Section */}
-            <Collapsible
-              open={expandedSection === "strategyTips"}
-              onOpenChange={() => toggleSection("strategyTips")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
-            >
-              <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Strategy Tips</h3>
-                {expandedSection === "strategyTips" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-4">
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>During setup, place your highest cards face-up to ensure you can play over most cards.</li>
-                  <li>Save special cards (2s, 3s, 10s) for when you're playing your face-down cards.</li>
-                  <li>Try to remember what cards have been played to anticipate what's coming.</li>
-                  <li>If possible, keep cards of the same rank in your hand to play multiple cards at once.</li>
-                  <li>When playing face-down cards, it's best to have burned the pile right before, so you can play any card.</li>
-                </ul>
-              </CollapsibleContent>
-            </Collapsible>
-            
             {/* Winning Section */}
             <Collapsible
               open={expandedSection === "winning"}
