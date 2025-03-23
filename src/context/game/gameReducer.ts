@@ -1,4 +1,3 @@
-
 import { GameState, GameAction, Player, CardValue } from '@/types/game';
 import { generateId } from '@/utils/gameUtils';
 
@@ -71,6 +70,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       if (playerIndex === -1) return state;
       
       const player = state.players[playerIndex];
+      
+      if (Array.isArray(action.cardIndex)) {
+        return state;
+      }
+      
       const cardToMove = player.hand[action.cardIndex];
       
       const updatedPlayers = [...state.players];

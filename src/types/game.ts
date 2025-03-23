@@ -38,7 +38,7 @@ export type GameAction =
   | { type: 'JOIN_GAME'; gameId: string; playerName: string }
   | { type: 'START_GAME' }
   | { type: 'DEAL_CARDS' }
-  | { type: 'SELECT_FACE_UP_CARD'; cardIndex: number }
+  | { type: 'SELECT_FACE_UP_CARD'; cardIndex: number | number[] }
   | { type: 'SELECT_MULTIPLE_FACE_UP_CARDS'; cardIndices: number[] }
   | { type: 'COMPLETE_SETUP' }
   | { type: 'PLAY_CARD'; cardIndex: number | number[] }

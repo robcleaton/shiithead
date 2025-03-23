@@ -9,43 +9,55 @@ import { GameAction } from '@/types/game';
 export const selectFaceUpCard = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
-  cardIndex: number
+  cardIndex: number | number[]
 ) => {
+  if (Array.isArray(cardIndex)) {
+    // Handle array of indices by calling selectMultipleFaceUpCards
+    return selectMultipleFaceUpCards(dispatch, state, cardIndex);
+  }
+  
   try {
+    dispatch({ type: 'SET_LOADING', isLoading: true });
+    
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;
     
-    if (player.faceUpCards.length >= 3) {
-      toast.error("You've already selected 3 cards to place face-up");
+    const cardToMove = player.hand[cardIndex];
+    
+    if (!cardToMove) {
+      toast.error('Invalid card selection');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
     
-    dispatch({ type: 'SET_LOADING', isLoading: true });
+    if (player.faceUpCards.length >= 3) {
+      toast.error('You already have 3 face-up cards');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
     
-    const cardToMove = player.hand[cardIndex];
     const updatedHand = [...player.hand];
     updatedHand.splice(cardIndex, 1);
     
     const updatedFaceUpCards = [...player.faceUpCards, cardToMove];
-    const isReady = updatedFaceUpCards.length === 3;
     
-    const { error: playerError } = await supabase
+    const { error } = await supabase
       .from('players')
-      .update({ 
+      .update({
         hand: updatedHand,
         face_up_cards: updatedFaceUpCards,
-        is_ready: isReady
+        is_ready: updatedFaceUpCards.length === 3
       })
       .eq('id', player.id)
       .eq('game_id', state.gameId);
       
-    if (playerError) throw playerError;
+    if (error) throw error;
     
     dispatch({ type: 'SELECT_FACE_UP_CARD', cardIndex });
     dispatch({ type: 'SET_LOADING', isLoading: false });
     
-    if (isReady) {
-      toast.success("You've selected all your face-up cards!");
+    if (updatedFaceUpCards.length === 3) {
+      toast.success('You are ready to start!');
     }
   } catch (error) {
     console.error('Error selecting face-up card:', error);
