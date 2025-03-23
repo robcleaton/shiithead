@@ -361,7 +361,6 @@ const Game = () => {
               cards={player.hand}
               isActive={state.currentPlayerId === state.playerId}
               onPlayCard={handlePlayCard}
-              onPlayMultipleCards={handlePlayCard}
             />
           </div>
         )}

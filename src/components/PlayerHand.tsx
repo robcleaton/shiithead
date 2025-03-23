@@ -23,34 +23,27 @@ const PlayerHand = ({
   isSetupPhase = false, 
   maxSelections = 3 
 }: PlayerHandProps) => {
-  // Add state to track selected card indices
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   
-  // Add console log to help debug
   console.log('PlayerHand rendering with cards:', cards);
   console.log('Selected indices:', selectedIndices);
   
-  // Ensure cards is always an array, even if undefined or null
   const cardArray = Array.isArray(cards) ? cards : [];
   
   const handleSelectCard = (index: number) => {
     setSelectedIndices(prevIndices => {
       if (prevIndices.includes(index)) {
-        // Remove index if already selected
         return prevIndices.filter(i => i !== index);
       } else {
-        // During gameplay, only allow selecting same rank cards
         if (!isSetupPhase && prevIndices.length > 0) {
           const firstSelectedCard = cardArray[prevIndices[0]];
           const currentCard = cardArray[index];
           
-          // Only allow selection if card has the same rank
           if (firstSelectedCard.rank !== currentCard.rank) {
             return prevIndices;
           }
         }
         
-        // During setup, add index if under max limit
         if (isSetupPhase && prevIndices.length >= maxSelections) {
           return prevIndices;
         }
@@ -61,19 +54,15 @@ const PlayerHand = ({
   };
   
   const handlePlaySelected = () => {
-    // For setup phase with multiple selections
     if (isSetupPhase && onSelectMultipleCards && selectedIndices.length > 0) {
       onSelectMultipleCards(selectedIndices);
       setSelectedIndices([]);
     } 
-    // For regular gameplay with single card play
     else if (!isSetupPhase && selectedIndices.length === 1) {
       onPlayCard(selectedIndices[0]);
       setSelectedIndices([]);
     }
-    // For playing multiple cards of the same rank
     else if (!isSetupPhase && selectedIndices.length > 1) {
-      // Use onPlayCard directly with multiple cards
       onPlayCard(selectedIndices);
       setSelectedIndices([]);
     }
@@ -131,7 +120,6 @@ const PlayerHand = ({
           </div>
         </div>
         
-        {/* Show Play button when there are valid selections */}
         {isActive && selectedIndices.length > 0 && areSelectionsValid() && (
           <div className="mt-6 flex justify-center">
             <Button
