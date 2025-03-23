@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGame } from '@/context/GameContext';
 import { toast } from 'sonner';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Users } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Users, Home } from 'lucide-react';
 
 // Import refactored components
 import CreateGameForm from './lobby/CreateGameForm';
@@ -71,6 +71,11 @@ const Lobby = () => {
       animate="show"
     >
       <motion.div variants={item} className="w-full max-w-md">
+        <Link to="/" className="flex items-center gap-1 text-karma-primary hover:text-karma-primary/80 mb-4 transition-colors">
+          <Home className="w-4 h-4" />
+          <span>Back to Home</span>
+        </Link>
+        
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center text-karma-primary">Shithead Card Game</CardTitle>
