@@ -11,7 +11,7 @@ import {
   startGame,
   completeSetup,
   resetGame
-} from '@/context/game/actions/gameSetupActions';
+} from '@/context/game/actions/setup';
 
 import {
   playCard,
