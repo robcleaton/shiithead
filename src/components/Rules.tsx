@@ -132,27 +132,6 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               </CollapsibleContent>
             </Collapsible>
             
-            {/* Advanced Rules Section */}
-            <Collapsible
-              open={expandedSection === "advancedRules"}
-              onOpenChange={() => toggleSection("advancedRules")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
-            >
-              <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Advanced Rules</h3>
-                {expandedSection === "advancedRules" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-4">
-                <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>Burn on 10:</strong> If the pile has a value of 10 (e.g., a 10 or a combination of cards adding up to 10), you can burn the pile.</li>
-                  <li><strong>Sandwich Rule:</strong> If a player plays a card that matches the card 2 places below it in the pile, the pile is burned.</li>
-                  <li><strong>9 Reverses:</strong> Playing a 9 reverses the direction of play.</li>
-                  <li><strong>Jack Skips:</strong> Playing a Jack skips the next player's turn.</li>
-                </ul>
-                <p className="mt-2 italic text-sm text-karma-foreground/70">Note: These advanced rules are common variations but may not be implemented in this version of the game.</p>
-              </CollapsibleContent>
-            </Collapsible>
-            
             {/* Strategy Tips Section */}
             <Collapsible
               open={expandedSection === "strategyTips"}
