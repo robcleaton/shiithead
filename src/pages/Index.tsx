@@ -15,15 +15,6 @@ const Index = () => {
         >
           Shithead
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Link to="/game">
-            <Button variant="outline" size="sm">Play Now</Button>
-          </Link>
-        </motion.div>
       </header>
 
       <main className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center">
