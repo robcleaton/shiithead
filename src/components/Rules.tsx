@@ -23,7 +23,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl glass-card">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-karma-primary">Karma Card Game Rules</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-karma-primary">Shithead Rules</DialogTitle>
           <DialogDescription>
             Learn how to play the Karma card game (also known as Shithead)
           </DialogDescription>
