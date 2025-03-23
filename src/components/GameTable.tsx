@@ -13,6 +13,9 @@ interface GameTableProps {
 
 const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, currentPlayer }) => {
   const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
+  const sameRankCount = pile.length > 0 
+    ? pile.filter(card => card.rank === topCard?.rank).length
+    : 0;
   
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
@@ -64,17 +67,55 @@ const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, curr
         
         {/* Pile */}
         <div className="flex flex-col items-center">
-          <div className="mb-2 text-xs text-karma-foreground/70">Discard Pile</div>
+          <div className="mb-2 text-xs text-karma-foreground/70">
+            Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount}×)</span>}
+          </div>
+          
           {topCard ? (
-            <div className="w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center">
-              <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                {topCard.rank}
-                <span className="text-lg">
-                  {topCard.suit === 'hearts' ? '♥' : 
-                  topCard.suit === 'diamonds' ? '♦' : 
-                  topCard.suit === 'clubs' ? '♣' : '♠'}
-                </span>
+            <div className="relative">
+              {/* Display stacked top cards if multiple cards of same rank */}
+              {sameRankCount > 1 && (
+                Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
+                  <div 
+                    key={`pile-card-${index}`}
+                    className="absolute w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
+                    style={{ 
+                      top: `${-3 - index * 2}px`, 
+                      left: `${-3 - index * 2}px`, 
+                      transform: `rotate(${(index - 1) * -3}deg)`,
+                      zIndex: 3 - index
+                    }}
+                  >
+                    <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                      {topCard.rank}
+                      <span className="text-lg">
+                        {topCard.suit === 'hearts' ? '♥' : 
+                        topCard.suit === 'diamonds' ? '♦' : 
+                        topCard.suit === 'clubs' ? '♣' : '♠'}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+              
+              {/* Main top card */}
+              <div className="w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center">
+                <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                  {topCard.rank}
+                  <span className="text-lg">
+                    {topCard.suit === 'hearts' ? '♥' : 
+                    topCard.suit === 'diamonds' ? '♦' : 
+                    topCard.suit === 'clubs' ? '♣' : '♠'}
+                  </span>
+                </div>
               </div>
+              
+              {/* Show pile count if more than 3 cards */}
+              {pile.length > 4 && (
+                <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-karma-primary text-white text-xs font-medium rounded-full">
+                  {pile.length}
+                </div>
+              )}
             </div>
           ) : (
             <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">

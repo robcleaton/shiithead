@@ -9,6 +9,7 @@ interface PlayerHandProps {
   cards: CardValue[];
   isActive: boolean;
   onPlayCard: (index: number) => void;
+  onPlayMultipleCards?: (indices: number[]) => void;
   onSelectMultipleCards?: (indices: number[]) => void;
   isSetupPhase?: boolean;
   maxSelections?: number;
@@ -18,6 +19,7 @@ const PlayerHand = ({
   cards, 
   isActive, 
   onPlayCard, 
+  onPlayMultipleCards,
   onSelectMultipleCards, 
   isSetupPhase = false, 
   maxSelections = 3 
@@ -38,15 +40,23 @@ const PlayerHand = ({
         // Remove index if already selected
         return prevIndices.filter(i => i !== index);
       } else {
-        // During gameplay, only allow single selection
-        if (!isSetupPhase) {
-          return [index];
+        // During gameplay, only allow selecting same rank cards
+        if (!isSetupPhase && prevIndices.length > 0) {
+          const firstSelectedCard = cardArray[prevIndices[0]];
+          const currentCard = cardArray[index];
+          
+          // Only allow selection if card has the same rank
+          if (firstSelectedCard.rank !== currentCard.rank) {
+            return prevIndices;
+          }
         }
+        
         // During setup, add index if under max limit
-        if (prevIndices.length < maxSelections) {
-          return [...prevIndices, index];
+        if (isSetupPhase && prevIndices.length >= maxSelections) {
+          return prevIndices;
         }
-        return prevIndices;
+        
+        return [...prevIndices, index];
       }
     });
   };
@@ -62,6 +72,22 @@ const PlayerHand = ({
       onPlayCard(selectedIndices[0]);
       setSelectedIndices([]);
     }
+    // For playing multiple cards of the same rank
+    else if (!isSetupPhase && selectedIndices.length > 1 && onPlayMultipleCards) {
+      onPlayMultipleCards(selectedIndices);
+      setSelectedIndices([]);
+    }
+  };
+  
+  // Check if selected cards all have the same rank
+  const areSelectionsValid = () => {
+    if (selectedIndices.length === 0) return false;
+    if (isSetupPhase) return selectedIndices.length <= maxSelections;
+    
+    if (selectedIndices.length === 1) return true;
+    
+    const firstRank = cardArray[selectedIndices[0]]?.rank;
+    return selectedIndices.every(index => cardArray[index]?.rank === firstRank);
   };
   
   return (
@@ -106,8 +132,8 @@ const PlayerHand = ({
           </div>
         </div>
         
-        {/* Show Play button when there are selections */}
-        {isActive && selectedIndices.length > 0 && (
+        {/* Show Play button when there are valid selections */}
+        {isActive && selectedIndices.length > 0 && areSelectionsValid() && (
           <div className="mt-6 flex justify-center">
             <Button
               onClick={handlePlaySelected}
@@ -121,7 +147,7 @@ const PlayerHand = ({
               ) : (
                 <>
                   <Play className="w-4 h-4 mr-2" />
-                  Play Card
+                  Play {selectedIndices.length > 1 ? `${selectedIndices.length} Cards` : 'Card'}
                 </>
               )}
             </Button>

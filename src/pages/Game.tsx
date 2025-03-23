@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/context/GameContext';
@@ -8,7 +7,7 @@ import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
 import { HelpCircle, RefreshCw, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion'; // Import motion from framer-motion
+import { motion } from 'framer-motion';
 
 const Game = () => {
   const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
@@ -100,6 +99,12 @@ const Game = () => {
       </motion.div>
     );
   }
+
+  const playMultipleCards = (cardIndices: number[]) => {
+    if (cardIndices.length > 0) {
+      playCard(cardIndices);
+    }
+  };
 
   if (state.setupPhase && player) {
     console.log('Rendering setup phase UI with player:', player);
@@ -255,7 +260,6 @@ const Game = () => {
       </motion.div>
 
       <div className="flex flex-col gap-8 items-center">
-        {/* Opponent hands (if multiplayer) */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {state.players
             .filter(p => p.id !== state.playerId)
@@ -279,7 +283,6 @@ const Game = () => {
                   </span>
                 </div>
                 
-                {/* Face down and face up cards */}
                 <div className="flex justify-center mb-2">
                   {opponent.faceDownCards.map((_, index) => (
                     <div 
@@ -302,7 +305,6 @@ const Game = () => {
                   ))}
                 </div>
                 
-                {/* Hand cards */}
                 <div className="flex justify-center">
                   {opponent.hand.map((_, index) => (
                     <div 
@@ -318,7 +320,6 @@ const Game = () => {
             ))}
         </div>
 
-        {/* Game Table */}
         <GameTable 
           pile={state.pile} 
           deckCount={state.deck.length} 
@@ -326,10 +327,8 @@ const Game = () => {
           currentPlayer={currentPlayer?.name || 'Unknown'}
         />
 
-        {/* Player Cards */}
         {player && (
           <div className="w-full max-w-3xl">
-            {/* Player's face down and face up cards */}
             <div className="flex justify-center gap-1 mb-6">
               <div className="flex flex-col items-center">
                 <div className="text-xs text-gray-500 mb-1">Face Down</div>
@@ -360,11 +359,11 @@ const Game = () => {
               </div>
             </div>
             
-            {/* Player Hand */}
             <PlayerHand
               cards={player.hand}
               isActive={state.currentPlayerId === state.playerId}
               onPlayCard={(index) => playCard(index)}
+              onPlayMultipleCards={playMultipleCards}
             />
           </div>
         )}

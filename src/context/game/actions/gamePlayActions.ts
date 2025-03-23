@@ -8,7 +8,7 @@ import { GameAction } from '@/types/game';
 export const playCard = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
-  cardIndex: number
+  cardIndex: number | number[]
 ) => {
   if (state.currentPlayerId !== state.playerId) {
     toast.error("It's not your turn!");
@@ -16,40 +16,83 @@ export const playCard = async (
   }
   
   try {
+    dispatch({ type: 'SET_LOADING', isLoading: true });
+    
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;
     
-    const cardToPlay = player.hand[cardIndex];
+    // Handle both single card and multiple cards
+    const cardIndices = Array.isArray(cardIndex) ? cardIndex : [cardIndex];
     
-    if (state.pile.length > 0) {
-      const topCard = state.pile[state.pile.length - 1];
+    // Sort indices in descending order to remove cards correctly
+    const sortedIndices = [...cardIndices].sort((a, b) => b - a);
+    
+    // Verify all cards have the same rank
+    const cards = sortedIndices.map(index => player.hand[index]);
+    const firstCardRank = cards[0]?.rank;
+    const allSameRank = cards.every(card => card.rank === firstCardRank);
+    
+    if (!allSameRank) {
+      toast.error("All cards must have the same rank!");
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
+    
+    // For a single card, check against the top card
+    if (sortedIndices.length === 1) {
+      const cardToPlay = player.hand[sortedIndices[0]];
       
-      const specialCards = ['2', '3', '7', '8', '10'];
-      const cardRank = cardToPlay.rank;
-      const rankValues: Record<Rank, number> = {
-        'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
-        '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
-      };
+      if (state.pile.length > 0) {
+        const topCard = state.pile[state.pile.length - 1];
+        
+        const specialCards = ['2', '3', '7', '8', '10'];
+        const cardRank = cardToPlay.rank;
+        const rankValues: Record<Rank, number> = {
+          'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
+          '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
+        };
+        
+        if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] > 7) {
+          toast.error("After a 7 is played, you must play a card of rank 7 or lower!");
+          dispatch({ type: 'SET_LOADING', isLoading: false });
+          return;
+        }
+        else if (cardToPlay.rank === '10' && topCard.rank === '7') {
+          toast.error("Cannot play a 10 on top of a 7!");
+          dispatch({ type: 'SET_LOADING', isLoading: false });
+          return;
+        }
+        else if (!specialCards.includes(cardRank) && cardRank !== topCard.rank) {
+          toast.error("Invalid move! Card must match the rank of the top card or be a special card (2, 3, 7, 8, 10).");
+          dispatch({ type: 'SET_LOADING', isLoading: false });
+          return;
+        }
+      }
+    } else {
+      // For multiple cards, check against the top card
+      const cardToPlay = player.hand[sortedIndices[0]];
       
-      if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] > 7) {
-        toast.error("After a 7 is played, you must play a card of rank 7 or lower!");
-        return;
-      }
-      else if (cardToPlay.rank === '10' && topCard.rank === '7') {
-        toast.error("Cannot play a 10 on top of a 7!");
-        return;
-      }
-      else if (!specialCards.includes(cardRank) && cardRank !== topCard.rank) {
-        toast.error("Invalid move! Card must match the rank of the top card or be a special card (2, 3, 7, 8, 10).");
-        return;
+      if (state.pile.length > 0) {
+        const topCard = state.pile[state.pile.length - 1];
+        
+        if (cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && cardToPlay.rank !== '10' && cardToPlay.rank !== topCard.rank) {
+          toast.error("When playing multiple cards, they must match the top card's rank or be special cards.");
+          dispatch({ type: 'SET_LOADING', isLoading: false });
+          return;
+        }
       }
     }
     
-    dispatch({ type: 'SET_LOADING', isLoading: true });
+    // Get the cards to play
+    const cardsToPlay = cardIndices.map(index => player.hand[index]);
     
+    // Remove the cards from the player's hand
     const updatedHand = [...player.hand];
-    updatedHand.splice(cardIndex, 1);
+    for (const index of sortedIndices) {
+      updatedHand.splice(index, 1);
+    }
     
+    // Draw cards to bring hand up to 3 if possible
     const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
     const updatedDeck = [...state.deck];
     const drawnCards = [];
@@ -68,20 +111,22 @@ export const playCard = async (
       
     if (playerError) throw playerError;
     
+    // Update the pile based on the cards played
     let updatedPile: CardValue[] = [];
-    if (cardToPlay.rank === '10') {
-      updatedPile = [cardToPlay];
+    
+    // If any card is a 10, the pile is cleared
+    if (cardsToPlay.some(card => card.rank === '10')) {
+      updatedPile = cardsToPlay; // Only keep the cards just played
     } else {
-      updatedPile = [...state.pile, cardToPlay];
+      updatedPile = [...state.pile, ...cardsToPlay];
     }
     
+    // Determine the next player
     const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-    
     let nextIndex = currentPlayerIndex;
     
-    if (cardToPlay.rank === '2') {
-      nextIndex = currentPlayerIndex;
-    } else if (cardToPlay.rank === '10') {
+    // If any card is a 2 or 10, current player gets another turn
+    if (cardsToPlay.some(card => card.rank === '2' || card.rank === '10')) {
       nextIndex = currentPlayerIndex;
     } else {
       nextIndex = (currentPlayerIndex + 1) % state.players.length;
@@ -103,12 +148,19 @@ export const playCard = async (
       
     if (gameError) throw gameError;
     
-    if (cardToPlay.rank === '2') {
-      toast.success(`${player.name} played a 2 - they get another turn!`);
-    } else if (cardToPlay.rank === '7') {
-      toast.success(`${player.name} played a 7 - the next player must play a card of rank 7 or lower!`);
-    } else if (cardToPlay.rank === '10') {
-      toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
+    // Show appropriate messages based on the cards played
+    if (cardsToPlay.length > 1) {
+      toast.success(`${player.name} played ${cardsToPlay.length} ${cardsToPlay[0].rank}s!`);
+    } else {
+      if (cardsToPlay[0].rank === '2') {
+        toast.success(`${player.name} played a 2 - they get another turn!`);
+      } else if (cardsToPlay[0].rank === '3') {
+        toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
+      } else if (cardsToPlay[0].rank === '7') {
+        toast.success(`${player.name} played a 7 - the next player must play a card of rank 7 or lower!`);
+      } else if (cardsToPlay[0].rank === '10') {
+        toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
+      }
     }
     
     if (gameOver) {
