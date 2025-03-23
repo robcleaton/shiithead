@@ -8,7 +8,7 @@ import { Check, Play } from 'lucide-react';
 interface PlayerHandProps {
   cards: CardValue[];
   isActive: boolean;
-  onPlayCard: (index: number) => void;
+  onPlayCard: (index: number | number[]) => void;
   onPlayMultipleCards?: (indices: number[]) => void;
   onSelectMultipleCards?: (indices: number[]) => void;
   isSetupPhase?: boolean;
@@ -73,13 +73,17 @@ const PlayerHand = ({
       setSelectedIndices([]);
     }
     // For playing multiple cards of the same rank
-    else if (!isSetupPhase && selectedIndices.length > 1 && onPlayMultipleCards) {
-      onPlayMultipleCards(selectedIndices);
+    else if (!isSetupPhase && selectedIndices.length > 1) {
+      // Use onPlayMultipleCards if provided, otherwise fall back to onPlayCard
+      if (onPlayMultipleCards) {
+        onPlayMultipleCards(selectedIndices);
+      } else {
+        onPlayCard(selectedIndices);
+      }
       setSelectedIndices([]);
     }
   };
   
-  // Check if selected cards all have the same rank
   const areSelectionsValid = () => {
     if (selectedIndices.length === 0) return false;
     if (isSetupPhase) return selectedIndices.length <= maxSelections;

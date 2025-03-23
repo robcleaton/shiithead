@@ -100,10 +100,8 @@ const Game = () => {
     );
   }
 
-  const playMultipleCards = (cardIndices: number[]) => {
-    if (cardIndices.length > 0) {
-      playCard(cardIndices);
-    }
+  const handlePlayCard = (cardIndex: number | number[]) => {
+    playCard(cardIndex);
   };
 
   if (state.setupPhase && player) {
@@ -362,8 +360,8 @@ const Game = () => {
             <PlayerHand
               cards={player.hand}
               isActive={state.currentPlayerId === state.playerId}
-              onPlayCard={(index) => playCard(index)}
-              onPlayMultipleCards={playMultipleCards}
+              onPlayCard={handlePlayCard}
+              onPlayMultipleCards={handlePlayCard}
             />
           </div>
         )}
