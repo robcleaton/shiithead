@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { HelpCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SiteHeader from '@/components/SiteHeader';
 
 interface GameHeaderProps {
   onOpenRules: () => void;
@@ -16,7 +17,7 @@ const GameHeader = ({ onOpenRules, onResetGame }: GameHeaderProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h1 className="text-2xl font-bold">Shithead Card Game</h1>
+      <SiteHeader />
       <div className="flex gap-2">
         <Button
           variant="outline"

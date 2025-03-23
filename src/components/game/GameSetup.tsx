@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Player } from '@/types/game';
 import { Check, HelpCircle } from 'lucide-react';
 import PlayerHand from '@/components/PlayerHand';
+import SiteHeader from '@/components/SiteHeader';
 
 interface GameSetupProps {
   player: Player;
@@ -29,7 +30,7 @@ const GameSetup = ({
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Shithead - Setup Phase</h1>
+        <SiteHeader />
         <div className="flex gap-2">
           <Button
             variant="outline"
