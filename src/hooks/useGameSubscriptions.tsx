@@ -31,10 +31,17 @@ export const useGameSubscriptions = (
 
   // This effect updates the ref whenever state changes
   useEffect(() => {
-    return (state: GameState) => {
-      gameStateRef.current = state;
+    // Return a proper cleanup function that takes no arguments
+    return () => {
+      // The cleanup function doesn't need to do anything in this case
+      // as we're just using this effect to capture the latest state
     };
   }, []);
+
+  // Function to be called from outside to update the state ref
+  const updateGameStateRef = (state: GameState) => {
+    gameStateRef.current = state;
+  };
 
   useEffect(() => {
     if (!gameId) {
@@ -167,5 +174,5 @@ export const useGameSubscriptions = (
     };
   }, [gameId, dispatch, playerId]);
 
-  return { cleanupChannels };
+  return { cleanupChannels, updateGameStateRef };
 };

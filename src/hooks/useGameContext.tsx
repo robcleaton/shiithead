@@ -1,4 +1,5 @@
-import { useReducer, useRef } from 'react';
+
+import { useReducer, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameReducer, initialState } from '@/context/game/gameReducer';
 import { 
@@ -30,15 +31,16 @@ const useGameContext = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const navigate = useNavigate();
   
-  // Keep a ref to the current state for use in async callbacks
-  const stateRef = useRef<GameState>(state);
-  stateRef.current = state;
-  
   // Set up real-time subscriptions
-  useGameSubscriptions(state.gameId, state.playerId, dispatch);
+  const { updateGameStateRef } = useGameSubscriptions(state.gameId, state.playerId, dispatch);
   
   // Fetch initial game data
   useFetchGameData(state.gameId, state.playerId, dispatch);
+
+  // Update the game state ref whenever state changes
+  useEffect(() => {
+    updateGameStateRef(state);
+  }, [state, updateGameStateRef]);
 
   return {
     state,
