@@ -19,7 +19,7 @@ export const validateSingleCardPlay = (
   }
   // Special 7 rule: must play a card below 7 or special cards 2, 3, 8
   else if (topCard.rank === '7') {
-    if (['2', '3', '8'].includes(cardRank) || rankValues[cardRank] < rankValues['7' as Rank]) {
+    if (['2', '3', '8'].includes(cardRank) || rankValues[cardRank as Rank] < rankValues['7' as Rank]) {
       return { valid: true };
     } else {
       return { 
@@ -37,7 +37,7 @@ export const validateSingleCardPlay = (
   }
   // Regular card play validation
   else if (!specialCards.includes(cardRank) && cardRank !== topCard.rank) {
-    if (rankValues[cardRank] <= rankValues[topCard.rank]) {
+    if (rankValues[cardRank as Rank] <= rankValues[topCard.rank as Rank]) {
       return { 
         valid: false, 
         errorMessage: "Invalid move! Card must be higher ranked than the top card or be a special card (2, 3, 7, 8, 10)."
@@ -62,7 +62,7 @@ export const validateMultipleCardsPlay = (
   }
   // Special 7 rule: must play a card below 7 or special cards 2, 3, 8
   else if (topCard.rank === '7') {
-    if (['2', '3', '8'].includes(cardToPlay.rank) || rankValues[cardToPlay.rank] < rankValues['7' as Rank]) {
+    if (['2', '3', '8'].includes(cardToPlay.rank) || rankValues[cardToPlay.rank as Rank] < rankValues['7' as Rank]) {
       return { valid: true };
     } else {
       return { 
@@ -105,11 +105,11 @@ export const isValidPlay = (
 
   // When a 7 was played, next card must be lower than 7 or special cards (2, 3, 8)
   if (topCard.rank === "7") {
-    return ["2", "3", "8"].includes(card.rank) || rankValues[card.rank] < rankValues['7' as Rank];
+    return ["2", "3", "8"].includes(card.rank) || rankValues[card.rank as Rank] < rankValues['7' as Rank];
   }
 
   // Match by rank or higher value
-  return card.rank === topCard.rank || rankValues[card.rank] >= rankValues[topCard.rank];
+  return card.rank === topCard.rank || rankValues[card.rank as Rank] >= rankValues[topCard.rank as Rank];
 };
 
 function getCardRankValue(rank: string): number {
