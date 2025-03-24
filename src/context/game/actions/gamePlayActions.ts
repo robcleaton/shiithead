@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Rank, Player } from '@/types/game';
@@ -138,9 +139,12 @@ export const playCard = async (
     // Update the pile based on the cards played
     let updatedPile: CardValue[] = [];
     
-    // If any card is a 10, the pile is cleared
+    // If any card is a 10, the pile is completely removed (burned)
+    // Only the played 10 cards are added to form a new pile
     if (cardsToPlay.some(card => card.rank === '10')) {
-      updatedPile = cardsToPlay; // Only keep the cards just played
+      // The pile is completely burned (removed from the game)
+      // Only the cards just played will start a new pile
+      updatedPile = cardsToPlay;
     } else {
       updatedPile = [...state.pile, ...cardsToPlay];
     }
