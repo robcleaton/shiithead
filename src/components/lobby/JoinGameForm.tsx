@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface JoinGameFormProps {
   joinGame: (gameId: string, playerName: string) => void;
@@ -13,10 +14,12 @@ interface JoinGameFormProps {
 const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
   const [playerName, setPlayerName] = useState('');
   const [gameId, setGameId] = useState(initialGameId);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (initialGameId) {
       setGameId(initialGameId);
+      console.log(`Setting initial game ID: ${initialGameId}`);
     }
   }, [initialGameId]);
 

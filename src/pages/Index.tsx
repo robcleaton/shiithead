@@ -1,7 +1,7 @@
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Rules from '@/components/Rules';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
@@ -11,13 +11,16 @@ const Index = () => {
   const [showRules, setShowRules] = useState(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
   const { gameId } = useParams();
+  const location = useLocation();
   const { joinGame } = useGame();
 
   useEffect(() => {
-    if (gameId) {
+    // Check if we're on a join URL path
+    if (location.pathname.startsWith('/join/') && gameId) {
       setShowJoinForm(true);
+      console.log(`Detected join URL with gameId: ${gameId}`);
     }
-  }, [gameId]);
+  }, [gameId, location]);
 
   return (
     <div className="min-h-screen flex flex-col">
