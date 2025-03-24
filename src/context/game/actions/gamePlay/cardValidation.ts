@@ -1,3 +1,4 @@
+
 import { CardValue } from '@/types/game';
 import { rankValues } from './utils';
 
@@ -104,11 +105,11 @@ export const isValidPlay = (
 
   // When a 7 was played, next card must be lower than 7 or special cards (2, 3, 8)
   if (topCard.rank === "7") {
-    return ["2", "3", "8"].includes(card.rank) || getCardRankValue(card.rank) < getCardRankValue("7");
+    return ["2", "3", "8"].includes(card.rank) || rankValues[card.rank] < rankValues["7"];
   }
 
   // Match by rank or higher value
-  return card.rank === topCard.rank || getCardRankValue(card.rank) >= getCardRankValue(topCard.rank);
+  return card.rank === topCard.rank || rankValues[card.rank] >= rankValues[topCard.rank];
 };
 
 function getCardRankValue(rank: string): number {
