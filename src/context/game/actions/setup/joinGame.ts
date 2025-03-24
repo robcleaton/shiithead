@@ -19,9 +19,9 @@ export const joinGame = async (
       .from('games')
       .select('*')
       .eq('id', gameId)
-      .single();
+      .maybeSingle();
       
-    if (gameError) {
+    if (gameError || !gameData) {
       toast.error('Game not found');
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
@@ -63,7 +63,11 @@ export const joinGame = async (
     dispatch({ type: 'JOIN_GAME', gameId, playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Joined game as ${playerName}`);
-    navigate('/game');
+    
+    // Ensure navigation happens after state is updated
+    setTimeout(() => {
+      navigate('/game');
+    }, 100);
   } catch (error) {
     console.error('Error joining game:', error);
     toast.error('Failed to join game');

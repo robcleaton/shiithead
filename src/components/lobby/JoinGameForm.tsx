@@ -23,7 +23,9 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
     }
   }, [initialGameId]);
 
-  const handleJoinGame = () => {
+  const handleJoinGame = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
     if (!playerName.trim()) {
       toast.error('Please enter your name');
       return;
@@ -32,11 +34,12 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
       toast.error('Please enter a game ID');
       return;
     }
+    
     joinGame(gameId, playerName);
   };
 
   return (
-    <div className="space-y-4 mt-4">
+    <form onSubmit={handleJoinGame} className="space-y-4 mt-4">
       <div className="space-y-2">
         <Label htmlFor="join-name">Your Name</Label>
         <Input
@@ -54,9 +57,13 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
           placeholder="Enter game ID"
           value={gameId}
           onChange={(e) => setGameId(e.target.value)}
+          disabled={!!initialGameId}
         />
       </div>
-      <Button onClick={handleJoinGame} className="w-full bg-karma-primary hover:bg-karma-primary/90">
+      <Button 
+        type="submit"
+        className="w-full bg-karma-primary hover:bg-karma-primary/90"
+      >
         Join Game
       </Button>
       {initialGameId && (
@@ -64,7 +71,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
           Enter your name to join game {initialGameId}
         </p>
       )}
-    </div>
+    </form>
   );
 };
 
