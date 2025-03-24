@@ -50,7 +50,7 @@ const ActiveGame = ({
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
-      <GameHeader />
+      <GameHeader onOpenRules={onOpenRules} />
 
       <div className="flex flex-col gap-8 items-center">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
