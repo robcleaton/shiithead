@@ -15,35 +15,58 @@ export const joinGame = async (
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
+    // First check if the game exists
     const { data: gameData, error: gameError } = await supabase
       .from('games')
       .select('*')
       .eq('id', gameId)
       .maybeSingle();
       
-    if (gameError || !gameData) {
+    if (gameError) {
+      console.error('Error fetching game:', gameError);
+      toast.error('Error fetching game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
+    
+    if (!gameData) {
       toast.error('Game not found');
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
     
-    const { data: existingPlayer } = await supabase
+    // Check if player exists in this game
+    const { data: existingPlayer, error: playerQueryError } = await supabase
       .from('players')
       .select('*')
       .eq('id', playerId)
       .eq('game_id', gameId)
       .maybeSingle();
     
+    if (playerQueryError) {
+      console.error('Error checking player:', playerQueryError);
+      toast.error('Error checking player status');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
+    
     if (existingPlayer) {
+      // Update existing player
       const { error: updateError } = await supabase
         .from('players')
         .update({ name: playerName })
         .eq('id', playerId)
         .eq('game_id', gameId);
         
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating player:', updateError);
+        toast.error('Error updating player');
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        return;
+      }
     } else {
-      const { error: playerError } = await supabase
+      // Create new player
+      const { error: insertError } = await supabase
         .from('players')
         .insert([{
           id: playerId,
@@ -57,14 +80,20 @@ export const joinGame = async (
           is_ready: false
         }]);
         
-      if (playerError) throw playerError;
+      if (insertError) {
+        console.error('Error creating player:', insertError);
+        toast.error('Error creating player');
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        return;
+      }
     }
     
+    // Update state and navigate only after all operations completed successfully
     dispatch({ type: 'JOIN_GAME', gameId, playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Joined game as ${playerName}`);
     
-    // Navigate directly after state is updated
+    // Use the navigate function after all state updates
     navigate('/game');
   } catch (error) {
     console.error('Error joining game:', error);

@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 
 interface JoinGameFormProps {
@@ -12,66 +12,77 @@ interface JoinGameFormProps {
 }
 
 const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
-  const [playerName, setPlayerName] = useState('');
   const [gameId, setGameId] = useState(initialGameId);
+  const [playerName, setPlayerName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (initialGameId) {
-      setGameId(initialGameId);
-      console.log(`Setting initial game ID: ${initialGameId}`);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!gameId.trim()) {
+      return;
     }
-  }, [initialGameId]);
-
-  const handleJoinGame = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
     
     if (!playerName.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-    if (!gameId.trim()) {
-      toast.error('Please enter a game ID');
       return;
     }
     
-    joinGame(gameId, playerName);
+    setIsSubmitting(true);
+    
+    try {
+      await joinGame(gameId, playerName);
+    } catch (error) {
+      console.error('Error in join game form:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleJoinGame} className="space-y-4 mt-4">
-      <div className="space-y-2">
-        <Label htmlFor="join-name">Your Name</Label>
-        <Input
-          id="join-name"
-          placeholder="Enter your name"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          autoFocus
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="game-id">Game ID</Label>
-        <Input
-          id="game-id"
-          placeholder="Enter game ID"
-          value={gameId}
-          onChange={(e) => setGameId(e.target.value)}
-          disabled={!!initialGameId}
-        />
-      </div>
-      <Button 
-        type="submit"
-        className="w-full bg-karma-primary hover:bg-karma-primary/90"
-      >
-        Join Game
-      </Button>
-      {initialGameId && (
-        <p className="text-sm text-center mt-2 text-karma-foreground/70">
-          Enter your name to join game {initialGameId}
-        </p>
-      )}
-    </form>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Join Game</CardTitle>
+        <CardDescription>Enter the game code shared by the host</CardDescription>
+      </CardHeader>
+      
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="gameId">Game Code</Label>
+            <Input 
+              id="gameId" 
+              value={gameId} 
+              onChange={(e) => setGameId(e.target.value)} 
+              placeholder="Enter game code"
+              readOnly={!!initialGameId}
+              className={initialGameId ? "bg-gray-100" : ""}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="playerName">Your Name</Label>
+            <Input 
+              id="playerName" 
+              value={playerName} 
+              onChange={(e) => setPlayerName(e.target.value)} 
+              placeholder="Enter your name"
+              autoFocus={!!initialGameId}
+            />
+          </div>
+        </CardContent>
+        
+        <CardFooter>
+          <Button 
+            type="submit" 
+            className="w-full bg-karma-primary hover:bg-karma-primary/90" 
+            disabled={isSubmitting || !gameId.trim() || !playerName.trim()}
+          >
+            {isSubmitting ? 'Joining...' : 'Join Game'}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
   );
 };
 
