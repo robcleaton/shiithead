@@ -3,12 +3,10 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Rules from '@/components/Rules';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
 import { useGame } from '@/context/GameContext';
 
 const Index = () => {
-  const [showRules, setShowRules] = useState(false);
   const [showJoinForm, setShowJoinForm] = useState(false);
   const { gameId } = useParams();
   const location = useLocation();
@@ -44,7 +42,7 @@ const Index = () => {
             Play the classic Shithead card game online with friends. Create a game, share the code, and enjoy this timeless card game with beautiful animations and intuitive design.
           </motion.p>
           
-          {showJoinForm ? (
+          {showJoinForm || gameId ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
