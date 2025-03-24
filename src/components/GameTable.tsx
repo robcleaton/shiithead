@@ -2,20 +2,33 @@
 import React from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
-import { Layers } from 'lucide-react';
+import { Layers, HandMetal } from 'lucide-react';
 
 interface GameTableProps {
   pile: CardValue[];
   deckCount: number;
   onDrawCard: () => void;
+  onPickupPile: () => void;
   currentPlayer: string;
+  isCurrentPlayer: boolean;
+  mustPickUpPileOrPlayThree: boolean;
 }
 
-const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, currentPlayer }) => {
+const GameTable: React.FC<GameTableProps> = ({ 
+  pile, 
+  deckCount, 
+  onDrawCard, 
+  onPickupPile,
+  currentPlayer, 
+  isCurrentPlayer,
+  mustPickUpPileOrPlayThree
+}) => {
   const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
   const sameRankCount = pile.length > 0 
     ? pile.filter(card => card.rank === topCard?.rank).length
     : 0;
+  
+  const isThreeOnTop = topCard?.rank === '3';
   
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
@@ -125,21 +138,42 @@ const GameTable: React.FC<GameTableProps> = ({ pile, deckCount, onDrawCard, curr
         </div>
       </div>
       
-      {/* Draw button */}
-      <div className="flex justify-center mt-6">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onDrawCard}
-          disabled={deckCount === 0}
-          className="bg-karma-card-back text-white hover:bg-karma-card-back/90"
-        >
-          <Layers className="mr-2 h-4 w-4" />
-          Draw
-        </Button>
+      {/* Action buttons - conditional rendering based on game state */}
+      <div className="flex justify-center mt-6 gap-3">
+        {isCurrentPlayer && (
+          <>
+            {mustPickUpPileOrPlayThree ? (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={onPickupPile}
+                disabled={pile.length === 0}
+                className="text-white"
+              >
+                <HandMetal className="mr-2 h-4 w-4" />
+                Pick Up Pile
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDrawCard}
+                disabled={deckCount === 0}
+                className="bg-karma-card-back text-white hover:bg-karma-card-back/90"
+              >
+                <Layers className="mr-2 h-4 w-4" />
+                Draw
+              </Button>
+            )}
+          </>
+        )}
       </div>
       
+      {/* Game instructions */}
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
+        {isThreeOnTop && (
+          <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
+        )}
         <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next card to be rank 7 or lower! 10s (except on 7s) burn the pile and give you another turn.</p>
       </div>
     </div>

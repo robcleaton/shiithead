@@ -38,6 +38,17 @@ export const playCard = async (
       return;
     }
     
+    // Check if there's a 3 on top and the player isn't playing a 3
+    if (state.pile.length > 0) {
+      const topCard = state.pile[state.pile.length - 1];
+      
+      if (topCard.rank === '3' && firstCardRank !== '3') {
+        toast.error("You must play a 3 or pick up the pile!");
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        return;
+      }
+    }
+    
     // For a single card, check against the top card
     if (sortedIndices.length === 1) {
       const cardToPlay = player.hand[sortedIndices[0]];
@@ -211,6 +222,17 @@ export const drawCard = async (
     return;
   }
   
+  // Check if there's a 3 on top and the player isn't playing a 3
+  if (state.pile.length > 0) {
+    const topCard = state.pile[state.pile.length - 1];
+    
+    if (topCard.rank === '3') {
+      // Instead of drawing a card, pickup the pile
+      await pickupPile(dispatch, state);
+      return;
+    }
+  }
+  
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
@@ -244,10 +266,62 @@ export const drawCard = async (
       
     if (gameError) throw gameError;
     
+    toast.info(`${player.name} drew a card.`);
     dispatch({ type: 'SET_LOADING', isLoading: false });
   } catch (error) {
     console.error('Error drawing card:', error);
     toast.error('Failed to draw card');
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+  }
+};
+
+// New function to handle picking up the pile (when a 3 is on top)
+export const pickupPile = async (
+  dispatch: Dispatch<GameAction>,
+  state: GameState
+) => {
+  if (state.currentPlayerId !== state.playerId) {
+    toast.error("It's not your turn!");
+    return;
+  }
+  
+  try {
+    dispatch({ type: 'SET_LOADING', isLoading: true });
+    
+    const player = state.players.find(p => p.id === state.playerId);
+    if (!player) return;
+    
+    // Add the pile to the player's hand
+    const updatedHand = [...player.hand, ...state.pile];
+    
+    const { error: playerError } = await supabase
+      .from('players')
+      .update({ hand: updatedHand })
+      .eq('id', player.id)
+      .eq('game_id', state.gameId);
+      
+    if (playerError) throw playerError;
+    
+    // Move to the next player
+    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+    const nextIndex = (playerIndex + 1) % state.players.length;
+    const nextPlayerId = state.players[nextIndex].id;
+    
+    const { error: gameError } = await supabase
+      .from('games')
+      .update({ 
+        pile: [],
+        current_player_id: nextPlayerId
+      })
+      .eq('id', state.gameId);
+      
+    if (gameError) throw gameError;
+    
+    toast.info(`${player.name} picked up the pile (${state.pile.length} cards).`);
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+  } catch (error) {
+    console.error('Error picking up pile:', error);
+    toast.error('Failed to pick up pile');
     dispatch({ type: 'SET_LOADING', isLoading: false });
   }
 };

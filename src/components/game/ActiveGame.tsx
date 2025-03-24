@@ -28,7 +28,7 @@ const ActiveGame = ({
   drawCard,
   playCard,
   resetGame,
-  onOpenRules  // We'll keep this in the props even though we won't use it directly
+  onOpenRules
 }: ActiveGameProps) => {
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const player = players.find(p => p.id === playerId);
@@ -36,6 +36,17 @@ const ActiveGame = ({
   if (!player) {
     return <div>Error: Player not found</div>;
   }
+
+  // Determine if a 3 is on top of the pile
+  const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
+  const isThreeOnTop = topCard?.rank === '3';
+  const mustPickUpPileOrPlayThree = isThreeOnTop;
+
+  // Function to handle picking up the pile - same logic as drawCard but with different UI feedback
+  const handlePickUpPile = () => {
+    // We use the same drawCard function as it already handles adding cards to the player's hand
+    drawCard();
+  };
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
@@ -54,7 +65,10 @@ const ActiveGame = ({
           pile={pile} 
           deckCount={deck.length} 
           onDrawCard={drawCard}
+          onPickupPile={handlePickUpPile}
           currentPlayer={currentPlayer?.name || 'Unknown'}
+          isCurrentPlayer={currentPlayerId === playerId}
+          mustPickUpPileOrPlayThree={mustPickUpPileOrPlayThree}
         />
 
         <PlayerArea 
