@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { HelpCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SiteHeader from '@/components/SiteHeader';
 
 interface GameHeaderProps {
   onOpenRules: () => void;
@@ -12,12 +11,11 @@ interface GameHeaderProps {
 const GameHeader = ({ onOpenRules, onResetGame }: GameHeaderProps) => {
   return (
     <motion.div 
-      className="flex justify-between items-center mb-8"
+      className="flex justify-end items-center mb-8"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <SiteHeader />
       <div className="flex gap-2">
         <Button
           variant="outline"

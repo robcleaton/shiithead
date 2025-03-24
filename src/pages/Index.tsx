@@ -1,18 +1,17 @@
+
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Rules from '@/components/Rules';
 import { BookOpen } from 'lucide-react';
-import SiteHeader from '@/components/SiteHeader';
 
 const Index = () => {
   const [showRules, setShowRules] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="container mx-auto px-6 py-6 flex justify-between items-center">
-        <SiteHeader />
+      <header className="container mx-auto px-6 py-6 flex justify-end items-center">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
