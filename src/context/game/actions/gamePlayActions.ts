@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Rank, Player } from '@/types/game';
@@ -344,7 +345,7 @@ export const handleAIPlayerTurn = async (
     if (topCard?.rank === '7') {
       const validCards = currentPlayer.hand
         .map((card, index) => {
-          if (['2', '3', '8'].includes(card.rank) || rankValues[card.rank] <= 7) {
+          if (['2', '3', '8'].includes(card.rank) || rankValues[card.rank] <= rankValues['7']) {
             return { card, index, value: rankValues[card.rank] };
           }
           return null;
