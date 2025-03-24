@@ -1,12 +1,23 @@
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Rules from '@/components/Rules';
+import JoinGameForm from '@/components/lobby/JoinGameForm';
+import { useGame } from '@/context/GameContext';
 
 const Index = () => {
   const [showRules, setShowRules] = useState(false);
+  const [showJoinForm, setShowJoinForm] = useState(false);
+  const { gameId } = useParams();
+  const { joinGame } = useGame();
+
+  useEffect(() => {
+    if (gameId) {
+      setShowJoinForm(true);
+    }
+  }, [gameId]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,18 +41,29 @@ const Index = () => {
             Play the classic Shithead card game online with friends. Create a game, share the code, and enjoy this timeless card game with beautiful animations and intuitive design.
           </motion.p>
           
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/game">
-              <Button size="lg" className="bg-karma-primary hover:bg-karma-primary/90 text-white px-8 py-6 text-lg">
-                Start Playing
-              </Button>
-            </Link>
-          </motion.div>
+          {showJoinForm ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6 }}
+              className="max-w-md mx-auto"
+            >
+              <JoinGameForm joinGame={joinGame} initialGameId={gameId || ''} />
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <Link to="/game">
+                <Button size="lg" className="bg-karma-primary hover:bg-karma-primary/90 text-white px-8 py-6 text-lg">
+                  Start Playing
+                </Button>
+              </Link>
+            </motion.div>
+          )}
         </div>
       </main>
 
