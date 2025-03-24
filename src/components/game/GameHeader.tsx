@@ -1,14 +1,13 @@
 
 import { Button } from '@/components/ui/button';
-import { HelpCircle, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface GameHeaderProps {
-  onOpenRules: () => void;
   onResetGame: () => void;
 }
 
-const GameHeader = ({ onOpenRules, onResetGame }: GameHeaderProps) => {
+const GameHeader = ({ onResetGame }: GameHeaderProps) => {
   return (
     <motion.div 
       className="flex justify-end items-center mb-8"
@@ -17,15 +16,6 @@ const GameHeader = ({ onOpenRules, onResetGame }: GameHeaderProps) => {
       transition={{ duration: 0.3 }}
     >
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onOpenRules}
-          className="flex items-center gap-1"
-        >
-          <HelpCircle className="w-4 h-4" />
-          Rules
-        </Button>
         <Button
           variant="outline"
           size="sm"
