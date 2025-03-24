@@ -72,7 +72,10 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
       .filter(item => {
         const itemRankValue = getCardRankValue(item.card.rank);
         const topRankValue = getCardRankValue(topCard.rank);
-        return itemRankValue < topRankValue || ['2', '3', '8'].includes(item.card.rank);
+        return itemRankValue < topRankValue || 
+               item.card.rank === '2' || 
+               item.card.rank === '3' || 
+               item.card.rank === '8';
       });
     
     if (lowerRankCards.length > 0) {
@@ -160,7 +163,7 @@ const findMultipleCards = (player: Player, topCard: CardValue | null): number[] 
       const rankValue = getCardRankValue(rank as any);
       const topRankValue = getCardRankValue(topCard.rank);
       
-      if (rankValue < topRankValue || rank === '2' || rank === '3' || rank === '8') {
+      if (rankValue < topRankValue || ['2', '3', '8'].includes(rank)) {
         return indices;
       }
     }
@@ -170,7 +173,7 @@ const findMultipleCards = (player: Player, topCard: CardValue | null): number[] 
       const rankValue = getCardRankValue(rank as any);
       const topRankValue = getCardRankValue(topCard.rank);
       
-      if (rankValue >= topRankValue || rank === topCard.rank || rank === '2' || rank === '3' || rank === '8' || rank === '10') {
+      if (rankValue >= topRankValue || rank === topCard.rank || ['2', '3', '8', '10'].includes(rank)) {
         return indices;
       }
     }
