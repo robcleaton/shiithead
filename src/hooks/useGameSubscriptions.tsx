@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { isAIPlayer } from '@/context/game/actions/gamePlay';
-import { GameState } from '@/types/game';
+import { GameState, GameAction, Player } from '@/types/game';
 import { jsonToCardValues } from '@/utils/gameUtils';
 import { handleAIPlayerTurn } from '@/context/game/actions/gamePlayActions';
+import { Dispatch } from 'react';
 
 export const useGameSubscriptions = (
   gameId: string | null,
@@ -88,7 +89,7 @@ export const useGameSubscriptions = (
                   p => p.id === gameData.current_player_id
                 );
                 
-                if (currentPlayer && isAIPlayer(currentPlayer)) {
+                if (currentPlayer && isAIPlayer(currentPlayer.id)) {
                   setTimeout(() => {
                     if (gameStateRef.current) {
                       handleAIPlayerTurn(dispatch, {

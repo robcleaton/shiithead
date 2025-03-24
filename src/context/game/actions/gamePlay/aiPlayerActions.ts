@@ -60,7 +60,8 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
 // Check if the card is a 7 or lower
 const isSevenOrLower = (card: CardValue): boolean => {
   const rankValue = getCardRankValue(card.rank);
-  return rankValue <= getCardRankValue('7');
+  const sevenValue = getCardRankValue('7');
+  return rankValue <= sevenValue;
 };
 
 // Handle AI player turn

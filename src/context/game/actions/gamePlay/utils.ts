@@ -7,6 +7,10 @@ export const rankValues: Record<Rank, number> = {
   '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
 };
 
+export const getCardRankValue = (rank: Rank): number => {
+  return rankValues[rank] || 0;
+};
+
 export const isAIPlayer = (player: Player): boolean => {
   return player.name.includes('Test') || player.name.includes('AI');
 };
