@@ -26,8 +26,8 @@ const App = () => (
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/game" element={<Game />} />
                 <Route path="/join/:gameId" element={<Index />} />
+                <Route path="/game" element={<Game />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
