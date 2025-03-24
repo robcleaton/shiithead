@@ -1,5 +1,5 @@
 
-import { CardValue } from '@/types/game';
+import { CardValue, Rank } from '@/types/game';
 import { rankValues } from './utils';
 
 export const validateSingleCardPlay = (
@@ -19,7 +19,7 @@ export const validateSingleCardPlay = (
   }
   // Special 7 rule: must play a card below 7 or special cards 2, 3, 8
   else if (topCard.rank === '7') {
-    if (['2', '3', '8'].includes(cardRank) || rankValues[cardRank] < rankValues['7']) {
+    if (['2', '3', '8'].includes(cardRank) || rankValues[cardRank] < rankValues['7' as Rank]) {
       return { valid: true };
     } else {
       return { 
@@ -28,12 +28,9 @@ export const validateSingleCardPlay = (
       };
     }
   }
-  // Cannot play 10 on 7
-  else if (cardToPlay.rank === '10' && topCard.rank === '7') {
-    return { 
-      valid: false, 
-      errorMessage: "Cannot play a 10 on top of a 7!"
-    };
+  // 10 can be played on any card (it's a burn card)
+  else if (cardToPlay.rank === '10') {
+    return { valid: true };
   }
   // Regular card play validation
   else if (!specialCards.includes(cardRank) && cardRank !== topCard.rank) {
@@ -62,7 +59,7 @@ export const validateMultipleCardsPlay = (
   }
   // Special 7 rule: must play a card below 7 or special cards 2, 3, 8
   else if (topCard.rank === '7') {
-    if (['2', '3', '8'].includes(cardToPlay.rank) || rankValues[cardToPlay.rank] < rankValues['7']) {
+    if (['2', '3', '8'].includes(cardToPlay.rank) || rankValues[cardToPlay.rank] < rankValues['7' as Rank]) {
       return { valid: true };
     } else {
       return { 

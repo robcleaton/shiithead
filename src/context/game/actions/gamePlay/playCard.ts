@@ -101,22 +101,24 @@ export const playCard = async (
     
     let updatedPile: CardValue[] = [];
     
-    if (cardsToPlay.some(card => card.rank === '10')) {
+    // Implemented 10 as a burn card - clear the pile and only add the 10s played
+    const isBurnCard = cardsToPlay.some(card => card.rank === '10');
+    if (isBurnCard) {
+      // Only the 10s go to the pile - it's a fresh pile after a burn
       updatedPile = cardsToPlay;
+      toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
     } else {
       updatedPile = [...state.pile, ...cardsToPlay];
     }
     
     const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-    let nextIndex = currentPlayerIndex;
+    let nextPlayerId = state.currentPlayerId;
     
-    if (cardsToPlay.some(card => card.rank === '2' || card.rank === '10')) {
-      nextIndex = currentPlayerIndex;
-    } else {
-      nextIndex = (currentPlayerIndex + 1) % state.players.length;
+    // If it's a 2 or 10, the current player gets another turn
+    if (!cardsToPlay.some(card => card.rank === '2' || card.rank === '10')) {
+      const nextIndex = (currentPlayerIndex + 1) % state.players.length;
+      nextPlayerId = state.players[nextIndex].id;
     }
-    
-    const nextPlayerId = state.players[nextIndex].id;
     
     const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
     
@@ -141,9 +143,8 @@ export const playCard = async (
         toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
       } else if (cardsToPlay[0].rank === '7') {
         toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7!`);
-      } else if (cardsToPlay[0].rank === '10') {
-        toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
       }
+      // The 10 toast is now handled above, where the burn card logic is implemented
     }
     
     if (gameOver) {
