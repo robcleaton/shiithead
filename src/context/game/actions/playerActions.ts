@@ -1,9 +1,11 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
 import { generateId } from '@/utils/gameUtils';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
+import { isAIPlayer } from './gamePlay/aiPlayerActions';
 
 export const selectFaceUpCard = async (
   dispatch: Dispatch<GameAction>,
@@ -148,7 +150,7 @@ export const addTestPlayer = async (
       return;
     }
     
-    const testPlayerId = generateId();
+    const testPlayerId = `ai-${generateId()}`;
     
     const { error: playerError } = await supabase
       .from('players')
@@ -168,7 +170,7 @@ export const addTestPlayer = async (
     
     dispatch({ type: 'ADD_TEST_PLAYER', playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });
-    toast.success(`Added test player: ${playerName}`);
+    toast.success(`Added AI player: ${playerName}`);
     
     // Automatically select cards for AI player after a short delay
     setTimeout(() => {
@@ -237,8 +239,8 @@ const autoSelectAIPlayerCards = async (
     
     console.log('AI player selecting cards from hand:', hand);
     
-    // Simple AI strategy: sort cards by rank and use the highest ones for face-up
-    // This creates a simple ranking of cards (2 is lowest, A is highest)
+    // More strategic AI selection: use highest cards for face-up
+    // This creates a ranking of cards (2 is lowest, A is highest)
     const rankOrder: Record<string, number> = {
       '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
       'J': 11, 'Q': 12, 'K': 13, 'A': 14
