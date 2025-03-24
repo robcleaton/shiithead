@@ -28,7 +28,7 @@ const ActiveGame = ({
   drawCard,
   playCard,
   resetGame,
-  onOpenRules
+  onOpenRules  // We'll keep this in the props even though we won't use it directly
 }: ActiveGameProps) => {
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const player = players.find(p => p.id === playerId);
@@ -39,7 +39,7 @@ const ActiveGame = ({
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
-      <GameHeader onOpenRules={onOpenRules} onResetGame={resetGame} />
+      <GameHeader onResetGame={resetGame} />
 
       <div className="flex flex-col gap-8 items-center">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
