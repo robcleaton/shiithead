@@ -35,9 +35,7 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
         // Special handling for 7
         if (topCard.rank === '7') {
           return itemRankValue < topRankValue || 
-                 item.card.rank === '2' || 
-                 item.card.rank === '3' || 
-                 item.card.rank === '8';
+                 ['2', '3', '8'].includes(item.card.rank);
         }
         
         return itemRankValue >= topRankValue || item.card.rank === topCard.rank;
@@ -72,9 +70,7 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
         const itemRankValue = getCardRankValue(item.card.rank);
         const topRankValue = getCardRankValue(topCard.rank);
         return itemRankValue < topRankValue || 
-               item.card.rank === '2' || 
-               item.card.rank === '3' || 
-               item.card.rank === '8';
+               ['2', '3', '8'].includes(item.card.rank);
       });
     
     if (lowerRankCards.length > 0) {
