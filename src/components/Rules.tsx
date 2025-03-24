@@ -83,6 +83,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 <ul className="list-disc pl-5 space-y-2">
                   <li>Players take turns clockwise.</li>
                   <li>On your turn, you must play a card of equal or higher rank than the top card on the discard pile.</li>
+                  <li>Aces are the highest ranked cards in the game.</li>
                   <li>You can play multiple cards of the same rank in a single turn.</li>
                   <li>If you cannot play a card, you must pick up the entire discard pile and add it to your hand.</li>
                   <li>You must always have at least 3 cards in your hand (if possible). Draw from the draw pile after playing if needed.</li>
@@ -105,6 +106,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
                 <ul className="list-disc pl-5 space-y-2">
+                  <li><strong>A:</strong> Highest ranking card in the game.</li>
                   <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</li>
                   <li><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</li>
                   <li><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</li>

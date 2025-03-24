@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Rank } from '@/types/game';
@@ -67,9 +68,13 @@ export const playCard = async (
           return;
         }
         else if (!specialCards.includes(cardRank) && cardRank !== topCard.rank) {
-          toast.error("Invalid move! Card must match the rank of the top card or be a special card (2, 3, 7, 8, 10).");
-          dispatch({ type: 'SET_LOADING', isLoading: false });
-          return;
+          // Check if the card being played is higher ranked than the top card
+          // This now properly handles Ace as the highest card since we defined rankValues with A=14
+          if (rankValues[cardRank] <= rankValues[topCard.rank]) {
+            toast.error("Invalid move! Card must be higher ranked than the top card or be a special card (2, 3, 7, 8, 10).");
+            dispatch({ type: 'SET_LOADING', isLoading: false });
+            return;
+          }
         }
       }
     } else {
