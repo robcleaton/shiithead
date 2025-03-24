@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
@@ -39,11 +38,9 @@ const GameTable: React.FC<GameTableProps> = ({
       </div>
       
       <div className="flex justify-center gap-16 items-center min-h-24">
-        {/* Deck - Stacked cards visualization */}
         <div className="relative">
           {deckCount > 0 && (
             <div className="relative">
-              {/* Multiple stacked cards effect for the deck */}
               {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
                 <div 
                   key={`deck-card-${index}`}
@@ -56,11 +53,6 @@ const GameTable: React.FC<GameTableProps> = ({
                   }}
                 />
               ))}
-              
-              {/* Main card that will be clickable */}
-              <div className="relative w-16 h-20 opacity-0">
-                {/* This is an invisible spacer */}
-              </div>
               
               <div className="mt-2 text-xs text-center text-karma-foreground/70">
                 {deckCount} card{deckCount !== 1 ? 's' : ''} left
@@ -78,7 +70,6 @@ const GameTable: React.FC<GameTableProps> = ({
           )}
         </div>
         
-        {/* Pile */}
         <div className="flex flex-col items-center">
           <div className="mb-2 text-xs text-karma-foreground/70">
             Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount}×)</span>}
@@ -86,7 +77,6 @@ const GameTable: React.FC<GameTableProps> = ({
           
           {topCard ? (
             <div className="relative">
-              {/* Display stacked top cards if multiple cards of same rank */}
               {sameRankCount > 1 && (
                 Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
                   <div 
@@ -111,7 +101,6 @@ const GameTable: React.FC<GameTableProps> = ({
                 ))
               )}
               
-              {/* Main top card */}
               <div className="w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center">
                 <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                   {topCard.rank}
@@ -123,7 +112,6 @@ const GameTable: React.FC<GameTableProps> = ({
                 </div>
               </div>
               
-              {/* Show pile count if more than 3 cards */}
               {pile.length > 4 && (
                 <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-karma-primary text-white text-xs font-medium rounded-full">
                   {pile.length}
@@ -138,7 +126,6 @@ const GameTable: React.FC<GameTableProps> = ({
         </div>
       </div>
       
-      {/* Action buttons - conditional rendering based on game state */}
       <div className="flex justify-center mt-6 gap-3">
         {isCurrentPlayer && (
           <>
@@ -169,12 +156,11 @@ const GameTable: React.FC<GameTableProps> = ({
         )}
       </div>
       
-      {/* Game instructions */}
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
         {isThreeOnTop && (
           <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
         )}
-        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next card to be rank 7 or lower! 10s burn the pile (remove all cards) and give you another turn.</p>
+        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s burn the pile (remove all cards) and give you another turn.</p>
       </div>
     </div>
   );

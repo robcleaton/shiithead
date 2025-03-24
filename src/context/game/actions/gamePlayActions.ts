@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Rank, Player } from '@/types/game';
@@ -99,6 +98,11 @@ export const playCard = async (
         if (topCard.rank === '2') {
           // Allow any card to be played on a 2
           console.log("Any card can be played on a 2");
+        }
+        else if (topCard.rank === '7' && cardToPlay.rank !== '7' && cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && rankValues[cardToPlay.rank] > 7) {
+          toast.error("After a 7 is played, you must play a card of rank 7 or lower, or a special card!");
+          dispatch({ type: 'SET_LOADING', isLoading: false });
+          return;
         }
         else if (cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && cardToPlay.rank !== '10' && cardToPlay.rank !== topCard.rank) {
           toast.error("When playing multiple cards, they must match the top card's rank or be special cards.");
@@ -379,6 +383,30 @@ export const handleAIPlayerTurn = async (
         // Must pick up the pile
         await pickupPile(dispatch, state);
       }
+      return;
+    }
+    
+    // If a 7 is on top, AI must play 7 or lower (or special cards)
+    if (topCard?.rank === '7') {
+      // Look for valid cards: 7 or lower, or special cards like 2, 3, 8
+      const validCards = currentPlayer.hand
+        .map((card, index) => {
+          if (['2', '3', '8'].includes(card.rank) || rankValues[card.rank] <= 7) {
+            return { card, index, value: rankValues[card.rank] };
+          }
+          return null;
+        })
+        .filter(item => item !== null) as { card: CardValue, index: number, value: number }[];
+      
+      if (validCards.length > 0) {
+        // Sort by rank (highest valid card first)
+        validCards.sort((a, b) => b.value - a.value);
+        await playCard(dispatch, state, validCards[0].index);
+        return;
+      }
+      
+      // If no valid cards, must draw
+      await drawCard(dispatch, state);
       return;
     }
     
