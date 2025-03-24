@@ -27,7 +27,7 @@ const ActiveGame = ({
   deck,
   drawCard,
   playCard,
-  resetGame, // We keep this prop in the interface for now to avoid breaking changes
+  resetGame,
   onOpenRules
 }: ActiveGameProps) => {
   const currentPlayer = players.find(p => p.id === currentPlayerId);

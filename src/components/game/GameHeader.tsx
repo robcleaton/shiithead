@@ -9,7 +9,7 @@ const GameHeader = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Removed back to home link/button */}
+      {/* Game header content */}
     </motion.div>
   );
 };
