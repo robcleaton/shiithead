@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Rank } from '@/types/game';
@@ -52,7 +51,12 @@ export const playCard = async (
           '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
         };
         
-        if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] > 7) {
+        // Special case for 2: any card can be played on it
+        if (topCard.rank === '2') {
+          // Allow any card to be played on a 2
+          console.log("Any card can be played on a 2");
+        }
+        else if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] > 7) {
           toast.error("After a 7 is played, you must play a card of rank 7 or lower!");
           dispatch({ type: 'SET_LOADING', isLoading: false });
           return;
@@ -75,7 +79,12 @@ export const playCard = async (
       if (state.pile.length > 0) {
         const topCard = state.pile[state.pile.length - 1];
         
-        if (cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && cardToPlay.rank !== '10' && cardToPlay.rank !== topCard.rank) {
+        // Special case for 2: any card can be played on it
+        if (topCard.rank === '2') {
+          // Allow any card to be played on a 2
+          console.log("Any card can be played on a 2");
+        }
+        else if (cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && cardToPlay.rank !== '10' && cardToPlay.rank !== topCard.rank) {
           toast.error("When playing multiple cards, they must match the top card's rank or be special cards.");
           dispatch({ type: 'SET_LOADING', isLoading: false });
           return;

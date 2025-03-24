@@ -105,7 +105,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
                 <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top.</li>
+                  <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</li>
                   <li><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</li>
                   <li><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</li>
                   <li><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</li>
