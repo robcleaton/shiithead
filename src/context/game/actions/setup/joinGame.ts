@@ -64,10 +64,8 @@ export const joinGame = async (
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Joined game as ${playerName}`);
     
-    // Ensure navigation happens after state is updated
-    setTimeout(() => {
-      navigate('/game');
-    }, 100);
+    // Navigate directly after state is updated
+    navigate('/game');
   } catch (error) {
     console.error('Error joining game:', error);
     toast.error('Failed to join game');
