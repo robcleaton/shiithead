@@ -1,4 +1,3 @@
-
 import { CardValue } from '@/types/game';
 import { rankValues } from './utils';
 
@@ -81,3 +80,37 @@ export const validateMultipleCardsPlay = (
   
   return { valid: true };
 };
+
+export const isValidPlay = (
+  card: CardValue,
+  pile: CardValue[],
+  playerHand: CardValue[]
+): boolean => {
+  // Empty pile, any card is valid
+  if (pile.length === 0) {
+    return true;
+  }
+
+  const topCard = pile[pile.length - 1];
+
+  // Special cards handling
+  if (card.rank === "2" || card.rank === "10") {
+    return true; // 2 and 10 can be played on anything
+  }
+
+  if (topCard.rank === "8") {
+    return card.rank === "8"; // Only an 8 can be played on an 8
+  }
+
+  // When a 7 was played, next card must be lower than 7 or special cards (2, 3, 8)
+  if (topCard.rank === "7") {
+    return ["2", "3", "8"].includes(card.rank) || getCardRankValue(card.rank) < getCardRankValue("7");
+  }
+
+  // Match by rank or higher value
+  return card.rank === topCard.rank || getCardRankValue(card.rank) >= getCardRankValue(topCard.rank);
+};
+
+function getCardRankValue(rank: string): number {
+  return rankValues[rank];
+}
