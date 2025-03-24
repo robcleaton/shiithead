@@ -4,6 +4,11 @@ import { GameState, CardValue, Rank, Player } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 
+const rankValues: Record<Rank, number> = {
+  'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
+  '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
+};
+
 export const playCard = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
@@ -57,10 +62,6 @@ export const playCard = async (
         
         const specialCards = ['2', '3', '7', '8', '10'];
         const cardRank = cardToPlay.rank;
-        const rankValues: Record<Rank, number> = {
-          'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
-          '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
-        };
         
         // Special case for 2: any card can be played on it
         if (topCard.rank === '2') {
@@ -282,7 +283,6 @@ export const drawCard = async (
   }
 };
 
-// New function to handle picking up the pile (when a 3 is on top)
 export const pickupPile = async (
   dispatch: Dispatch<GameAction>,
   state: GameState
@@ -333,7 +333,6 @@ export const pickupPile = async (
   }
 };
 
-// New function to determine if a player is an AI player (test player)
 export const isAIPlayer = (player: Player): boolean => {
   // We consider test players as AI players - they were added via the addTestPlayer function
   // This is a simple heuristic - we're assuming any player that was added as a test
@@ -341,7 +340,6 @@ export const isAIPlayer = (player: Player): boolean => {
   return player.name.includes('Test') || player.name.includes('AI');
 };
 
-// AI logic to select and play cards on its turn
 export const handleAIPlayerTurn = async (
   dispatch: Dispatch<GameAction>,
   state: GameState
@@ -359,12 +357,6 @@ export const handleAIPlayerTurn = async (
     
     // Get the top card of the pile
     const topCard = state.pile.length > 0 ? state.pile[state.pile.length - 1] : null;
-    
-    // Create a ranking system for cards
-    const rankValues: Record<Rank, number> = {
-      'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
-      '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
-    };
     
     // Special cards have unique effects
     const specialCards = ['2', '3', '7', '8', '10'];
