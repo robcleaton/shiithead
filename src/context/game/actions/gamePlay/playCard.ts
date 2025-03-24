@@ -101,12 +101,12 @@ export const playCard = async (
     
     let updatedPile: CardValue[] = [];
     
-    // Implemented 10 as a burn card - clear the pile and only add the 10s played
+    // Implemented 10 as a burn card - completely remove cards from the game
     const isBurnCard = cardsToPlay.some(card => card.rank === '10');
     if (isBurnCard) {
-      // Only the 10s go to the pile - it's a fresh pile after a burn
-      updatedPile = cardsToPlay;
-      toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
+      // Only the 10s that were just played remain - all other discarded cards are removed from the game
+      updatedPile = cardsToPlay.filter(card => card.rank === '10');
+      toast.success(`${player.name} played a 10 - all discarded cards have been removed from the game! ${player.name} gets another turn.`);
     } else {
       updatedPile = [...state.pile, ...cardsToPlay];
     }
