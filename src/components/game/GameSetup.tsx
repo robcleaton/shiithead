@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Player } from '@/types/game';
 import { Check, HelpCircle } from 'lucide-react';
 import PlayerHand from '@/components/PlayerHand';
-import SiteHeader from '@/components/SiteHeader';
 
 interface GameSetupProps {
   player: Player;
@@ -29,19 +28,16 @@ const GameSetup = ({
   
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <SiteHeader />
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onOpenRules}
-            className="flex items-center gap-1"
-          >
-            <HelpCircle className="w-4 h-4" />
-            Rules
-          </Button>
-        </div>
+      <div className="flex justify-end mb-8">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenRules}
+          className="flex items-center gap-1"
+        >
+          <HelpCircle className="w-4 h-4" />
+          Rules
+        </Button>
       </div>
 
       <div className="flex flex-col gap-8 items-center">
