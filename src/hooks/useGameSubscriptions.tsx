@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Dispatch } from 'react';
 import { GameAction, GameState } from '@/types/game';
 import { jsonToCardValues } from '@/utils/gameUtils';
+import { handleAIPlayerTurn, isAIPlayer } from '@/context/game/actions/gamePlayActions';
 
 export const useGameSubscriptions = (
   gameId: string | null,
@@ -13,6 +14,7 @@ export const useGameSubscriptions = (
 ) => {
   const gameChannelRef = useRef<any>(null);
   const playersChannelRef = useRef<any>(null);
+  const gameStateRef = useRef<GameState | null>(null);
 
   // Clean up function to ensure channels are properly removed
   const cleanupChannels = () => {
@@ -26,6 +28,13 @@ export const useGameSubscriptions = (
       playersChannelRef.current = null;
     }
   };
+
+  // This effect updates the ref whenever state changes
+  useEffect(() => {
+    return (state: GameState) => {
+      gameStateRef.current = state;
+    };
+  }, []);
 
   useEffect(() => {
     if (!gameId) {
@@ -60,17 +69,43 @@ export const useGameSubscriptions = (
             }
             
             if (gameData) {
-              dispatch({ 
-                type: 'SET_GAME_STATE', 
-                gameState: {
-                  gameStarted: gameData.started,
-                  gameOver: gameData.ended,
-                  currentPlayerId: gameData.current_player_id,
-                  deck: jsonToCardValues(gameData.deck),
-                  pile: jsonToCardValues(gameData.pile),
-                  setupPhase: gameData.setup_phase
+              // Get previous current player ID before updating state
+              const prevCurrentPlayerId = gameStateRef.current?.currentPlayerId;
+              
+              const updatedGameState = {
+                gameStarted: gameData.started,
+                gameOver: gameData.ended,
+                currentPlayerId: gameData.current_player_id,
+                deck: jsonToCardValues(gameData.deck),
+                pile: jsonToCardValues(gameData.pile),
+                setupPhase: gameData.setup_phase
+              };
+              
+              dispatch({ type: 'SET_GAME_STATE', gameState: updatedGameState });
+              
+              // Check if it's a turn change to an AI player
+              if (prevCurrentPlayerId !== gameData.current_player_id && 
+                  gameStateRef.current && 
+                  gameData.current_player_id) {
+                
+                const currentPlayer = gameStateRef.current.players.find(
+                  p => p.id === gameData.current_player_id
+                );
+                
+                if (currentPlayer && isAIPlayer(currentPlayer)) {
+                  // Wait a short moment before AI makes its move
+                  setTimeout(() => {
+                    if (gameStateRef.current) {
+                      handleAIPlayerTurn(dispatch, {
+                        ...gameStateRef.current,
+                        currentPlayerId: gameData.current_player_id,
+                        deck: jsonToCardValues(gameData.deck),
+                        pile: jsonToCardValues(gameData.pile)
+                      });
+                    }
+                  }, 1000);
                 }
-              });
+              }
             }
           } catch (error) {
             console.error('Error processing game update:', error);

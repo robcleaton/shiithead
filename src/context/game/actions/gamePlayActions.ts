@@ -1,7 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState, CardValue, Rank } from '@/types/game';
+import { GameState, CardValue, Rank, Player } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 
@@ -323,5 +322,144 @@ export const pickupPile = async (
     console.error('Error picking up pile:', error);
     toast.error('Failed to pick up pile');
     dispatch({ type: 'SET_LOADING', isLoading: false });
+  }
+};
+
+// New function to determine if a player is an AI player (test player)
+export const isAIPlayer = (player: Player): boolean => {
+  // We consider test players as AI players - they were added via the addTestPlayer function
+  // This is a simple heuristic - we're assuming any player that was added as a test
+  // should be controlled by AI
+  return player.name.includes('Test') || player.name.includes('AI');
+};
+
+// AI logic to select and play cards on its turn
+export const handleAIPlayerTurn = async (
+  dispatch: Dispatch<GameAction>,
+  state: GameState
+) => {
+  try {
+    if (!state.currentPlayerId) return;
+    
+    const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
+    if (!currentPlayer || !isAIPlayer(currentPlayer)) return;
+    
+    console.log(`AI player ${currentPlayer.name} is taking their turn`);
+    
+    // Add a small delay to make the AI turn more natural
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Get the top card of the pile
+    const topCard = state.pile.length > 0 ? state.pile[state.pile.length - 1] : null;
+    
+    // Create a ranking system for cards
+    const rankValues: Record<Rank, number> = {
+      'A': 14, 'K': 13, 'Q': 12, 'J': 11, '10': 10, '9': 9, '8': 8, '7': 7, 
+      '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
+    };
+    
+    // Special cards have unique effects
+    const specialCards = ['2', '3', '7', '8', '10'];
+    
+    // First, check if there's a 3 on top - must play a 3 or pick up pile
+    if (topCard?.rank === '3') {
+      // Find any 3s in hand
+      const threeIndices = currentPlayer.hand
+        .map((card, index) => card.rank === '3' ? index : -1)
+        .filter(index => index !== -1);
+      
+      if (threeIndices.length > 0) {
+        // Play a 3
+        await playCard(dispatch, state, threeIndices[0]);
+      } else {
+        // Must pick up the pile
+        await pickupPile(dispatch, state);
+      }
+      return;
+    }
+    
+    // Look for special cards to play strategically
+    // First try to play a 10 (clears the pile)
+    const tenIndices = currentPlayer.hand
+      .map((card, index) => card.rank === '10' ? index : -1)
+      .filter(index => index !== -1);
+    
+    if (tenIndices.length > 0) {
+      await playCard(dispatch, state, tenIndices[0]);
+      return;
+    }
+    
+    // If no 10, look for a 2 (gives another turn)
+    const twoIndices = currentPlayer.hand
+      .map((card, index) => card.rank === '2' ? index : -1)
+      .filter(index => index !== -1);
+    
+    if (twoIndices.length > 0) {
+      await playCard(dispatch, state, twoIndices[0]);
+      return;
+    }
+    
+    // For regular play, find valid cards to play based on top card
+    if (topCard) {
+      // After a 7, can only play 7 or lower
+      const sevenRestriction = topCard.rank === '7';
+      
+      // Find valid cards to play
+      const playableCards = currentPlayer.hand.map((card, index) => {
+        if (specialCards.includes(card.rank)) {
+          return { card, index, value: rankValues[card.rank] };
+        }
+        
+        if (sevenRestriction) {
+          // After a 7, can only play 7 or lower (except special cards)
+          if (rankValues[card.rank] <= 7) {
+            return { card, index, value: rankValues[card.rank] };
+          }
+        } else if (rankValues[card.rank] > rankValues[topCard.rank]) {
+          // Otherwise card must be higher rank
+          return { card, index, value: rankValues[card.rank] };
+        }
+        
+        return null;
+      }).filter(item => item !== null) as { card: CardValue, index: number, value: number }[];
+      
+      // Sort by rank (highest first)
+      playableCards.sort((a, b) => b.value - a.value);
+      
+      if (playableCards.length > 0) {
+        // Play the highest valid card
+        await playCard(dispatch, state, playableCards[0].index);
+        return;
+      }
+    } else {
+      // No cards in the pile yet, play the highest card
+      if (currentPlayer.hand.length > 0) {
+        const sortedHand = [...currentPlayer.hand]
+          .map((card, index) => ({ card, index, value: rankValues[card.rank] }))
+          .sort((a, b) => b.value - a.value);
+        
+        await playCard(dispatch, state, sortedHand[0].index);
+        return;
+      }
+    }
+    
+    // If no playable cards, draw a card
+    await drawCard(dispatch, state);
+    
+  } catch (error) {
+    console.error('Error in AI player turn:', error);
+    // Move to next player if there's an error
+    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+    const nextIndex = (playerIndex + 1) % state.players.length;
+    const nextPlayerId = state.players[nextIndex].id;
+    
+    try {
+      await supabase
+        .from('games')
+        .update({ current_player_id: nextPlayerId })
+        .eq('id', state.gameId);
+    } catch (err) {
+      console.error('Error moving to next player after AI error:', err);
+    }
   }
 };

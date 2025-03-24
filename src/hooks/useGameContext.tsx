@@ -1,5 +1,4 @@
-
-import { useReducer } from 'react';
+import { useReducer, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameReducer, initialState } from '@/context/game/gameReducer';
 import { 
@@ -12,7 +11,8 @@ import {
 
 import {
   playCard,
-  drawCard
+  drawCard,
+  handleAIPlayerTurn
 } from '@/context/game/actions/gamePlayActions';
 
 import {
@@ -24,10 +24,15 @@ import {
 
 import { useGameSubscriptions } from './useGameSubscriptions';
 import { useFetchGameData } from './useFetchGameData';
+import { GameState } from '@/types/game';
 
 const useGameContext = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const navigate = useNavigate();
+  
+  // Keep a ref to the current state for use in async callbacks
+  const stateRef = useRef<GameState>(state);
+  stateRef.current = state;
   
   // Set up real-time subscriptions
   useGameSubscriptions(state.gameId, state.playerId, dispatch);
@@ -47,7 +52,8 @@ const useGameContext = () => {
     drawCard: () => drawCard(dispatch, state),
     resetGame: () => resetGame(dispatch, state),
     addTestPlayer: (playerName: string) => addTestPlayer(dispatch, state, playerName),
-    invitePlayer: (email: string) => invitePlayer(dispatch, state, email)
+    invitePlayer: (email: string) => invitePlayer(dispatch, state, email),
+    triggerAITurn: () => handleAIPlayerTurn(dispatch, state)
   };
 };
 
