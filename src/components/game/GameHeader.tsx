@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 
 const GameHeader = () => {
@@ -8,7 +9,7 @@ const GameHeader = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Reset button has been removed */}
+      {/* Removed back to home link/button */}
     </motion.div>
   );
 };
