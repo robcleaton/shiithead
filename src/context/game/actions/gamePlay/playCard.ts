@@ -140,7 +140,7 @@ export const playCard = async (
       } else if (cardsToPlay[0].rank === '3') {
         toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
       } else if (cardsToPlay[0].rank === '7') {
-        toast.success(`${player.name} played a 7 - the next player must play a card of rank 7 or lower!`);
+        toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7!`);
       } else if (cardsToPlay[0].rank === '10') {
         toast.success(`${player.name} played a 10 - the pile has been burned! ${player.name} gets another turn.`);
       }

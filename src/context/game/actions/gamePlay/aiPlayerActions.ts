@@ -1,4 +1,3 @@
-
 import { GameState, CardValue, Player } from '@/types/game';
 import { Dispatch } from 'react';
 import { playCard } from './playCard';
@@ -24,7 +23,7 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
     const playableFaceUpCards = player.faceUpCards
       .map((card, index) => ({ card, index }))
       .filter(item => {
-        // Cards that can be played on any card
+        // Special cards that can be played on any card
         if (item.card.rank === '2' || item.card.rank === '10') return true;
         
         // Check if this card can be played on top card
@@ -90,15 +89,16 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
   // Look for special cards that can be played on any card
   const specialCards = player.hand
     .map((card, index) => ({ card, index }))
-    .filter(item => ['2', '3', '8', '10'].includes(item.card.rank));
+    .filter(item => {
+      // After a 7, we can only play 2, 3, 8 as special cards (not 10)
+      if (topCard.rank === '7') {
+        return ['2', '3', '8'].includes(item.card.rank);
+      }
+      // Otherwise, we can play any special card
+      return ['2', '3', '8', '10'].includes(item.card.rank);
+    });
   
-  // Can't play 10 on a 7
-  if (topCard.rank === '7') {
-    const filteredSpecialCards = specialCards.filter(item => item.card.rank !== '10');
-    if (filteredSpecialCards.length > 0) {
-      return filteredSpecialCards[0].index;
-    }
-  } else if (specialCards.length > 0) {
+  if (specialCards.length > 0) {
     return specialCards[0].index;
   }
 
