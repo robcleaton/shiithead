@@ -25,13 +25,10 @@ export const playCard = async (
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;
     
-    // Handle both single card and multiple cards
     const cardIndices = Array.isArray(cardIndex) ? cardIndex : [cardIndex];
     
-    // Sort indices in descending order to remove cards correctly
     const sortedIndices = [...cardIndices].sort((a, b) => b - a);
     
-    // Verify all cards have the same rank
     const cards = sortedIndices.map(index => player.hand[index]);
     const firstCardRank = cards[0]?.rank;
     const allSameRank = cards.every(card => card.rank === firstCardRank);
@@ -42,7 +39,6 @@ export const playCard = async (
       return;
     }
     
-    // Check if there's a 3 on top and the player isn't playing a 3
     if (state.pile.length > 0) {
       const topCard = state.pile[state.pile.length - 1];
       
@@ -53,7 +49,6 @@ export const playCard = async (
       }
     }
     
-    // For a single card, check against the top card
     if (sortedIndices.length === 1) {
       const cardToPlay = player.hand[sortedIndices[0]];
       
@@ -63,9 +58,7 @@ export const playCard = async (
         const specialCards = ['2', '3', '7', '8', '10'];
         const cardRank = cardToPlay.rank;
         
-        // Special case for 2: any card can be played on it
         if (topCard.rank === '2') {
-          // Allow any card to be played on a 2
           console.log("Any card can be played on a 2");
         }
         else if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] > 7) {
@@ -79,8 +72,6 @@ export const playCard = async (
           return;
         }
         else if (!specialCards.includes(cardRank) && cardRank !== topCard.rank) {
-          // Check if the card being played is higher ranked than the top card
-          // This now properly handles Ace as the highest card since we defined rankValues with A=14
           if (rankValues[cardRank] <= rankValues[topCard.rank]) {
             toast.error("Invalid move! Card must be higher ranked than the top card or be a special card (2, 3, 7, 8, 10).");
             dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -89,15 +80,12 @@ export const playCard = async (
         }
       }
     } else {
-      // For multiple cards, check against the top card
       const cardToPlay = player.hand[sortedIndices[0]];
       
       if (state.pile.length > 0) {
         const topCard = state.pile[state.pile.length - 1];
         
-        // Special case for 2: any card can be played on it
         if (topCard.rank === '2') {
-          // Allow any card to be played on a 2
           console.log("Any card can be played on a 2");
         }
         else if (topCard.rank === '7' && cardToPlay.rank !== '7' && cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && rankValues[cardToPlay.rank] > 7) {
@@ -113,16 +101,13 @@ export const playCard = async (
       }
     }
     
-    // Get the cards to play
     const cardsToPlay = cardIndices.map(index => player.hand[index]);
     
-    // Remove the cards from the player's hand
     const updatedHand = [...player.hand];
     for (const index of sortedIndices) {
       updatedHand.splice(index, 1);
     }
     
-    // Draw cards to bring hand up to 3 if possible
     const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
     const updatedDeck = [...state.deck];
     const drawnCards = [];
@@ -141,24 +126,17 @@ export const playCard = async (
       
     if (playerError) throw playerError;
     
-    // Update the pile based on the cards played
     let updatedPile: CardValue[] = [];
     
-    // If any card is a 10, the pile is completely removed (burned)
-    // Only the played 10 cards are added to form a new pile
     if (cardsToPlay.some(card => card.rank === '10')) {
-      // The pile is completely burned (removed from the game)
-      // Only the cards just played will start a new pile
       updatedPile = cardsToPlay;
     } else {
       updatedPile = [...state.pile, ...cardsToPlay];
     }
     
-    // Determine the next player
     const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     let nextIndex = currentPlayerIndex;
     
-    // If any card is a 2 or 10, current player gets another turn
     if (cardsToPlay.some(card => card.rank === '2' || card.rank === '10')) {
       nextIndex = currentPlayerIndex;
     } else {
@@ -181,7 +159,6 @@ export const playCard = async (
       
     if (gameError) throw gameError;
     
-    // Show appropriate messages based on the cards played
     if (cardsToPlay.length > 1) {
       toast.success(`${player.name} played ${cardsToPlay.length} ${cardsToPlay[0].rank}s!`);
     } else {
@@ -230,12 +207,10 @@ export const drawCard = async (
     return;
   }
   
-  // Check if there's a 3 on top and the player isn't playing a 3
   if (state.pile.length > 0) {
     const topCard = state.pile[state.pile.length - 1];
     
     if (topCard.rank === '3') {
-      // Instead of drawing a card, pickup the pile
       await pickupPile(dispatch, state);
       return;
     }
@@ -298,7 +273,6 @@ export const pickupPile = async (
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;
     
-    // Add the pile to the player's hand
     const updatedHand = [...player.hand, ...state.pile];
     
     const { error: playerError } = await supabase
@@ -309,7 +283,6 @@ export const pickupPile = async (
       
     if (playerError) throw playerError;
     
-    // Move to the next player
     const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     const nextIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextIndex].id;
@@ -334,9 +307,6 @@ export const pickupPile = async (
 };
 
 export const isAIPlayer = (player: Player): boolean => {
-  // We consider test players as AI players - they were added via the addTestPlayer function
-  // This is a simple heuristic - we're assuming any player that was added as a test
-  // should be controlled by AI
   return player.name.includes('Test') || player.name.includes('AI');
 };
 
@@ -352,35 +322,26 @@ export const handleAIPlayerTurn = async (
     
     console.log(`AI player ${currentPlayer.name} is taking their turn`);
     
-    // Add a small delay to make the AI turn more natural
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Get the top card of the pile
     const topCard = state.pile.length > 0 ? state.pile[state.pile.length - 1] : null;
     
-    // Special cards have unique effects
     const specialCards = ['2', '3', '7', '8', '10'];
     
-    // First, check if there's a 3 on top - must play a 3 or pick up pile
     if (topCard?.rank === '3') {
-      // Find any 3s in hand
       const threeIndices = currentPlayer.hand
         .map((card, index) => card.rank === '3' ? index : -1)
         .filter(index => index !== -1);
       
       if (threeIndices.length > 0) {
-        // Play a 3
         await playCard(dispatch, state, threeIndices[0]);
       } else {
-        // Must pick up the pile
         await pickupPile(dispatch, state);
       }
       return;
     }
     
-    // If a 7 is on top, AI must play 7 or lower (or special cards)
     if (topCard?.rank === '7') {
-      // Look for valid cards: 7 or lower, or special cards like 2, 3, 8
       const validCards = currentPlayer.hand
         .map((card, index) => {
           if (['2', '3', '8'].includes(card.rank) || rankValues[card.rank] <= 7) {
@@ -391,19 +352,15 @@ export const handleAIPlayerTurn = async (
         .filter(item => item !== null) as { card: CardValue, index: number, value: number }[];
       
       if (validCards.length > 0) {
-        // Sort by rank (highest valid card first)
         validCards.sort((a, b) => b.value - a.value);
         await playCard(dispatch, state, validCards[0].index);
         return;
       }
       
-      // If no valid cards, must draw
       await drawCard(dispatch, state);
       return;
     }
     
-    // Look for special cards to play strategically
-    // First try to play a 10 (clears the pile)
     const tenIndices = currentPlayer.hand
       .map((card, index) => card.rank === '10' ? index : -1)
       .filter(index => index !== -1);
@@ -413,7 +370,6 @@ export const handleAIPlayerTurn = async (
       return;
     }
     
-    // If no 10, look for a 2 (gives another turn)
     const twoIndices = currentPlayer.hand
       .map((card, index) => card.rank === '2' ? index : -1)
       .filter(index => index !== -1);
@@ -423,40 +379,32 @@ export const handleAIPlayerTurn = async (
       return;
     }
     
-    // For regular play, find valid cards to play based on top card
     if (topCard) {
-      // After a 7, can only play 7 or lower
       const sevenRestriction = topCard.rank === '7';
       
-      // Find valid cards to play
       const playableCards = currentPlayer.hand.map((card, index) => {
         if (specialCards.includes(card.rank)) {
           return { card, index, value: rankValues[card.rank] };
         }
         
         if (sevenRestriction) {
-          // After a 7, can only play 7 or lower (except special cards)
-          if (rankValues[card.rank] <= 7) {
+          if (rankValues[card.rank] <= rankValues['7']) {
             return { card, index, value: rankValues[card.rank] };
           }
         } else if (rankValues[card.rank] > rankValues[topCard.rank]) {
-          // Otherwise card must be higher rank
           return { card, index, value: rankValues[card.rank] };
         }
         
         return null;
       }).filter(item => item !== null) as { card: CardValue, index: number, value: number }[];
       
-      // Sort by rank (highest first)
       playableCards.sort((a, b) => b.value - a.value);
       
       if (playableCards.length > 0) {
-        // Play the highest valid card
         await playCard(dispatch, state, playableCards[0].index);
         return;
       }
     } else {
-      // No cards in the pile yet, play the highest card
       if (currentPlayer.hand.length > 0) {
         const sortedHand = [...currentPlayer.hand]
           .map((card, index) => ({ card, index, value: rankValues[card.rank] }))
@@ -467,12 +415,10 @@ export const handleAIPlayerTurn = async (
       }
     }
     
-    // If no playable cards, draw a card
     await drawCard(dispatch, state);
     
   } catch (error) {
     console.error('Error in AI player turn:', error);
-    // Move to next player if there's an error
     const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     const nextIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextIndex].id;
