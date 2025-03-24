@@ -1,7 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState } from '@/types/game';
+import { GameState, CardValue } from '@/types/game';
 import { generateId } from '@/utils/gameUtils';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
@@ -170,6 +169,11 @@ export const addTestPlayer = async (
     dispatch({ type: 'ADD_TEST_PLAYER', playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Added test player: ${playerName}`);
+    
+    // Automatically select cards for AI player after a short delay
+    setTimeout(() => {
+      autoSelectAIPlayerCards(dispatch, state, testPlayerId);
+    }, 1500);
   } catch (error) {
     console.error('Error adding test player:', error);
     toast.error('Failed to add test player');
@@ -201,5 +205,74 @@ export const invitePlayer = async (
     console.error('Error inviting player:', error);
     toast.error('Failed to send invitation');
     dispatch({ type: 'SET_LOADING', isLoading: false });
+  }
+};
+
+const autoSelectAIPlayerCards = async (
+  dispatch: Dispatch<GameAction>,
+  state: GameState,
+  aiPlayerId: string
+) => {
+  try {
+    // Fetch the latest player data
+    const { data: playerData, error: playerFetchError } = await supabase
+      .from('players')
+      .select('*')
+      .eq('id', aiPlayerId)
+      .eq('game_id', state.gameId)
+      .maybeSingle();
+      
+    if (playerFetchError || !playerData) {
+      console.error('Error fetching AI player data:', playerFetchError);
+      return;
+    }
+    
+    // Parse the hand from JSON
+    const hand = playerData.hand as CardValue[];
+    
+    if (!hand || hand.length === 0) {
+      console.log('AI player has no cards to select');
+      return;
+    }
+    
+    console.log('AI player selecting cards from hand:', hand);
+    
+    // Simple AI strategy: sort cards by rank and use the highest ones for face-up
+    // This creates a simple ranking of cards (2 is lowest, A is highest)
+    const rankOrder: Record<string, number> = {
+      '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+      'J': 11, 'Q': 12, 'K': 13, 'A': 14
+    };
+    
+    // Sort hand by rank (highest to lowest)
+    const sortedHand = [...hand].sort((a, b) => 
+      rankOrder[b.rank] - rankOrder[a.rank]
+    );
+    
+    // Select the top 3 cards for face-up
+    const selectedCards = sortedHand.slice(0, 3);
+    const remainingCards = sortedHand.slice(3);
+    
+    console.log('AI player selected cards:', selectedCards);
+    
+    // Update the player in the database
+    const { error: updateError } = await supabase
+      .from('players')
+      .update({
+        hand: remainingCards,
+        face_up_cards: selectedCards,
+        is_ready: true
+      })
+      .eq('id', aiPlayerId)
+      .eq('game_id', state.gameId);
+      
+    if (updateError) {
+      console.error('Error updating AI player cards:', updateError);
+      return;
+    }
+    
+    toast.success(`${playerData.name} is ready to play!`);
+  } catch (error) {
+    console.error('Error in AI card selection:', error);
   }
 };
