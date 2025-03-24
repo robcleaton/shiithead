@@ -33,6 +33,14 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
         const itemRankValue = getCardRankValue(item.card.rank);
         const topRankValue = getCardRankValue(topCard.rank);
         
+        // Special handling for 7
+        if (topCard.rank === '7') {
+          return itemRankValue < topRankValue || 
+                 item.card.rank === '2' || 
+                 item.card.rank === '3' || 
+                 item.card.rank === '8';
+        }
+        
         return itemRankValue >= topRankValue || item.card.rank === topCard.rank;
       });
     
@@ -57,30 +65,57 @@ const findBestCard = (player: Player, topCard: CardValue | null): number | null 
     return sameRankCards[0].index;
   }
 
+  // Special case for 7: need to play lower cards
+  if (topCard.rank === '7') {
+    const lowerRankCards = player.hand
+      .map((card, index) => ({ card, index }))
+      .filter(item => {
+        const itemRankValue = getCardRankValue(item.card.rank);
+        const topRankValue = getCardRankValue(topCard.rank);
+        return itemRankValue < topRankValue || ['2', '3', '8'].includes(item.card.rank);
+      });
+    
+    if (lowerRankCards.length > 0) {
+      // Play the highest of the lower cards
+      lowerRankCards.sort((a, b) => 
+        getCardRankValue(b.card.rank) - getCardRankValue(a.card.rank)
+      );
+      return lowerRankCards[0].index;
+    }
+  }
+
   // Look for special cards that can be played on any card
   const specialCards = player.hand
     .map((card, index) => ({ card, index }))
-    .filter(item => ['2', '10'].includes(item.card.rank));
+    .filter(item => ['2', '3', '8', '10'].includes(item.card.rank));
   
-  if (specialCards.length > 0) {
+  // Can't play 10 on a 7
+  if (topCard.rank === '7') {
+    const filteredSpecialCards = specialCards.filter(item => item.card.rank !== '10');
+    if (filteredSpecialCards.length > 0) {
+      return filteredSpecialCards[0].index;
+    }
+  } else if (specialCards.length > 0) {
     return specialCards[0].index;
   }
 
-  // Look for cards with higher rank
-  const higherRankCards = player.hand
-    .map((card, index) => ({ card, index }))
-    .filter(item => {
-      const itemRankValue = getCardRankValue(item.card.rank);
-      const topRankValue = getCardRankValue(topCard.rank);
-      return itemRankValue >= topRankValue;
-    });
-  
-  if (higherRankCards.length > 0) {
-    // Play the lowest card that's still higher than the top card
-    higherRankCards.sort((a, b) => 
-      getCardRankValue(a.card.rank) - getCardRankValue(b.card.rank)
-    );
-    return higherRankCards[0].index;
+  // Look for cards with higher rank (except after a 7)
+  if (topCard.rank !== '7') {
+    const higherRankCards = player.hand
+      .map((card, index) => ({ card, index }))
+      .filter(item => {
+        const itemRankValue = getCardRankValue(item.card.rank);
+        const topRankValue = getCardRankValue(topCard.rank);
+        return itemRankValue >= topRankValue;
+      });
+    
+    if (higherRankCards.length > 0) {
+      // Play the lowest card that's still higher than the top card
+      higherRankCards.sort((a, b) => 
+        getCardRankValue(a.card.rank) - getCardRankValue(b.card.rank)
+      );
+      return higherRankCards[0].index;
+    }
   }
 
   // No playable card found
@@ -119,13 +154,25 @@ const findMultipleCards = (player: Player, topCard: CardValue | null): number[] 
     return rankGroups[0][1];
   }
   
-  // Find a group that can be played on the top card
-  for (const [rank, indices] of rankGroups) {
-    const rankValue = getCardRankValue(rank as any);
-    const topRankValue = getCardRankValue(topCard.rank);
-    
-    if (rankValue >= topRankValue || rank === topCard.rank || rank === '2' || rank === '10') {
-      return indices;
+  // Special case for 7: need to play lower cards
+  if (topCard.rank === '7') {
+    for (const [rank, indices] of rankGroups) {
+      const rankValue = getCardRankValue(rank as any);
+      const topRankValue = getCardRankValue(topCard.rank);
+      
+      if (rankValue < topRankValue || rank === '2' || rank === '3' || rank === '8') {
+        return indices;
+      }
+    }
+  } else {
+    // Find a group that can be played on the top card
+    for (const [rank, indices] of rankGroups) {
+      const rankValue = getCardRankValue(rank as any);
+      const topRankValue = getCardRankValue(topCard.rank);
+      
+      if (rankValue >= topRankValue || rank === topCard.rank || rank === '2' || rank === '3' || rank === '8' || rank === '10') {
+        return indices;
+      }
     }
   }
   

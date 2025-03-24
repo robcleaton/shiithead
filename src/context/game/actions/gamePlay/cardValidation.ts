@@ -16,10 +16,10 @@ export const validateSingleCardPlay = (
   if (topCard.rank === '2') {
     return { valid: true };
   }
-  else if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] > rankValues['7']) {
+  else if (topCard.rank === '7' && !specialCards.includes(cardRank) && rankValues[cardRank] >= rankValues['7']) {
     return { 
       valid: false, 
-      errorMessage: "After a 7 is played, you must play a card of rank 7 or lower!"
+      errorMessage: "After a 7 is played, you must play a card with rank below 7 or a special card!"
     };
   }
   else if (cardToPlay.rank === '10' && topCard.rank === '7') {
@@ -52,10 +52,10 @@ export const validateMultipleCardsPlay = (
     return { valid: true };
   }
   else if (topCard.rank === '7' && cardToPlay.rank !== '7' && cardToPlay.rank !== '2' && 
-           cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && rankValues[cardToPlay.rank] > rankValues['7']) {
+           cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && rankValues[cardToPlay.rank] >= rankValues['7']) {
     return { 
       valid: false, 
-      errorMessage: "After a 7 is played, you must play a card of rank 7 or lower, or a special card!"
+      errorMessage: "After a 7 is played, you must play a card with rank below a 7, or a special card!"
     };
   }
   else if (cardToPlay.rank !== '2' && cardToPlay.rank !== '3' && cardToPlay.rank !== '8' && 
