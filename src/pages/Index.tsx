@@ -21,8 +21,8 @@ const Index = () => {
   }, [gameId, location]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center">
+    <div className="flex flex-col">
+      <div className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center py-12">
         <div className="max-w-4xl w-full text-center">
           <motion.h1 
             className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-karma-primary to-karma-accent"
@@ -90,7 +90,7 @@ const Index = () => {
             </motion.div>
           )}
         </div>
-      </main>
+      </div>
 
       <footer className="container mx-auto px-6 py-8">
         <motion.div 
