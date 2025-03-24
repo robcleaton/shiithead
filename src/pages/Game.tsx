@@ -4,7 +4,7 @@ import { useGame } from '@/context/GameContext';
 import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
 
-// Import our newly created components
+// Import our components
 import LoadingGame from '@/components/game/LoadingGame';
 import GameSetup from '@/components/game/GameSetup';
 import GameOver from '@/components/game/GameOver';
