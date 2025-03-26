@@ -1,4 +1,3 @@
-
 import { Player } from '@/types/game';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
@@ -7,7 +6,7 @@ import { CardValue } from '@/types/game';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
-import { useGame } from '@/context/GameContext';
+import { useGame } from '@/context/game/GameContext';
 
 interface ActiveGameProps {
   players: Player[];

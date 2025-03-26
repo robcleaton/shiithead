@@ -13,6 +13,7 @@ import {
 import {
   playCard,
   drawCard,
+  pickupPile,
   handleAIPlayerTurn
 } from '@/context/game/actions/gamePlayActions';
 
@@ -52,6 +53,7 @@ const useGameContext = () => {
     completeSetup: () => completeSetup(dispatch, state),
     playCard: (cardIndex: number | number[]) => playCard(dispatch, state, cardIndex),
     drawCard: () => drawCard(dispatch, state),
+    pickupPile: () => pickupPile(dispatch, state),
     resetGame: () => resetGame(dispatch, state),
     addTestPlayer: (playerName: string) => addTestPlayer(dispatch, state, playerName),
     invitePlayer: (email: string) => invitePlayer(dispatch, state, email),
