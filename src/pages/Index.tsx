@@ -51,20 +51,7 @@ const Index = () => {
             >
               <JoinGameForm joinGame={joinGame} initialGameId={gameId || ''} />
               
-              <motion.div 
-                className="mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-              >
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setShowJoinForm(false)}
-                  className="text-karma-foreground/70 hover:text-karma-foreground"
-                >
-                  ← Back to home
-                </Button>
-              </motion.div>
+              {/* Back to home button removed */}
             </motion.div>
           ) : (
             <motion.div
