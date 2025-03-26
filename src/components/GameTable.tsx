@@ -167,7 +167,7 @@ const GameTable: React.FC<GameTableProps> = ({
       
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
         {isThreeOnTop && (
-          <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
+          <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3. Any 3s will be removed from the pile when picked up.</p>
         )}
         {isTenOnTop && (
           <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely emptied!</p>

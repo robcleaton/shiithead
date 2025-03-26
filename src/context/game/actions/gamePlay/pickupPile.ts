@@ -20,7 +20,14 @@ export const pickupPile = async (
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;
     
-    const updatedHand = [...player.hand, ...state.pile];
+    // Check if there are any 3s in the pile
+    const hasThrees = state.pile.some(card => card.rank === '3');
+    
+    // Filter out any cards with rank 3 from the pile
+    const pileWithoutThrees = state.pile.filter(card => card.rank !== '3');
+    
+    // Add remaining cards to the player's hand
+    const updatedHand = [...player.hand, ...pileWithoutThrees];
     
     const { error: playerError } = await supabase
       .from('players')
@@ -44,7 +51,10 @@ export const pickupPile = async (
       
     if (gameError) throw gameError;
     
-    toast.info(`${player.name} picked up the pile (${state.pile.length} cards).`);
+    const cardsRemoved = state.pile.length - pileWithoutThrees.length;
+    const threeMessage = cardsRemoved > 0 ? ` (${cardsRemoved} three${cardsRemoved > 1 ? 's' : ''} removed from the game)` : '';
+    
+    toast.info(`${player.name} picked up the pile (${pileWithoutThrees.length} cards).${threeMessage}`);
     dispatch({ type: 'SET_LOADING', isLoading: false });
   } catch (error) {
     console.error('Error picking up pile:', error);
