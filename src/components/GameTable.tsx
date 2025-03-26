@@ -167,9 +167,9 @@ const GameTable: React.FC<GameTableProps> = ({
           <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
         )}
         {isTenOnTop && (
-          <p className="font-medium text-orange-500 mb-1">10 has been played! All previous cards have been removed from the game!</p>
+          <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely emptied!</p>
         )}
-        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s burn all cards in the discard pile and give you another turn.</p>
+        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s completely clear the discard pile and give you another turn.</p>
       </div>
     </div>
   );

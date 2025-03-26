@@ -104,9 +104,9 @@ export const playCard = async (
     // 10 is a burn card - when played it completely removes all cards from the game
     const isBurnCard = cardsToPlay.some(card => card.rank === '10');
     if (isBurnCard) {
-      // Only the 10s that were just played remain in the pile
-      updatedPile = cardsToPlay.filter(card => card.rank === '10');
-      toast.success(`${player.name} played a 10 - the discard pile has been cleared! ${player.name} gets another turn.`);
+      // Changed: completely empty the pile when a 10 is played
+      updatedPile = [];
+      toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
     } else {
       updatedPile = [...state.pile, ...cardsToPlay];
     }
@@ -144,7 +144,7 @@ export const playCard = async (
       } else if (cardsToPlay[0].rank === '7') {
         toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7!`);
       } else if (cardsToPlay[0].rank === '10') {
-        toast.success(`${player.name} played a 10 - all cards in the discard pile have been removed from the game! ${player.name} gets another turn.`);
+        toast.success(`${player.name} played a 10 - the entire discard pile has been removed from the game! ${player.name} gets another turn.`);
       }
     }
     
