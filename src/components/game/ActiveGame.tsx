@@ -7,6 +7,7 @@ import { CardValue } from '@/types/game';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { BookOpen } from 'lucide-react';
+import { useGame } from '@/context/GameContext';
 
 interface ActiveGameProps {
   players: Player[];
@@ -31,6 +32,7 @@ const ActiveGame = ({
   resetGame,
   onOpenRules
 }: ActiveGameProps) => {
+  const { pickupPile } = useGame();
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const player = players.find(p => p.id === playerId);
 
@@ -43,10 +45,10 @@ const ActiveGame = ({
   const isThreeOnTop = topCard?.rank === '3';
   const mustPickUpPileOrPlayThree = isThreeOnTop;
 
-  // Function to handle picking up the pile - same logic as drawCard but with different UI feedback
+  // Function to handle picking up the pile
   const handlePickUpPile = () => {
-    // We use the same drawCard function as it already handles adding cards to the player's hand
-    drawCard();
+    // Instead of using drawCard, use the dedicated pickupPile function
+    pickupPile();
   };
 
   return (

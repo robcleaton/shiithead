@@ -14,6 +14,11 @@ export const pickupPile = async (
     return;
   }
   
+  if (state.pile.length === 0) {
+    toast.error("There are no cards to pick up!");
+    return;
+  }
+  
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
