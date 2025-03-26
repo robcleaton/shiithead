@@ -30,6 +30,7 @@ const GameTable: React.FC<GameTableProps> = ({
   
   const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
+  const onlyThreesInPile = pile.length > 0 && pile.every(card => card.rank === '3');
   
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
@@ -111,7 +112,7 @@ const GameTable: React.FC<GameTableProps> = ({
                   ))
                 )}
                 
-                <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
+                <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''} ${onlyThreesInPile ? 'ring-2 ring-blue-500' : ''}`}>
                   <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                     {topCard.rank}
                     <span className="text-lg">
@@ -173,6 +174,9 @@ const GameTable: React.FC<GameTableProps> = ({
         )}
         {isTenOnTop && (
           <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely emptied!</p>
+        )}
+        {onlyThreesInPile && isCurrentPlayer && (
+          <p className="font-medium text-blue-600 mb-1">If you can't play a 3, the pile will reset and your turn will be skipped.</p>
         )}
         <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s completely clear the discard pile and give you another turn.</p>
       </div>
