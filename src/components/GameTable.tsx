@@ -77,7 +77,7 @@ const GameTable: React.FC<GameTableProps> = ({
               {pile.length} card{pile.length !== 1 ? 's' : ''}
             </div>
             <div className="mb-2 text-xs text-karma-foreground/70">
-              Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount}×)</span>}
+              Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount})</span>}
               {isTenOnTop && (
                 <span className="ml-1 font-medium text-orange-500 flex items-center">
                   <Flame className="h-3 w-3 mr-1" /> Burned
