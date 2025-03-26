@@ -50,24 +50,14 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
       
       <div className="flex justify-center">
         {opponent.hand.length > 0 && (
-          <div className="flex items-center justify-center relative">
-            {opponent.hand.map((_, index) => {
-              // Calculate spacing based on card count
-              const totalWidth = Math.min(opponent.hand.length * 20, 220);
-              const spacing = opponent.hand.length <= 1 ? 0 : totalWidth / (opponent.hand.length - 1);
-              const leftPosition = opponent.hand.length <= 1 ? 0 : index * spacing - (totalWidth / 2);
-              
-              return (
-                <div 
-                  key={index}
-                  className="absolute w-10 h-14 bg-karma-card-back bg-card-texture rounded-md shadow-sm border border-gray-800/20"
-                  style={{ 
-                    left: `${leftPosition}px`,
-                    transform: `rotate(${(index - Math.floor(opponent.hand.length / 2)) * 3}deg)`
-                  }}
-                />
-              );
-            })}
+          <div className="flex items-center justify-center">
+            {opponent.hand.map((_, index) => (
+              <div 
+                key={`hand-${index}`}
+                className="w-10 h-14 -ml-2 first:ml-0 bg-karma-card-back bg-card-texture rounded-md shadow-sm border border-gray-800/20"
+                style={{ transform: 'rotate(0deg)' }}
+              />
+            ))}
           </div>
         )}
       </div>
