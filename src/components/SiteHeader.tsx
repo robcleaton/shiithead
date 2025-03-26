@@ -6,7 +6,11 @@ import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import Rules from "@/components/Rules";
 
-const SiteHeader = () => {
+interface SiteHeaderProps {
+  showRulesButton?: boolean;
+}
+
+const SiteHeader = ({ showRulesButton = false }: SiteHeaderProps) => {
   const [showRules, setShowRules] = useState(false);
 
   return (
@@ -25,15 +29,17 @@ const SiteHeader = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex items-center gap-2"
-          onClick={() => setShowRules(true)}
-        >
-          <BookOpen size={16} />
-          Rules
-        </Button>
+        {showRulesButton && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={() => setShowRules(true)}
+          >
+            <BookOpen size={16} />
+            Rules
+          </Button>
+        )}
       </motion.div>
 
       <Rules open={showRules} onOpenChange={setShowRules} />

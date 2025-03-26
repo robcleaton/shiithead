@@ -7,6 +7,8 @@ interface GameHeaderProps {
   onOpenRules: () => void;
 }
 
+// This component is no longer used directly in ActiveGame
+// It's kept for reference or potential future use 
 const GameHeader = ({ onOpenRules }: GameHeaderProps) => {
   return (
     <motion.div 

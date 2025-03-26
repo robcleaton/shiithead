@@ -1,11 +1,12 @@
 
 import { Player } from '@/types/game';
-import GameHeader from './GameHeader';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
 import PlayerArea from './PlayerArea';
 import { CardValue } from '@/types/game';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { BookOpen } from 'lucide-react';
 
 interface ActiveGameProps {
   players: Player[];
@@ -50,8 +51,6 @@ const ActiveGame = ({
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
-      <GameHeader onOpenRules={onOpenRules} />
-
       <div className="flex flex-col gap-8 items-center">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {players
