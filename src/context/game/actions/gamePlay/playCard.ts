@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
@@ -101,10 +100,8 @@ export const playCard = async (
     
     let updatedPile: CardValue[] = [];
     
-    // 10 is a burn card - when played it completely removes all cards from the game
     const isBurnCard = cardsToPlay.some(card => card.rank === '10');
     if (isBurnCard) {
-      // Changed: completely empty the pile when a 10 is played
       updatedPile = [];
       toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
     } else {
@@ -114,7 +111,6 @@ export const playCard = async (
     const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     let nextPlayerId = state.currentPlayerId;
     
-    // If it's a 2 or 10, the current player gets another turn
     if (!cardsToPlay.some(card => card.rank === '2' || card.rank === '10')) {
       const nextIndex = (currentPlayerIndex + 1) % state.players.length;
       nextPlayerId = state.players[nextIndex].id;
@@ -142,7 +138,7 @@ export const playCard = async (
       } else if (cardsToPlay[0].rank === '3') {
         toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
       } else if (cardsToPlay[0].rank === '7') {
-        toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7!`);
+        toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7 or another 7!`);
       } else if (cardsToPlay[0].rank === '10') {
         toast.success(`${player.name} played a 10 - the entire discard pile has been removed from the game! ${player.name} gets another turn.`);
       }
