@@ -26,7 +26,7 @@ export const pickupPile = async (
     if (!player) return;
     
     // Check if there are any 3s in the pile
-    const hasThrees = state.pile.some(card => card.rank === '3');
+    const threesInPile = state.pile.filter(card => card.rank === '3');
     
     // Filter out any cards with rank 3 from the pile
     const pileWithoutThrees = state.pile.filter(card => card.rank !== '3');
@@ -56,10 +56,14 @@ export const pickupPile = async (
       
     if (gameError) throw gameError;
     
-    const cardsRemoved = state.pile.length - pileWithoutThrees.length;
-    const threeMessage = cardsRemoved > 0 ? ` (${cardsRemoved} three${cardsRemoved > 1 ? 's' : ''} removed from the game)` : '';
+    // Create a more detailed message about the pickup
+    let message = `${player.name} picked up the pile (${pileWithoutThrees.length} cards)`;
     
-    toast.info(`${player.name} picked up the pile (${pileWithoutThrees.length} cards).${threeMessage}`);
+    if (threesInPile.length > 0) {
+      message += `. ${threesInPile.length} three${threesInPile.length > 1 ? 's were' : ' was'} removed from the game.`;
+    }
+    
+    toast.info(message);
     dispatch({ type: 'SET_LOADING', isLoading: false });
   } catch (error) {
     console.error('Error picking up pile:', error);

@@ -1,3 +1,4 @@
+
 import { Player } from '@/types/game';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
@@ -46,7 +47,7 @@ const ActiveGame = ({
 
   // Function to handle picking up the pile
   const handlePickUpPile = () => {
-    // Instead of using drawCard, use the dedicated pickupPile function
+    // Use the pickupPile function from the game context
     pickupPile();
   };
 
