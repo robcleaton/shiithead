@@ -120,11 +120,7 @@ const GameTable: React.FC<GameTableProps> = ({
                   </div>
                 </div>
                 
-                {pile.length > 4 && (
-                  <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-karma-primary text-white text-xs font-medium rounded-full">
-                    {pile.length}
-                  </div>
-                )}
+                {/* Removed the purple count indicator that was here */}
               </div>
             ) : (
               <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
