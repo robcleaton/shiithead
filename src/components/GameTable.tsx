@@ -135,16 +135,18 @@ const GameTable: React.FC<GameTableProps> = ({
       <div className="flex justify-center mt-6 gap-3">
         {isCurrentPlayer && (
           <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onDrawCard}
-              disabled={deckCount === 0}
-              className="bg-karma-card-back text-white hover:bg-karma-card-back/90"
-            >
-              <Layers className="mr-2 h-4 w-4" />
-              Draw
-            </Button>
+            {!isThreeOnTop && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDrawCard}
+                disabled={deckCount === 0}
+                className="bg-karma-card-back text-white hover:bg-karma-card-back/90"
+              >
+                <Layers className="mr-2 h-4 w-4" />
+                Draw
+              </Button>
+            )}
             
             <Button
               variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
