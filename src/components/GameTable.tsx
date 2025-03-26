@@ -41,6 +41,10 @@ const GameTable: React.FC<GameTableProps> = ({
       
       <div className="flex justify-center gap-16 items-center min-h-24">
         <div className="relative">
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
+            {deckCount} card{deckCount !== 1 ? 's' : ''} left
+          </div>
+          
           {deckCount > 0 && (
             <div className="relative">
               {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
@@ -55,10 +59,6 @@ const GameTable: React.FC<GameTableProps> = ({
                   }}
                 />
               ))}
-              
-              <div className="mt-2 text-xs text-center text-karma-foreground/70">
-                {deckCount} card{deckCount !== 1 ? 's' : ''} left
-              </div>
             </div>
           )}
           
@@ -67,7 +67,6 @@ const GameTable: React.FC<GameTableProps> = ({
               <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
                 <span className="text-gray-400 text-xs">Empty</span>
               </div>
-              <div className="mt-2 text-xs text-karma-foreground/70">No cards left</div>
             </div>
           )}
         </div>
