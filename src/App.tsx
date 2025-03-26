@@ -22,12 +22,11 @@ const queryClient = new QueryClient({
 
 const AppRoutes = () => {
   const location = useLocation();
-  const isGamePage = location.pathname === '/game';
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="container mx-auto px-6 py-6">
-        <SiteHeader showRulesButton={isGamePage} />
+        <SiteHeader />
       </header>
       <main className="flex-1">
         <Routes>

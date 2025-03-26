@@ -10,7 +10,7 @@ interface SiteHeaderProps {
   showRulesButton?: boolean;
 }
 
-const SiteHeader = ({ showRulesButton = false }: SiteHeaderProps) => {
+const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
   const [showRules, setShowRules] = useState(false);
 
   return (
