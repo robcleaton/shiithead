@@ -58,22 +58,13 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
+              className="flex justify-center"
             >
               <Link to="/game">
                 <Button size="lg" className="bg-karma-primary hover:bg-karma-primary/90 text-white px-8 py-6 text-lg">
                   Start Playing
                 </Button>
               </Link>
-              
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={() => setShowJoinForm(true)}
-                className="px-8 py-6 text-lg"
-              >
-                Join Game
-              </Button>
             </motion.div>
           )}
         </div>
