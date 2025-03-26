@@ -72,63 +72,68 @@ const GameTable: React.FC<GameTableProps> = ({
         </div>
         
         <div className="flex flex-col items-center">
-          <div className="mb-2 text-xs text-karma-foreground/70">
-            Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount}×)</span>}
-            {isTenOnTop && (
-              <span className="ml-1 font-medium text-orange-500 flex items-center">
-                <Flame className="h-3 w-3 mr-1" /> Burned
-              </span>
+          <div className="relative">
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
+              {pile.length} card{pile.length !== 1 ? 's' : ''}
+            </div>
+            <div className="mb-2 text-xs text-karma-foreground/70">
+              Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount}×)</span>}
+              {isTenOnTop && (
+                <span className="ml-1 font-medium text-orange-500 flex items-center">
+                  <Flame className="h-3 w-3 mr-1" /> Burned
+                </span>
+              )}
+            </div>
+            
+            {topCard ? (
+              <div className="relative">
+                {sameRankCount > 1 && (
+                  Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
+                    <div 
+                      key={`pile-card-${index}`}
+                      className="absolute w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
+                      style={{ 
+                        top: `${-3 - index * 2}px`, 
+                        left: `${-3 - index * 2}px`, 
+                        transform: `rotate(${(index - 1) * -3}deg)`,
+                        zIndex: 3 - index
+                      }}
+                    >
+                      <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                        {topCard.rank}
+                        <span className="text-lg">
+                          {topCard.suit === 'hearts' ? '♥' : 
+                          topCard.suit === 'diamonds' ? '♦' : 
+                          topCard.suit === 'clubs' ? '♣' : '♠'}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+                
+                <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
+                  <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                    {topCard.rank}
+                    <span className="text-lg">
+                      {topCard.suit === 'hearts' ? '♥' : 
+                      topCard.suit === 'diamonds' ? '♦' : 
+                      topCard.suit === 'clubs' ? '♣' : '♠'}
+                    </span>
+                  </div>
+                </div>
+                
+                {pile.length > 4 && (
+                  <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-karma-primary text-white text-xs font-medium rounded-full">
+                    {pile.length}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                <span className="text-gray-400 text-xs">Empty</span>
+              </div>
             )}
           </div>
-          
-          {topCard ? (
-            <div className="relative">
-              {sameRankCount > 1 && (
-                Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
-                  <div 
-                    key={`pile-card-${index}`}
-                    className="absolute w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
-                    style={{ 
-                      top: `${-3 - index * 2}px`, 
-                      left: `${-3 - index * 2}px`, 
-                      transform: `rotate(${(index - 1) * -3}deg)`,
-                      zIndex: 3 - index
-                    }}
-                  >
-                    <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                      {topCard.rank}
-                      <span className="text-lg">
-                        {topCard.suit === 'hearts' ? '♥' : 
-                        topCard.suit === 'diamonds' ? '♦' : 
-                        topCard.suit === 'clubs' ? '♣' : '♠'}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-              
-              <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
-                <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                  {topCard.rank}
-                  <span className="text-lg">
-                    {topCard.suit === 'hearts' ? '♥' : 
-                    topCard.suit === 'diamonds' ? '♦' : 
-                    topCard.suit === 'clubs' ? '♣' : '♠'}
-                  </span>
-                </div>
-              </div>
-              
-              {pile.length > 4 && (
-                <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-karma-primary text-white text-xs font-medium rounded-full">
-                  {pile.length}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
-              <span className="text-gray-400 text-xs">Empty</span>
-            </div>
-          )}
         </div>
       </div>
       
