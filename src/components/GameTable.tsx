@@ -73,9 +73,7 @@ const GameTable: React.FC<GameTableProps> = ({
         
         <div className="flex flex-col items-center">
           <div className="relative">
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
-              {pile.length} card{pile.length !== 1 ? 's' : ''}
-            </div>
+            {/* Removed the duplicate card count text but kept the styling div */}
             <div className="mb-2 text-xs text-karma-foreground/70">
               {sameRankCount > 1 && <span className="font-medium">({sameRankCount})</span>}
               {isTenOnTop && (
