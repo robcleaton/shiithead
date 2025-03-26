@@ -1,12 +1,8 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
-import { HandMetal, Flame, Send, X } from 'lucide-react';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { Drawer, DrawerContent, DrawerTrigger } from './ui/drawer';
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import { HandMetal, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface GameTableProps {
@@ -19,13 +15,6 @@ interface GameTableProps {
   mustPickUpPileOrPlayThree: boolean;
 }
 
-interface ChatMessage {
-  playerId: string;
-  playerName: string;
-  message: string;
-  timestamp: Date;
-}
-
 const GameTable: React.FC<GameTableProps> = ({ 
   pile, 
   deckCount, 
@@ -35,16 +24,6 @@ const GameTable: React.FC<GameTableProps> = ({
   isCurrentPlayer,
   mustPickUpPileOrPlayThree
 }) => {
-  const [chatMessage, setChatMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  // Scroll to bottom of chat when new messages are added
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
-  
   const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
   const sameRankCount = pile.length > 0 
     ? pile.filter(card => card.rank === topCard?.rank).length
@@ -52,47 +31,6 @@ const GameTable: React.FC<GameTableProps> = ({
   
   const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
-  
-  const handleSendMessage = () => {
-    if (chatMessage.trim()) {
-      const newMessage: ChatMessage = {
-        playerId: 'current-player-id', // Replace with actual player ID
-        playerName: 'You', // We'll show "You" for the current player
-        message: chatMessage.trim(),
-        timestamp: new Date()
-      };
-      
-      setChatMessages([...chatMessages, newMessage]);
-      setChatMessage('');
-    }
-  };
-  
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-  
-  // Add a few sample messages for demo purpose
-  useEffect(() => {
-    if (chatMessages.length === 0) {
-      setChatMessages([
-        {
-          playerId: 'player1',
-          playerName: 'Player 1',
-          message: 'Good luck everyone!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 5)
-        },
-        {
-          playerId: 'player2',
-          playerName: 'Player 2',
-          message: 'Thanks, you too!',
-          timestamp: new Date(Date.now() - 1000 * 60 * 4)
-        }
-      ]);
-    }
-  }, []);
   
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
@@ -207,134 +145,6 @@ const GameTable: React.FC<GameTableProps> = ({
             Pick Up Pile
           </Button>
         )}
-        
-        {/* For smaller screens - use a drawer */}
-        <div className="md:hidden">
-          <Drawer open={isChatOpen} onOpenChange={setIsChatOpen}>
-            <DrawerTrigger asChild>
-              <Button variant="outline" size="sm" className="ml-2">
-                Chat ({chatMessages.length})
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="h-[70vh] p-4">
-              <div className="flex flex-col h-full">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-semibold">Game Chat</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsChatOpen(false)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto mb-4 space-y-3 pr-2">
-                  {chatMessages.map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className={cn(
-                        "p-3 rounded-lg max-w-[85%]",
-                        msg.playerName === "You"
-                          ? "bg-karma-primary/10 ml-auto"
-                          : "bg-karma-secondary/10"
-                      )}
-                    >
-                      <div className="font-medium text-xs mb-1">
-                        {msg.playerName}
-                      </div>
-                      <p className="text-sm">{msg.message}</p>
-                      <div className="text-xs text-karma-foreground/50 mt-1 text-right">
-                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-                
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Type a message..."
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1"
-                  />
-                  <Button
-                    onClick={handleSendMessage}
-                    size="sm"
-                    disabled={!chatMessage.trim()}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        
-        {/* For larger screens - use a dialog */}
-        <div className="hidden md:block">
-          <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="ml-2">
-                Chat ({chatMessages.length})
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <div className="flex flex-col h-[50vh]">
-                <h3 className="font-semibold mb-4">Game Chat</h3>
-                
-                <div className="flex-1 overflow-y-auto mb-4 space-y-3 pr-2">
-                  {chatMessages.map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className={cn(
-                        "p-3 rounded-lg max-w-[85%]",
-                        msg.playerName === "You"
-                          ? "bg-karma-primary/10 ml-auto"
-                          : "bg-karma-secondary/10"
-                      )}
-                    >
-                      <div className="font-medium text-xs mb-1">
-                        {msg.playerName}
-                      </div>
-                      <p className="text-sm">{msg.message}</p>
-                      <div className="text-xs text-karma-foreground/50 mt-1 text-right">
-                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-                
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Type a message..."
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1"
-                  />
-                  <Button
-                    onClick={handleSendMessage}
-                    size="sm"
-                    disabled={!chatMessage.trim()}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
       </div>
       
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
