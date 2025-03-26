@@ -7,6 +7,11 @@ interface OpponentDisplayProps {
 }
 
 const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
+  // Calculate how many cards to show in the hand
+  const maxVisibleCards = 10;
+  const visibleHandCards = opponent.hand.slice(0, maxVisibleCards);
+  const hasMoreHandCards = opponent.hand.length > maxVisibleCards;
+  
   return (
     <motion.div 
       className="bg-karma-muted/30 backdrop-blur-sm p-4 rounded-xl border border-karma-border shadow-sm"
@@ -58,14 +63,20 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
       
       <div className="flex justify-center">
         {opponent.hand.length > 0 && (
-          <div className="flex items-center justify-center">
-            {opponent.hand.map((_, index) => (
+          <div className="flex items-center justify-center relative">
+            {visibleHandCards.map((_, index) => (
               <div 
                 key={`hand-${index}`}
                 className="w-10 h-14 -ml-2 first:ml-0 bg-karma-card-back bg-card-texture rounded-md shadow-sm border border-gray-800/20"
                 style={{ transform: 'rotate(0deg)' }}
               />
             ))}
+            
+            {hasMoreHandCards && (
+              <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-karma-primary text-white text-xs font-medium rounded-full">
+                {opponent.hand.length}
+              </div>
+            )}
           </div>
         )}
       </div>
