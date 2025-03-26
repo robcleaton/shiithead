@@ -1,6 +1,11 @@
 
 import { Player } from '@/types/game';
 import PlayerHand from '@/components/PlayerHand';
+import Card from '@/components/Card';
+import { useState } from 'react';
+import { CardValue } from '@/types/game';
+import { Button } from '@/components/ui/button';
+import { Play } from 'lucide-react';
 
 interface PlayerAreaProps {
   player: Player;
@@ -9,6 +14,31 @@ interface PlayerAreaProps {
 }
 
 const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
+  const [selectedFaceUpCardIndex, setSelectedFaceUpCardIndex] = useState<number | null>(null);
+  
+  // Check if hand is empty
+  const isHandEmpty = player.hand.length === 0;
+  
+  // Handle face up card selection
+  const handleSelectFaceUpCard = (index: number) => {
+    if (!isHandEmpty || !isActive) return;
+    
+    if (selectedFaceUpCardIndex === index) {
+      setSelectedFaceUpCardIndex(null);
+    } else {
+      setSelectedFaceUpCardIndex(index);
+    }
+  };
+  
+  // Handle playing a face up card
+  const handlePlayFaceUpCard = () => {
+    if (selectedFaceUpCardIndex !== null) {
+      // We'll use negative indices to indicate face up cards
+      onPlayCard(-(selectedFaceUpCardIndex + 1));
+      setSelectedFaceUpCardIndex(null);
+    }
+  };
+  
   return (
     <div className="w-full max-w-3xl">
       <div className="flex justify-center gap-1 mb-6">
@@ -30,7 +60,11 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
             {player.faceUpCards.map((card, index) => (
               <div 
                 key={`fu-${index}`}
-                className="w-12 h-16 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
+                onClick={() => handleSelectFaceUpCard(index)}
+                className={`w-12 h-16 bg-white rounded-lg shadow-sm border transition-all 
+                  ${selectedFaceUpCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : 'border-gray-200'} 
+                  ${isHandEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
+                  flex items-center justify-center`}
               >
                 <div className={`text-lg ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                   {card.rank}
@@ -40,6 +74,19 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
           </div>
         </div>
       </div>
+      
+      {/* Show play button for face up cards when hand is empty */}
+      {isHandEmpty && isActive && selectedFaceUpCardIndex !== null && (
+        <div className="flex justify-center mb-4">
+          <Button
+            onClick={handlePlayFaceUpCard}
+            className="bg-karma-primary hover:bg-karma-primary/90"
+          >
+            <Play className="w-4 h-4 mr-2" />
+            Play Face Up Card
+          </Button>
+        </div>
+      )}
       
       <PlayerHand
         cards={player.hand}
