@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
-import { Layers, HandMetal } from 'lucide-react';
+import { Layers, HandMetal, Flame } from 'lucide-react';
 
 interface GameTableProps {
   pile: CardValue[];
@@ -29,6 +29,7 @@ const GameTable: React.FC<GameTableProps> = ({
     : 0;
   
   const isThreeOnTop = topCard?.rank === '3';
+  const isTenOnTop = topCard?.rank === '10';
   
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
@@ -74,6 +75,11 @@ const GameTable: React.FC<GameTableProps> = ({
         <div className="flex flex-col items-center">
           <div className="mb-2 text-xs text-karma-foreground/70">
             Discard Pile {sameRankCount > 1 && <span className="font-medium">({sameRankCount}×)</span>}
+            {isTenOnTop && (
+              <span className="ml-1 font-medium text-orange-500 flex items-center">
+                <Flame className="h-3 w-3 mr-1" /> Burned
+              </span>
+            )}
           </div>
           
           {topCard ? (
@@ -102,7 +108,7 @@ const GameTable: React.FC<GameTableProps> = ({
                 ))
               )}
               
-              <div className="w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center">
+              <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
                 <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                   {topCard.rank}
                   <span className="text-lg">
@@ -161,7 +167,10 @@ const GameTable: React.FC<GameTableProps> = ({
         {isThreeOnTop && (
           <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
         )}
-        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s remove all discarded cards from the game and give you another turn.</p>
+        {isTenOnTop && (
+          <p className="font-medium text-orange-500 mb-1">10 has been played! All previous cards have been removed from the game!</p>
+        )}
+        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s burn all cards in the discard pile and give you another turn.</p>
       </div>
     </div>
   );
