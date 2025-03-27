@@ -37,7 +37,8 @@ export const drawCard = async (
     const card = updatedDeck.pop()!;
     
     console.log(`Drawing card: ${card.rank} of ${card.suit}`);
-    console.log(`Cards left in deck: ${updatedDeck.length}`);
+    console.log(`Cards left in deck BEFORE update: ${state.deck.length}`);
+    console.log(`Cards left in deck AFTER update: ${updatedDeck.length}`);
     
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;

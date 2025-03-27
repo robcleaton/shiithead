@@ -28,12 +28,15 @@ export const useGameUpdates = (
       
       if (gameData) {
         const prevCurrentPlayerId = gameStateRef.current?.currentPlayerId;
+        const deckCards = jsonToCardValues(gameData.deck);
+        
+        console.log(`Game update: deck count from DB = ${deckCards.length}`);
         
         const updatedGameState = {
           gameStarted: gameData.started,
           gameOver: gameData.ended,
           currentPlayerId: gameData.current_player_id,
-          deck: jsonToCardValues(gameData.deck),
+          deck: deckCards,
           pile: jsonToCardValues(gameData.pile),
           setupPhase: gameData.setup_phase
         };

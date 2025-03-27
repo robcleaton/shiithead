@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
 import { HandMetal, Flame, ArrowRight } from 'lucide-react';
@@ -32,7 +31,9 @@ const GameTable: React.FC<GameTableProps> = ({
   const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
   
-  console.log(`Displaying deck count in GameTable: ${deckCount}`);
+  useEffect(() => {
+    console.log(`GameTable received deckCount: ${deckCount}`);
+  }, [deckCount]);
   
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">

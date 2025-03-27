@@ -22,6 +22,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return { ...state, isLoading: action.isLoading };
     
     case 'SET_GAME_STATE':
+      console.log('SET_GAME_STATE action:', action.gameState);
+      if (action.gameState.deck) {
+        console.log(`Setting deck: ${action.gameState.deck.length} cards`);
+      }
       return { ...state, ...action.gameState };
     
     case 'SET_PLAYERS':

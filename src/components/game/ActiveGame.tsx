@@ -51,7 +51,7 @@ const ActiveGame = ({
   };
 
   // Log the deck count for debugging
-  console.log(`Current deck count in ActiveGame: ${deck.length}`);
+  console.log(`Current deck count in ActiveGame: ${deck.length}, type: ${typeof deck.length}`);
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
