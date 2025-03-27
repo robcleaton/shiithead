@@ -49,7 +49,7 @@ const GameTable: React.FC<GameTableProps> = ({
       <div className="flex justify-center mb-6">
         {/* Card counts display */}
         <div className="flex flex-col items-center">
-          <div className="flex gap-10 mb-2 justify-center">
+          <div className="flex gap-16 mb-2 justify-center">
             <div className="flex flex-col items-center">
               <div className="text-xs bg-karma-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
                 {deckCount} card{deckCount !== 1 ? 's' : ''} left
