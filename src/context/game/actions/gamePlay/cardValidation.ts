@@ -28,12 +28,14 @@ export const validateSingleCardPlay = (
       };
     }
   }
-  // 8 can be played on any card (it's invisible)
-  else if (cardToPlay.rank === '8') {
+  // 8 is transparent - look at the card below it (if any)
+  else if (topCard.rank === '8') {
+    // For an 8, we return valid true - the actual validation against the card below the 8
+    // happens in playCard.ts and related functions
     return { valid: true };
   }
-  // Any card can be played after an 8
-  else if (topCard.rank === '8') {
+  // 8 can be played on any card
+  else if (cardToPlay.rank === '8') {
     return { valid: true };
   }
   // 10 can be played on any card (it's a burn card)
@@ -76,7 +78,7 @@ export const validateMultipleCardsPlay = (
       };
     }
   }
-  // Any card can be played after an 8
+  // 8 is transparent - any card can be played
   else if (topCard.rank === '8') {
     return { valid: true };
   }

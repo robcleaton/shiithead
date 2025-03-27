@@ -1,50 +1,47 @@
 
-import { CardValue } from '@/types/game';
 import { toast } from 'sonner';
+import { CardValue } from '@/types/game';
 import { validateSingleCardPlay, validateMultipleCardsPlay } from './cardValidation';
+import { getEffectiveTopCard } from './utils';
 
-// Validate that all cards to be played are of the same rank
-export const validateSameRank = (
-  cardsToPlay: CardValue[]
-): boolean => {
-  const firstCardRank = cardsToPlay[0]?.rank;
-  return cardsToPlay.every(card => card.rank === firstCardRank);
+// Validate that all cards have the same rank
+export const validateSameRank = (cards: CardValue[]): boolean => {
+  if (cards.length <= 1) return true;
+  
+  const firstRank = cards[0].rank;
+  return cards.every(card => card.rank === firstRank);
 };
 
-// Validate the indices of cards to be played
-export const validateCardIndices = (
-  sortedIndices: number[],
-  handLength: number
-): boolean => {
-  return !sortedIndices.some(index => index < 0 || index >= handLength);
+// Validate card indices are within range
+export const validateCardIndices = (indices: number[], handLength: number): boolean => {
+  return indices.every(index => index >= 0 && index < handLength);
 };
 
-// Validate the play against the top card on the pile
-export const validatePlayAgainstPile = (
-  cardsToPlay: CardValue[],
-  pile: CardValue[]
-): boolean => {
-  if (pile.length === 0) return true;
+// Validate the card play against the top card on the pile
+export const validatePlayAgainstPile = (cards: CardValue[], pile: CardValue[]): boolean => {
+  if (pile.length === 0) return true; // Can play any card on an empty pile
   
-  const topCard = pile[pile.length - 1];
+  // Find the actual top card, skipping 8s since they're transparent
+  const effectiveTopCard = getEffectiveTopCard(pile);
   
-  if (topCard.rank === '3' && cardsToPlay[0].rank !== '3') {
-    toast.error("You must play a 3 or pick up the pile!");
-    return false;
+  // If all the cards are 8s, any card can be played
+  if (!effectiveTopCard) return true;
+  
+  // Special case for multiple cards of the same rank
+  if (cards.length > 1) {
+    const validationResult = validateMultipleCardsPlay(cards[0], effectiveTopCard);
+    if (!validationResult.valid) {
+      toast.error(validationResult.errorMessage);
+      return false;
+    }
+    return true;
   }
   
-  if (cardsToPlay.length === 1) {
-    const validation = validateSingleCardPlay(cardsToPlay[0], topCard);
-    if (!validation.valid) {
-      toast.error(validation.errorMessage);
-      return false;
-    }
-  } else {
-    const validation = validateMultipleCardsPlay(cardsToPlay[0], topCard);
-    if (!validation.valid) {
-      toast.error(validation.errorMessage);
-      return false;
-    }
+  // For a single card
+  const validationResult = validateSingleCardPlay(cards[0], effectiveTopCard);
+  if (!validationResult.valid) {
+    toast.error(validationResult.errorMessage);
+    return false;
   }
   
   return true;

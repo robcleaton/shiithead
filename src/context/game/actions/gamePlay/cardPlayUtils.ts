@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Player } from '@/types/game';
@@ -6,6 +5,8 @@ import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { processBurnConditions } from './burnPileUtils';
 import { determineNextPlayer, generateGameStatusMessage } from './cardHandlingUtils';
+import { validateSingleCardPlay } from './cardValidation';
+import { getEffectiveTopCard } from './utils';
 
 // Shared function to handle updating player and game state after a card is played
 export const updateGameState = async (
@@ -206,14 +207,17 @@ export const validateCardPlay = (
   
   // Check if this is a valid play for face up cards
   if (topCard) {
+    // Get the effective top card (accounting for 8s)
+    const effectiveTopCard = getEffectiveTopCard([...topCard]);
+    
     // Special exception for 3's
-    if (topCard.rank === '3' && cardToPlay.rank !== '3') {
+    if (effectiveTopCard?.rank === '3' && cardToPlay.rank !== '3') {
       toast.error("You must play a 3 or pick up the pile!");
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return { isValid: false };
     }
     
-    const validationResult = validation(cardToPlay, topCard);
+    const validationResult = validation(cardToPlay, effectiveTopCard);
     if (!validationResult.valid) {
       toast.error(validationResult.errorMessage);
       dispatch({ type: 'SET_LOADING', isLoading: false });
