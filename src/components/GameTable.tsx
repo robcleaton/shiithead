@@ -90,11 +90,7 @@ const GameTable: React.FC<GameTableProps> = ({
               
               {/* Pile */}
               <div className="relative">
-                {sameRankCount > 1 && (
-                  <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-karma-foreground/70 text-center">
-                    <span className="font-medium">({sameRankCount})</span>
-                  </div>
-                )}
+                {/* Removed the sameRankCount display from above the pile */}
                 
                 {isTenOnTop && (
                   <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-karma-foreground/70 text-center">
