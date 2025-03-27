@@ -1,98 +1,107 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState, CardValue } from '@/types/game';
+import { GameState } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
-
-// Helper function to check if there are 4 cards of the same rank in the pile
-const checkForFourOfAKind = (pile: CardValue[], newCard: CardValue): boolean => {
-  if (pile.length < 3) return false;
-  
-  // Count how many cards in the pile have the same rank as the new card
-  const sameRankCount = pile.filter(card => card.rank === newCard.rank).length;
-  
-  // If there are exactly 3 cards in the pile with the same rank as the new card
-  // (which would make 4 of a kind when the new card is added)
-  return sameRankCount === 3;
-};
+import { processBurnConditions } from './burnPileUtils';
+import { determineNextPlayer, generateGameStatusMessage } from './cardHandlingUtils';
 
 export const playFaceDownCard = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
-  faceDownIndex: number
+  cardIndex: number
 ): Promise<void> => {
   const player = state.players.find(p => p.id === state.playerId);
   if (!player) return;
   
-  if (faceDownIndex >= player.faceDownCards.length) {
+  if (cardIndex < 0 || cardIndex >= player.faceDownCards.length) {
     toast.error("Invalid face down card selection");
     dispatch({ type: 'SET_LOADING', isLoading: false });
     return;
   }
   
-  // Get the card from face down cards
-  const cardToPlay = player.faceDownCards[faceDownIndex];
-  
-  // Remove card from face down cards
-  const updatedFaceDownCards = [...player.faceDownCards];
-  updatedFaceDownCards.splice(faceDownIndex, 1);
-  
-  // Check if player has face-up cards and hand is empty - move face-up to hand
-  let updatedHand = [...player.hand];
-  let updatedFaceUpCards = [...player.faceUpCards];
-  
-  if (updatedHand.length === 0 && state.deck.length === 0 && updatedFaceUpCards.length > 0) {
-    updatedHand = [...updatedFaceUpCards];
-    updatedFaceUpCards = [];
-    toast.info(`${player.name}'s face-up cards have been moved to their hand`);
+  // Cannot play face down cards if the player still has cards in hand
+  if (player.hand.length > 0) {
+    toast.error("You must play all cards in your hand first!");
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+    return;
   }
   
-  // Update Supabase
+  // Cannot play face down cards if the player still has face up cards
+  if (player.faceUpCards.length > 0) {
+    toast.error("You must play all your face up cards first!");
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+    return;
+  }
+  
+  const cardToPlay = player.faceDownCards[cardIndex];
+  const updatedFaceDownCards = [...player.faceDownCards];
+  updatedFaceDownCards.splice(cardIndex, 1);
+  
+  // Check if this is a valid play
+  if (state.pile.length > 0) {
+    const topCard = state.pile[state.pile.length - 1];
+    
+    // Special exception for 3's
+    if (topCard.rank === '3' && cardToPlay.rank !== '3') {
+      toast.error("You drew a " + cardToPlay.rank + " of " + cardToPlay.suit + " but needed a 3. Pick up the pile!");
+      
+      // Pick up the pile as a penalty and add the revealed card
+      const updatedHand = [...state.pile, cardToPlay];
+      
+      const { error: playerError } = await supabase
+        .from('players')
+        .update({ 
+          hand: updatedHand,
+          face_down_cards: updatedFaceDownCards
+        })
+        .eq('id', player.id)
+        .eq('game_id', state.gameId);
+        
+      if (playerError) throw playerError;
+      
+      // Clear the pile
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({ 
+          pile: [],
+          current_player_id: state.players[(state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length].id
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) throw gameError;
+      
+      toast.info(`${player.name} picked up the pile as a penalty!`);
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
+  }
+  
+  // Process burn conditions
+  const { updatedPile, shouldGetAnotherTurn, burnMessage } = processBurnConditions(state, [cardToPlay]);
+  
+  // Determine next player
+  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);
+  
+  // Generate game status
+  const { gameOver, statusMessage } = generateGameStatusMessage(
+    player, 
+    player.hand, 
+    player.faceUpCards, 
+    state
+  );
+  
+  // Update player state
   const { error: playerError } = await supabase
     .from('players')
-    .update({
-      face_down_cards: updatedFaceDownCards,
-      hand: updatedHand,
-      face_up_cards: updatedFaceUpCards
-    })
+    .update({ face_down_cards: updatedFaceDownCards })
     .eq('id', player.id)
     .eq('game_id', state.gameId);
     
   if (playerError) throw playerError;
   
-  let updatedPile: CardValue[] = [];
-  let shouldGetAnotherTurn = false;
-  
-  // Check for burn conditions
-  const isBurnCard = cardToPlay.rank === '10';
-  const isFourOfAKind = checkForFourOfAKind(state.pile, cardToPlay);
-  
-  if (isBurnCard || isFourOfAKind) {
-    updatedPile = [];
-    shouldGetAnotherTurn = true;
-    
-    if (isBurnCard) {
-      toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
-    } else if (isFourOfAKind) {
-      toast.success(`Four of a kind! ${player.name} has completed a set of 4 ${cardToPlay.rank}s - the discard pile has been burned! ${player.name} gets another turn.`);
-    }
-  } else {
-    updatedPile = [...state.pile, cardToPlay];
-  }
-  
-  // Determine next player
-  const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-  let nextPlayerId = state.currentPlayerId;
-  
-  if (!shouldGetAnotherTurn && cardToPlay.rank !== '2') {
-    const nextIndex = (currentPlayerIndex + 1) % state.players.length;
-    nextPlayerId = state.players[nextIndex].id;
-  }
-  
-  // Check if game is over (no cards left)
-  const gameOver = updatedFaceDownCards.length === 0 && updatedHand.length === 0 && updatedFaceUpCards.length === 0;
-  
+  // Update game state
   const { error: gameError } = await supabase
     .from('games')
     .update({ 
@@ -104,22 +113,15 @@ export const playFaceDownCard = async (
     
   if (gameError) throw gameError;
   
-  // Display appropriate message
-  if (cardToPlay.rank === '2') {
-    toast.success(`${player.name} played a 2 from their face down cards - they get another turn!`);
-  } else if (cardToPlay.rank === '3') {
-    toast.success(`${player.name} played a 3 from their face down cards - next player must pick up the pile or play a 3!`);
-  } else if (cardToPlay.rank === '7') {
-    toast.success(`${player.name} played a 7 from their face down cards - the next player must play a card of rank lower than 7 or another 7!`);
-  } else if (cardToPlay.rank === '10') {
-    toast.success(`${player.name} played a 10 from their face down cards - the entire discard pile has been removed from the game! ${player.name} gets another turn.`);
+  if (burnMessage) {
+    toast.success(`${player.name} ${burnMessage} ${player.name} gets another turn.`);
   } else {
-    toast.success(`${player.name} played ${cardToPlay.rank} of ${cardToPlay.suit} from their face down cards!`);
+    toast.success(`${player.name} played a face down ${cardToPlay.rank} of ${cardToPlay.suit}!`);
   }
   
   if (gameOver) {
     toast.success(`${player.name} has won the game!`);
-  } else if (updatedFaceDownCards.length === 1) {
-    toast.info(`${player.name} is down to their last card!`);
+  } else if (statusMessage) {
+    toast.info(statusMessage);
   }
 };
