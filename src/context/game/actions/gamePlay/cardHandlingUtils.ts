@@ -9,6 +9,7 @@ export const processPlayerHand = (
 ): {
   finalHand: CardValue[],
   updatedFaceUpCards: CardValue[],
+  updatedFaceDownCards: CardValue[],
   updatedDeck: CardValue[]
 } => {
   // Create a new hand array, removing the played cards
@@ -19,15 +20,22 @@ export const processPlayerHand = (
   
   // Make a copy of the deck for drawing cards
   const updatedDeck = [...state.deck];
+  let updatedFaceDownCards = [...player.faceDownCards];
   
   // Check for moving face-up cards to hand when hand is empty and deck is empty
   let finalHand = [...updatedHand];
   let updatedFaceUpCards = [...player.faceUpCards];
   
-  if (finalHand.length === 0 && updatedDeck.length === 0 && player.faceUpCards.length > 0) {
+  if (finalHand.length === 0 && updatedDeck.length === 0 && updatedFaceUpCards.length > 0) {
     // Move face-up cards to hand
-    finalHand = [...player.faceUpCards];
+    finalHand = [...updatedFaceUpCards];
     updatedFaceUpCards = [];
+  } else if (finalHand.length === 0 && updatedFaceUpCards.length === 0 && updatedFaceDownCards.length > 0) {
+    // When no cards in hand, no face up cards, and face down cards exist
+    // Move face down cards to hand
+    finalHand = [...updatedFaceDownCards];
+    updatedFaceDownCards = [];
+    console.log(`Moved ${finalHand.length} face down cards to hand`);
   } else {
     // Draw cards from the deck if needed
     const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
@@ -45,7 +53,7 @@ export const processPlayerHand = (
     finalHand = [...updatedHand, ...drawnCards];
   }
   
-  return { finalHand, updatedFaceUpCards, updatedDeck };
+  return { finalHand, updatedFaceUpCards, updatedFaceDownCards, updatedDeck };
 };
 
 // Determine the next player's ID based on game rules
@@ -98,16 +106,19 @@ export const generateGameStatusMessage = (
   player: Player,
   finalHand: CardValue[],
   updatedFaceUpCards: CardValue[],
+  updatedFaceDownCards: CardValue[],
   state: { deck: CardValue[] }
 ): { gameOver: boolean, statusMessage: string | null } => {
-  const gameOver = finalHand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length === 0;
+  const gameOver = finalHand.length === 0 && updatedFaceUpCards.length === 0 && updatedFaceDownCards.length === 0;
   let statusMessage = null;
   
   if (gameOver) {
     statusMessage = `${player.name} has won the game!`;
-  } else if (finalHand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length === 1) {
+  } else if (finalHand.length === 0 && updatedFaceUpCards.length === 0 && updatedFaceDownCards.length === 1) {
     statusMessage = `${player.name} is down to their last card!`;
-  } else if (finalHand.length === 0 && state.deck.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length > 0) {
+  } else if (finalHand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length > 0 && updatedFaceDownCards.length === 0) {
+    statusMessage = `${player.name}'s face-down cards have been moved to their hand`;
+  } else if (finalHand.length === 0 && state.deck.length === 0 && updatedFaceUpCards.length === 0 && updatedFaceDownCards.length > 0) {
     statusMessage = `${player.name} must now play their face-down cards!`;
   } else if (finalHand.length === 0 && state.deck.length === 0 && player.faceUpCards.length > 0) {
     statusMessage = `${player.name}'s face-up cards have been moved to their hand`;

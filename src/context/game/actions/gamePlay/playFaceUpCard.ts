@@ -29,6 +29,10 @@ export const playFaceUpCard = async (
   
   if (!validation.isValid) return;
   
+  // Check if this is the last face up card and player has face down cards
+  const isLastFaceUpCard = player.faceUpCards.length === 1;
+  const hasFaceDownCards = player.faceDownCards.length > 0;
+  
   // Update game state
   await updateGameState(
     dispatch,
@@ -36,7 +40,7 @@ export const playFaceUpCard = async (
     player,
     validation.cardToPlay!,
     validation.updatedCards!,
-    null,
+    isLastFaceUpCard && hasFaceDownCards ? [] : null,
     'faceUp'
   );
 };

@@ -52,9 +52,10 @@ export const playHandCards = async (
   }
   
   // Process player's hand after playing cards, including drawing new cards
-  const { finalHand, updatedFaceUpCards, updatedDeck } = processPlayerHand(player, sortedIndices, state);
+  const { finalHand, updatedFaceUpCards, updatedFaceDownCards, updatedDeck } = processPlayerHand(player, sortedIndices, state);
   
   console.log(`After processing player hand: deck has ${updatedDeck.length} cards left`);
+  console.log(`Player hand status: hand=${finalHand.length}, faceUp=${updatedFaceUpCards.length}, faceDown=${updatedFaceDownCards.length}`);
   
   // First update the local state to ensure UI updates immediately
   dispatch({
@@ -69,7 +70,8 @@ export const playHandCards = async (
     .from('players')
     .update({ 
       hand: finalHand,
-      face_up_cards: updatedFaceUpCards
+      face_up_cards: updatedFaceUpCards,
+      face_down_cards: updatedFaceDownCards
     })
     .eq('id', player.id)
     .eq('game_id', state.gameId);
@@ -86,7 +88,7 @@ export const playHandCards = async (
   const nextPlayerId = determineNextPlayer(state, player, cardsToPlay, shouldGetAnotherTurn);
   
   // Generate game status messages
-  const { gameOver, statusMessage } = generateGameStatusMessage(player, finalHand, updatedFaceUpCards, state);
+  const { gameOver, statusMessage } = generateGameStatusMessage(player, finalHand, updatedFaceUpCards, updatedFaceDownCards, state);
   
   // Update game state in database
   const { error: gameError } = await supabase

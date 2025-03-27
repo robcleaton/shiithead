@@ -29,9 +29,28 @@ export const updateGameState = async (
   // Create a copy of the deck for potential drawing
   const updatedDeck = [...state.deck];
   
-  // If player's hand is below 3 cards and deck is not empty, draw a card
+  // Check if we need to move face down cards to hand
   let updatedHand = [...player.hand];
-  if (cardPlayedFromType === 'hand' && updatedHand.length < 3 && updatedDeck.length > 0) {
+  const faceDownCardsToUpdate = updatedFaceDownCards !== null ? updatedFaceDownCards : [...player.faceDownCards];
+  
+  // If player's hand is empty, face up cards are empty, and they have face down cards
+  if (cardPlayedFromType === 'faceUp' && updatedHand.length === 0 && 
+     (updatedFaceUpCards === null || updatedFaceUpCards.length === 0) && 
+     faceDownCardsToUpdate.length > 0) {
+    
+    updatedHand = [...faceDownCardsToUpdate];
+    // Update face down cards to be empty since we moved them to hand
+    if (updatedFaceDownCards === null) {
+      updatedFaceDownCards = [];
+    } else {
+      updatedFaceDownCards = [];
+    }
+    
+    console.log(`Moved ${updatedHand.length} face down cards to hand after playing face up card`);
+    toast.info(`${player.name}'s face down cards have been moved to their hand`);
+  }
+  // If player's hand is below 3 cards and deck is not empty, draw a card
+  else if (cardPlayedFromType === 'hand' && updatedHand.length < 3 && updatedDeck.length > 0) {
     const drawnCard = updatedDeck.pop()!;
     updatedHand.push(drawnCard);
     console.log(`Drew card after playing from hand: ${drawnCard.rank} of ${drawnCard.suit}, deck now has ${updatedDeck.length} cards`);
@@ -41,27 +60,24 @@ export const updateGameState = async (
       type: 'SET_GAME_STATE',
       gameState: { deck: updatedDeck }
     });
-    
-    // Update player's hand in database
-    const { error: handUpdateError } = await supabase
-      .from('players')
-      .update({ hand: updatedHand })
-      .eq('id', player.id)
-      .eq('game_id', state.gameId);
-      
-    if (handUpdateError) throw handUpdateError;
   }
   
   // Generate game status
   const { gameOver, statusMessage } = generateGameStatusMessage(
     player,
     updatedHand, 
-    updatedFaceUpCards || player.faceUpCards, 
+    updatedFaceUpCards || player.faceUpCards,
+    updatedFaceDownCards || player.faceDownCards,
     { deck: updatedDeck }
   );
   
   // Prepare player update payload
   const playerUpdatePayload: any = {};
+  
+  // Always update the hand if we've modified it
+  if (updatedHand !== player.hand) {
+    playerUpdatePayload.hand = updatedHand;
+  }
   
   if (updatedFaceUpCards !== null) {
     playerUpdatePayload.face_up_cards = updatedFaceUpCards;
