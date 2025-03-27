@@ -141,10 +141,11 @@ const GameTable: React.FC<GameTableProps> = ({
         {isCurrentPlayer && (
           <>
             <Button
-              variant="primary"
+              variant="default"
               size="sm"
               onClick={onDrawCard}
               disabled={deckCount === 0}
+              className="bg-karma-primary hover:bg-karma-primary/90"
             >
               <ArrowRight className="mr-2 h-4 w-4" />
               Draw Card
