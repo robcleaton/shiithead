@@ -6,6 +6,7 @@ import { useSupabaseChannel } from './useSupabaseChannel';
 import { useFetchPlayers } from './useFetchPlayers';
 import { useGameUpdates } from './useGameUpdates';
 import { usePlayerUpdates } from './usePlayerUpdates';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useGameSubscriptions = (
   gameId: string | null,
@@ -23,7 +24,12 @@ export const useGameSubscriptions = (
       console.log('Setting up game subscriptions for game ID:', gameId);
       dispatch({ type: 'SET_LOADING', isLoading: true });
       
-      fetchPlayers(gameId).finally(() => {
+      // Initial fetch of all players
+      fetchPlayers(gameId).then(players => {
+        console.log('Initial players fetch completed:', players);
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+      }).catch(error => {
+        console.error('Error in initial players fetch:', error);
         dispatch({ type: 'SET_LOADING', isLoading: false });
       });
     }
@@ -40,14 +46,18 @@ export const useGameSubscriptions = (
     !!gameId
   );
 
-  // Setup player updates channel
+  // Setup player updates channel - monitor all events for players in this game
   useSupabaseChannel(
     'player_updates', 
     { 
       table: 'players',
-      filter: `game_id=eq.${gameId}`
+      filter: `game_id=eq.${gameId}`,
+      event: '*'  // Listen for all events (INSERT, UPDATE, DELETE)
     },
-    (payload) => handlePlayerUpdate(payload, gameId || ''),
+    (payload) => {
+      console.log('Player channel event received:', payload);
+      handlePlayerUpdate(payload, gameId || '');
+    },
     !!gameId
   );
 

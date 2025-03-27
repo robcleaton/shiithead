@@ -36,16 +36,10 @@ const Lobby = () => {
   }, [state.gameId, navigate]);
 
   useEffect(() => {
-    console.log('Current game state:', state);
+    // Debug log to track game state and players
+    console.log('Current game state in Lobby:', state);
     console.log('Players in lobby:', state.players);
   }, [state]);
-
-  // More reliable player list monitoring
-  useEffect(() => {
-    if (state.gameId && state.players.length === 0) {
-      console.warn('Game exists but no players detected - possible subscription issue');
-    }
-  }, [state.gameId, state.players]);
 
   const handleStartGame = () => {
     if (state.players.length < 2) {

@@ -30,7 +30,8 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
           faceDownCards: [],
           faceUpCards: [],
           isActive: true,
-          isReady: false
+          isReady: false,
+          gameId: ''
         };
         
         setRenderedPlayers([fallbackPlayer]);
