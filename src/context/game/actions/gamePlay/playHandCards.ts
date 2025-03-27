@@ -130,6 +130,8 @@ export const playHandCards = async (
       toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
     } else if (cardsToPlay[0].rank === '7') {
       toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7 or another 7!`);
+    } else if (cardsToPlay[0].rank === '8') {
+      toast.success(`${player.name} played an 8 - this card is invisible, the next player can play any card!`);
     } else if (cardsToPlay[0].rank === '10') {
       toast.success(`${player.name} played a 10 - the entire discard pile has been removed from the game! ${player.name} gets another turn.`);
     }

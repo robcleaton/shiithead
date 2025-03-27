@@ -28,6 +28,14 @@ export const validateSingleCardPlay = (
       };
     }
   }
+  // 8 can be played on any card (it's invisible)
+  else if (cardToPlay.rank === '8') {
+    return { valid: true };
+  }
+  // Any card can be played after an 8
+  else if (topCard.rank === '8') {
+    return { valid: true };
+  }
   // 10 can be played on any card (it's a burn card)
   else if (cardToPlay.rank === '10') {
     return { valid: true };
@@ -67,6 +75,10 @@ export const validateMultipleCardsPlay = (
         errorMessage: "After a 7 is played, you must play a card with rank below 7, a 7, or a special card (2, 3, 8)!"
       };
     }
+  }
+  // Any card can be played after an 8
+  else if (topCard.rank === '8') {
+    return { valid: true };
   }
   // Regular multiple card play validation
   else if (!['2', '3', '8', '10'].includes(cardToPlay.rank) && cardToPlay.rank !== topCard.rank) {
