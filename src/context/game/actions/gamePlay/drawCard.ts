@@ -32,26 +32,23 @@ export const drawCard = async (
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
+    // Create a copy of the deck to avoid mutation
     const updatedDeck = [...state.deck];
     const card = updatedDeck.pop()!;
+    
+    console.log(`Drawing card: ${card.rank} of ${card.suit}`);
+    console.log(`Cards left in deck: ${updatedDeck.length}`);
     
     const player = state.players.find(p => p.id === state.playerId);
     if (!player) return;
     
     const updatedHand = [...player.hand, card];
     
-    const { error: playerError } = await supabase
-      .from('players')
-      .update({ hand: updatedHand })
-      .eq('id', player.id)
-      .eq('game_id', state.gameId);
-      
-    if (playerError) throw playerError;
-    
     const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     const nextIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextIndex].id;
     
+    // First update the game state to ensure the deck is updated
     const { error: gameError } = await supabase
       .from('games')
       .update({ 
@@ -61,6 +58,15 @@ export const drawCard = async (
       .eq('id', state.gameId);
       
     if (gameError) throw gameError;
+    
+    // Then update the player's hand
+    const { error: playerError } = await supabase
+      .from('players')
+      .update({ hand: updatedHand })
+      .eq('id', player.id)
+      .eq('game_id', state.gameId);
+      
+    if (playerError) throw playerError;
     
     toast.info(`${player.name} drew a card.`);
     dispatch({ type: 'SET_LOADING', isLoading: false });

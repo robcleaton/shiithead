@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
-import { HandMetal, Flame } from 'lucide-react';
+import { HandMetal, Flame, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface GameTableProps {
@@ -60,6 +60,17 @@ const GameTable: React.FC<GameTableProps> = ({
                   }}
                 />
               ))}
+              
+              {isCurrentPlayer && (
+                <Button 
+                  onClick={onDrawCard}
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-karma-primary/80 hover:bg-karma-primary z-10"
+                  size="sm"
+                >
+                  <ArrowRight className="w-4 h-4 mr-1" />
+                  Draw
+                </Button>
+              )}
             </div>
           )}
           
