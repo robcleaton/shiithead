@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
 import { Button } from '@/components/ui/button';
@@ -26,8 +26,10 @@ const PlayerHand = ({
 }: PlayerHandProps) => {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   
-  console.log('PlayerHand rendering with cards:', cards);
-  console.log('Selected indices:', selectedIndices);
+  // Reset selected indices when cards or isActive changes
+  useEffect(() => {
+    setSelectedIndices([]);
+  }, [cards, isActive]);
   
   const cardArray = Array.isArray(cards) ? cards : [];
   

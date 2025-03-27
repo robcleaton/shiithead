@@ -43,11 +43,20 @@ export const playHandCards = async (
   const player = state.players.find(p => p.id === state.playerId);
   if (!player) return;
   
+  // Important: Sort indices in descending order to avoid shifting issues when removing cards
   const sortedIndices = [...cardIndices].sort((a, b) => b - a);
   
-  const cards = sortedIndices.map(index => player.hand[index]);
-  const firstCardRank = cards[0]?.rank;
-  const allSameRank = cards.every(card => card.rank === firstCardRank);
+  // Make sure we're working with valid indices
+  if (sortedIndices.some(index => index < 0 || index >= player.hand.length)) {
+    toast.error("Invalid card selection");
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+    return;
+  }
+  
+  // Extract the cards to be played
+  const cardsToPlay = sortedIndices.map(index => player.hand[index]);
+  const firstCardRank = cardsToPlay[0]?.rank;
+  const allSameRank = cardsToPlay.every(card => card.rank === firstCardRank);
   
   if (!allSameRank) {
     toast.error("All cards must have the same rank!");
@@ -93,8 +102,7 @@ export const playHandCards = async (
     }
   }
   
-  const cardsToPlay = cardIndices.map(index => player.hand[index]);
-  
+  // Create a new hand array, removing the played cards
   const updatedHand = [...player.hand];
   for (const index of sortedIndices) {
     updatedHand.splice(index, 1);
@@ -122,6 +130,7 @@ export const playHandCards = async (
     finalHand = [...updatedHand, ...drawnCards];
   }
   
+  // Update player's hand in the database
   const { error: playerError } = await supabase
     .from('players')
     .update({ 
@@ -163,6 +172,7 @@ export const playHandCards = async (
   
   const gameOver = finalHand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length === 0;
   
+  // Update game state in database
   const { error: gameError } = await supabase
     .from('games')
     .update({ 

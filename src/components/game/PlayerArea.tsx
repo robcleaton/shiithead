@@ -2,7 +2,7 @@
 import { Player } from '@/types/game';
 import PlayerHand from '@/components/PlayerHand';
 import Card from '@/components/Card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CardValue } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
@@ -16,6 +16,12 @@ interface PlayerAreaProps {
 const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
   const [selectedFaceUpCardIndex, setSelectedFaceUpCardIndex] = useState<number | null>(null);
   const [selectedFaceDownCardIndex, setSelectedFaceDownCardIndex] = useState<number | null>(null);
+  
+  // Reset selections when cards or active state changes
+  useEffect(() => {
+    setSelectedFaceUpCardIndex(null);
+    setSelectedFaceDownCardIndex(null);
+  }, [player.hand, player.faceUpCards, player.faceDownCards, isActive]);
   
   // Check if hand and face up cards are empty
   const isHandEmpty = player.hand.length === 0;
