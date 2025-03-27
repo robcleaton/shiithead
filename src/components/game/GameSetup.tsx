@@ -54,7 +54,7 @@ const GameSetup = ({
         </div>
 
         {/* Face Down Cards */}
-        <div className="flex justify-center gap-4 relative">
+        <div className="flex justify-center gap-4">
           {player.faceDownCards && player.faceDownCards.length > 0 ? (
             player.faceDownCards.map((_, index) => (
               <div 
@@ -65,13 +65,6 @@ const GameSetup = ({
           ) : (
             <div className="text-center p-4 text-gray-500">
               No face-down cards available
-            </div>
-          )}
-          {player.faceDownCards && player.faceDownCards.length > 1 && (
-            <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
-              <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                {player.faceDownCards.length}
-              </span>
             </div>
           )}
         </div>
