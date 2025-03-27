@@ -38,10 +38,24 @@ export const playFaceDownCard = async (
   const updatedFaceDownCards = [...player.faceDownCards];
   updatedFaceDownCards.splice(faceDownIndex, 1);
   
+  // Check if player has face-up cards and hand is empty - move face-up to hand
+  let updatedHand = [...player.hand];
+  let updatedFaceUpCards = [...player.faceUpCards];
+  
+  if (updatedHand.length === 0 && state.deck.length === 0 && updatedFaceUpCards.length > 0) {
+    updatedHand = [...updatedFaceUpCards];
+    updatedFaceUpCards = [];
+    toast.info(`${player.name}'s face-up cards have been moved to their hand`);
+  }
+  
   // Update Supabase
   const { error: playerError } = await supabase
     .from('players')
-    .update({ face_down_cards: updatedFaceDownCards })
+    .update({
+      face_down_cards: updatedFaceDownCards,
+      hand: updatedHand,
+      face_up_cards: updatedFaceUpCards
+    })
     .eq('id', player.id)
     .eq('game_id', state.gameId);
     
@@ -77,7 +91,7 @@ export const playFaceDownCard = async (
   }
   
   // Check if game is over (no cards left)
-  const gameOver = updatedFaceDownCards.length === 0;
+  const gameOver = updatedFaceDownCards.length === 0 && updatedHand.length === 0 && updatedFaceUpCards.length === 0;
   
   const { error: gameError } = await supabase
     .from('games')

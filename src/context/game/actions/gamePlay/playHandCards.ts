@@ -100,19 +100,34 @@ export const playHandCards = async (
     updatedHand.splice(index, 1);
   }
   
-  const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
-  const updatedDeck = [...state.deck];
-  const drawnCards = [];
+  // Check for moving face-up cards to hand when hand is empty and deck is empty
+  let finalHand = [...updatedHand];
+  let updatedFaceUpCards = [...player.faceUpCards];
   
-  for (let i = 0; i < cardsToDrawCount && updatedDeck.length > 0; i++) {
-    drawnCards.push(updatedDeck.pop()!);
+  if (finalHand.length === 0 && state.deck.length === 0 && player.faceUpCards.length > 0) {
+    // Move face-up cards to hand
+    finalHand = [...player.faceUpCards];
+    updatedFaceUpCards = [];
+    toast.info(`${player.name}'s face-up cards have been moved to their hand`);
+  } else {
+    // Draw cards from the deck if needed
+    const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
+    const updatedDeck = [...state.deck];
+    const drawnCards = [];
+    
+    for (let i = 0; i < cardsToDrawCount && updatedDeck.length > 0; i++) {
+      drawnCards.push(updatedDeck.pop()!);
+    }
+    
+    finalHand = [...updatedHand, ...drawnCards];
   }
-  
-  const finalHand = [...updatedHand, ...drawnCards];
   
   const { error: playerError } = await supabase
     .from('players')
-    .update({ hand: finalHand })
+    .update({ 
+      hand: finalHand,
+      face_up_cards: updatedFaceUpCards
+    })
     .eq('id', player.id)
     .eq('game_id', state.gameId);
     
@@ -146,7 +161,7 @@ export const playHandCards = async (
     nextPlayerId = state.players[nextIndex].id;
   }
   
-  const gameOver = finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 0;
+  const gameOver = finalHand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length === 0;
   
   const { error: gameError } = await supabase
     .from('games')
@@ -154,7 +169,7 @@ export const playHandCards = async (
       pile: updatedPile,
       current_player_id: nextPlayerId,
       ended: gameOver,
-      deck: updatedDeck
+      deck: state.deck
     })
     .eq('id', state.gameId);
     
@@ -178,13 +193,11 @@ export const playHandCards = async (
   
   if (gameOver) {
     toast.success(`${player.name} has won the game!`);
-  } else if (finalHand.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length === 1) {
+  } else if (finalHand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length === 1) {
     toast.info(`${player.name} is down to their last card!`);
   }
   
-  if (drawnCards.length > 0 && updatedDeck.length === 0) {
-    toast.info('Deck is now empty!');
-  } else if (drawnCards.length > 0) {
-    toast.info(`Drew ${drawnCards.length} card${drawnCards.length > 1 ? 's' : ''} from the deck`);
+  if (finalHand.length === 0 && state.deck.length === 0 && player.faceUpCards.length === 0 && player.faceDownCards.length > 0) {
+    toast.info(`${player.name} must now play their face-down cards!`);
   }
 };
