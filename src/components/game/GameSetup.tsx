@@ -116,7 +116,7 @@ const GameSetup = ({
         </div>
 
         {player.isReady && (
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col items-center">
             <p className="text-center text-green-600 mb-2">You've selected all your face-up cards</p>
             {isHost && (
               <Button 
