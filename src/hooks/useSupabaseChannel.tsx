@@ -33,19 +33,24 @@ export const useSupabaseChannel = (
 
       const channel = supabase
         .channel(channelName)
-        .on('postgres_changes', {
-          event: config.event || '*',
-          schema: config.schema || 'public',
-          table: config.table,
-          filter: config.filter
-        }, (payload) => {
-          console.log(`${channelName} update received:`, payload);
-          onUpdate(payload);
-        })
+        .on(
+          'postgres_changes', // Using as string literal since Supabase accepts this at runtime
+          {
+            event: config.event || '*',
+            schema: config.schema || 'public',
+            table: config.table,
+            filter: config.filter
+          }, 
+          (payload) => {
+            console.log(`${channelName} update received:`, payload);
+            onUpdate(payload);
+          }
+        )
         .subscribe((status) => {
           console.log(`${channelName} channel subscription status:`, status);
-          // String comparison here is intentional as Supabase returns string literals at runtime
-          if (status === 'SUBSCRIPTION_ERROR') {
+          
+          // Using string comparison because Supabase returns string literals at runtime
+          if (status === 'SUBSCRIPTION_ERROR') { // Keep as string comparison
             console.error(`${channelName} subscription error. Will attempt to reconnect.`);
             
             if (reconnectTimeoutRef.current) {
