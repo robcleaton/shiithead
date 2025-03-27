@@ -96,7 +96,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       <div className="flex justify-center gap-1 mb-6">
         <div className="flex flex-col items-center">
           <div className="text-xs text-gray-500 mb-1">Face Down</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative">
             {player.faceDownCards.map((_, index) => (
               <div 
                 key={index}
@@ -106,12 +106,17 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                   ${selectedFaceDownCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : ''}`}
               />
             ))}
+            {player.faceDownCards.length > 3 && (
+              <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                {player.faceDownCards.length}
+              </span>
+            )}
           </div>
         </div>
         
         <div className="flex flex-col items-center ml-6">
           <div className="text-xs text-gray-500 mb-1">Face Up</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 relative">
             {player.faceUpCards.map((card, index) => (
               <div 
                 key={`fu-${index}`}
@@ -129,6 +134,11 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                 </div>
               </div>
             ))}
+            {player.faceUpCards.length > 3 && (
+              <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                {player.faceUpCards.length}
+              </span>
+            )}
           </div>
         </div>
       </div>

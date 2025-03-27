@@ -54,7 +54,7 @@ const GameSetup = ({
         </div>
 
         {/* Face Down Cards */}
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 relative">
           {player.faceDownCards && player.faceDownCards.length > 0 ? (
             player.faceDownCards.map((_, index) => (
               <div 
@@ -67,10 +67,15 @@ const GameSetup = ({
               No face-down cards available
             </div>
           )}
+          {player.faceDownCards && player.faceDownCards.length > 3 && (
+            <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+              {player.faceDownCards.length}
+            </span>
+          )}
         </div>
 
         {/* Face Up Cards */}
-        <div className="flex justify-center gap-4 mt-2">
+        <div className="flex justify-center gap-4 mt-2 relative">
           {player.faceUpCards && player.faceUpCards.length > 0 ? (
             player.faceUpCards.map((card, index) => (
               <div 
@@ -94,6 +99,11 @@ const GameSetup = ({
                 <span className="text-gray-400 text-xs">Select</span>
               </div>
             ))
+          )}
+          {player.faceUpCards && player.faceUpCards.length > 3 && (
+            <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+              {player.faceUpCards.length}
+            </span>
           )}
         </div>
 
