@@ -1,10 +1,9 @@
-
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
-import { useGame } from '@/context/GameContext';
+import useGame from '@/hooks/useGame';
 import CursorTracker from '@/components/CursorTracker';
 
 const Index = () => {
@@ -14,7 +13,6 @@ const Index = () => {
   const { joinGame, state } = useGame();
 
   useEffect(() => {
-    // Check if we're on a join URL path
     if (location.pathname.startsWith('/join/') && gameId) {
       setShowJoinForm(true);
       console.log(`Detected join URL with gameId: ${gameId}`);
@@ -82,7 +80,6 @@ const Index = () => {
         </motion.div>
       </footer>
       
-      {/* Add cursor tracker when we're in a game lobby */}
       {state.gameId && <CursorTracker />}
     </div>
   );

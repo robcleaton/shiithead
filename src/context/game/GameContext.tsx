@@ -1,6 +1,6 @@
 
-// Re-export from refactored files
+// Export the context and provider from GameProvider
 import { GameContext, GameProvider } from './GameProvider';
-import useGame from '@/hooks/useGame';
 
-export { GameProvider, useGame };
+// Export for easy usage throughout the app
+export { GameContext, GameProvider };
