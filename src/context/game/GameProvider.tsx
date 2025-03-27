@@ -3,6 +3,7 @@ import { createContext, ReactNode, useEffect } from 'react';
 import useGameContext from '@/hooks/useGameContext';
 import { GameState, Player, CardValue } from '@/types/game';
 import { isAIPlayer } from './actions/gamePlay/aiPlayerActions';
+import { toast } from 'sonner';
 
 type GameContextType = ReturnType<typeof useGameContext>;
 
@@ -41,6 +42,25 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log('Current players in GameProvider:', gameContext.state.players);
   }, [gameContext.state.players]);
+  
+  // Add notification for game over state change
+  useEffect(() => {
+    if (gameContext.state.gameOver) {
+      const winner = gameContext.state.players.find(
+        p => p.hand.length === 0 && p.faceUpCards.length === 0 && p.faceDownCards.length === 0
+      );
+      
+      const currentPlayer = gameContext.state.players.find(p => p.id === gameContext.state.playerId);
+      
+      if (winner && currentPlayer) {
+        if (winner.id === currentPlayer.id) {
+          toast.success("Congratulations! You won the game! 🎉");
+        } else {
+          toast.error(`Game Over! ${winner.name} has won the game.`);
+        }
+      }
+    }
+  }, [gameContext.state.gameOver, gameContext.state.players, gameContext.state.playerId]);
   
   return (
     <GameContext.Provider value={gameContext}>

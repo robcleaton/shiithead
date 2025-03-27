@@ -30,9 +30,24 @@ const Game = () => {
   }, [state]);
 
   const player = state.players.find(p => p.id === state.playerId);
+  
+  // Find the winner (player with no cards left)
+  const winner = state.gameOver ? 
+    state.players.find(p => p.hand.length === 0 && p.faceUpCards.length === 0 && p.faceDownCards.length === 0) : 
+    null;
+  
+  // Determine if current player is winner
+  const isWinner = winner && player && winner.id === player.id;
+  
+  // Set background color class based on game state and player status
+  let bgColorClass = '';
+  
+  if (state.gameOver) {
+    bgColorClass = isWinner ? 'bg-green-500' : 'bg-red-500';
+  }
 
   return (
-    <>
+    <div className={`min-h-screen transition-colors duration-500 ${bgColorClass}`}>
       {state.isLoading && <LoadingGame />}
       
       {!state.isLoading && !state.gameStarted && !state.setupPhase && <Lobby />}
@@ -76,7 +91,7 @@ const Game = () => {
       
       {/* Add cursor tracker only for lobby, not for setup or active game (handled in ActiveGame) */}
       {state.gameId && !state.gameStarted && !state.setupPhase && <CursorTracker />}
-    </>
+    </div>
   );
 };
 
