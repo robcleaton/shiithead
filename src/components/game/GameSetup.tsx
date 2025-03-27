@@ -70,7 +70,7 @@ const GameSetup = ({
         </div>
 
         {/* Face Up Cards */}
-        <div className="flex justify-center gap-4 mt-2 relative">
+        <div className="flex justify-center gap-4 mt-2">
           {player.faceUpCards && player.faceUpCards.length > 0 ? (
             player.faceUpCards.map((card, index) => (
               <div 
@@ -94,13 +94,6 @@ const GameSetup = ({
                 <span className="text-gray-400 text-xs">Select</span>
               </div>
             ))
-          )}
-          {player.faceUpCards && player.faceUpCards.length > 1 && (
-            <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
-              <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                {player.faceUpCards.length}
-              </span>
-            </div>
           )}
         </div>
 
