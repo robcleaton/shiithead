@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useGame } from '@/context/GameContext';
+import useGame from '@/hooks/useGame';
 import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
 

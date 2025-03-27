@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { useGame } from '@/context/game/GameContext';
+import useGame from '@/hooks/useGame';
 import { MousePointer } from 'lucide-react';
 
 type CursorPosition = {
