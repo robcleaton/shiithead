@@ -55,8 +55,8 @@ const GameTable: React.FC<GameTableProps> = ({
                 {deckCount} card{deckCount !== 1 ? 's' : ''} left
               </div>
               
-              {/* Deck */}
-              <div className="relative">
+              {/* Deck - Centered below title */}
+              <div className="relative flex justify-center">
                 {deckCount > 0 && (
                   <div className="relative">
                     {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
