@@ -17,8 +17,11 @@ export const updateGameState = async (
   updatedFaceDownCards: CardValue[] | null = null,
   cardPlayedFromType: 'faceUp' | 'faceDown' | 'hand' = 'hand'
 ): Promise<void> => {
+  // First, add the card to the pile before processing burn conditions
+  let newPile = [...state.pile, cardToPlay];
+  
   // Process burn conditions
-  const { updatedPile, shouldGetAnotherTurn, burnMessage } = processBurnConditions(state, [cardToPlay]);
+  const { updatedPile, shouldGetAnotherTurn, burnMessage } = processBurnConditions(state, [cardToPlay], newPile);
   
   // Determine next player
   const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);

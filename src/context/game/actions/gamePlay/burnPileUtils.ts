@@ -1,56 +1,52 @@
 
-import { GameState, CardValue } from '@/types/game';
-import { toast } from 'sonner';
+import { CardValue } from "@/types/game";
 
 export const processBurnConditions = (
-  state: GameState,
-  cardsToPlay: CardValue[]
+  state: { pile: CardValue[] },
+  cardsToPlay: CardValue[],
+  updatedPile?: CardValue[]
 ): {
   updatedPile: CardValue[];
   shouldGetAnotherTurn: boolean;
   burnMessage: string | null;
 } => {
-  // Start with a copy of the current pile
-  let updatedPile = [...state.pile];
+  // Use the provided pile or create one based on existing pile and cards to play
+  const pileWithPlayedCards = updatedPile || [...state.pile, ...cardsToPlay];
   
-  // Add the new cards to the pile
-  updatedPile = [...updatedPile, ...cardsToPlay];
+  // Default response
+  let response = {
+    updatedPile: pileWithPlayedCards,
+    shouldGetAnotherTurn: false,
+    burnMessage: null as string | null
+  };
   
-  // If a 10 is played, clear the pile and give player another turn
-  if (cardsToPlay.some(card => card.rank === '10')) {
-    return {
-      updatedPile: [],
-      shouldGetAnotherTurn: true,
-      burnMessage: 'played a 10 and cleared the pile!'
-    };
-  }
-  
-  // Check for 4 of a kind in the resulting pile
-  const rankCounts: Record<string, number> = {};
-  
-  // Count occurrences of each rank
-  for (const card of updatedPile) {
-    if (!rankCounts[card.rank]) {
-      rankCounts[card.rank] = 0;
-    }
-    rankCounts[card.rank]++;
-  }
-  
-  // Check if any rank has 4 occurrences
-  for (const [rank, count] of Object.entries(rankCounts)) {
-    if (count >= 4) {
+  // Process 10s, which clear the pile
+  for (const card of cardsToPlay) {
+    if (card.rank === '10') {
       return {
         updatedPile: [],
         shouldGetAnotherTurn: true,
-        burnMessage: `played the 4th ${rank} and burned the pile!`
+        burnMessage: "played a 10 and cleared the pile!"
       };
     }
   }
   
-  // No burn conditions met
-  return {
-    updatedPile,
-    shouldGetAnotherTurn: false,
-    burnMessage: null
-  };
+  // Process 4-of-a-kind
+  if (pileWithPlayedCards.length >= 4) {
+    const cardRanks = pileWithPlayedCards.map(card => card.rank);
+    
+    // Check if the last card's rank appears at least 4 times in the pile
+    const lastCardRank = cardsToPlay[cardsToPlay.length - 1].rank;
+    const rankCount = cardRanks.filter(rank => rank === lastCardRank).length;
+    
+    if (rankCount >= 4) {
+      return {
+        updatedPile: [],
+        shouldGetAnotherTurn: true,
+        burnMessage: `played the 4th ${lastCardRank} and burned the pile!`
+      };
+    }
+  }
+  
+  return response;
 };
