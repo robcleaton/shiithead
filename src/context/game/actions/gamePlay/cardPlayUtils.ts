@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState, CardValue } from '@/types/game';
+import { GameState, CardValue, Player } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { processBurnConditions } from './burnPileUtils';
@@ -11,13 +11,7 @@ import { determineNextPlayer, generateGameStatusMessage } from './cardHandlingUt
 export const updateGameState = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
-  player: {
-    id: string;
-    name: string;
-    hand: CardValue[];
-    faceUpCards: CardValue[];
-    faceDownCards: CardValue[];
-  },
+  player: Player,
   cardToPlay: CardValue,
   updatedFaceUpCards: CardValue[] | null = null,
   updatedFaceDownCards: CardValue[] | null = null,
@@ -31,7 +25,7 @@ export const updateGameState = async (
   
   // Generate game status
   const { gameOver, statusMessage } = generateGameStatusMessage(
-    player, 
+    player,
     player.hand, 
     updatedFaceUpCards || player.faceUpCards, 
     state
@@ -103,12 +97,7 @@ export const updateGameState = async (
 
 // Shared validation for face up and face down cards
 export const validateCardPlay = (
-  player: {
-    id: string;
-    hand: CardValue[];
-    faceUpCards: CardValue[];
-    faceDownCards: CardValue[];
-  },
+  player: Player,
   cardIndex: number,
   cardType: 'faceUp' | 'faceDown',
   topCard: CardValue | undefined,
