@@ -68,6 +68,26 @@ export const drawCard = async (
       
     if (playerError) throw playerError;
     
+    // Update the local state immediately to reflect changes
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: {
+        deck: updatedDeck,
+        currentPlayerId: nextPlayerId
+      }
+    });
+    
+    // Update the local player state
+    const updatedPlayers = [...state.players];
+    const localPlayerIndex = updatedPlayers.findIndex(p => p.id === player.id);
+    if (localPlayerIndex !== -1) {
+      updatedPlayers[localPlayerIndex] = {
+        ...updatedPlayers[localPlayerIndex],
+        hand: updatedHand
+      };
+      dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+    }
+    
     toast.info(`${player.name} drew a card.`);
     dispatch({ type: 'SET_LOADING', isLoading: false });
   } catch (error) {
