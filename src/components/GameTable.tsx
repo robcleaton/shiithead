@@ -4,6 +4,7 @@ import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
 import { HandMetal, Flame, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Card from './Card';
 
 interface GameTableProps {
   pile: CardValue[];
@@ -70,8 +71,6 @@ const GameTable: React.FC<GameTableProps> = ({
                         }}
                       />
                     ))}
-                    
-                    {/* Removed the deck count indicator here */}
                   </div>
                 )}
                 
@@ -90,8 +89,6 @@ const GameTable: React.FC<GameTableProps> = ({
               
               {/* Pile */}
               <div className="relative">
-                {/* Removed the sameRankCount display from above the pile */}
-                
                 {isTenOnTop && (
                   <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-karma-foreground/70 text-center">
                     <span className="font-medium text-orange-500 flex items-center justify-center">
@@ -106,7 +103,7 @@ const GameTable: React.FC<GameTableProps> = ({
                       Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
                         <div 
                           key={`pile-card-${index}`}
-                          className="absolute w-20 h-28 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
+                          className="absolute"
                           style={{ 
                             top: `${-3 - index * 2}px`, 
                             left: `${-3 - index * 2}px`, 
@@ -114,27 +111,21 @@ const GameTable: React.FC<GameTableProps> = ({
                             zIndex: 3 - index
                           }}
                         >
-                          <div className={`text-3xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                            {topCard.rank}
-                            <span className="text-2xl">
-                              {topCard.suit === 'hearts' ? '♥' : 
-                              topCard.suit === 'diamonds' ? '♦' : 
-                              topCard.suit === 'clubs' ? '♣' : '♠'}
-                            </span>
-                          </div>
+                          <Card 
+                            card={topCard} 
+                            index={index} 
+                            isPlayable={false}
+                          />
                         </div>
                       ))
                     )}
                     
-                    <div className={`w-20 h-28 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
-                      <div className={`text-3xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                        {topCard.rank}
-                        <span className="text-2xl">
-                          {topCard.suit === 'hearts' ? '♥' : 
-                          topCard.suit === 'diamonds' ? '♦' : 
-                          topCard.suit === 'clubs' ? '♣' : '♠'}
-                        </span>
-                      </div>
+                    <div className={isTenOnTop ? 'ring-2 ring-orange-500' : ''}>
+                      <Card 
+                        card={topCard} 
+                        index={0} 
+                        isPlayable={false}
+                      />
                     </div>
                     
                     {pile.length > 1 && (
