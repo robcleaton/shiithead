@@ -44,99 +44,104 @@ const GameTable: React.FC<GameTableProps> = ({
         </span>
       </div>
       
-      <div className="flex justify-center gap-16 items-center min-h-24">
-        {/* Card counts display - now inline above their respective piles */}
-        <div className="absolute top-16 left-0 right-0 flex justify-center">
-          <div className="flex w-full max-w-xs justify-between px-8">
-            <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
-              {deckCount} card{deckCount !== 1 ? 's' : ''} left
-            </div>
-            <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
-              {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
-            </div>
+      {/* Card counts display - now inline above their respective piles */}
+      <div className="flex justify-center mb-4">
+        <div className="flex w-full max-w-xs justify-between px-8">
+          <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+            {deckCount} card{deckCount !== 1 ? 's' : ''} left
+          </div>
+          <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+            {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
           </div>
         </div>
-        
-        <div className="relative">
-          {deckCount > 0 && (
-            <div className="relative">
-              {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
-                <div 
-                  key={`deck-card-${index}`}
-                  className="absolute w-16 h-20 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md"
-                  style={{ 
-                    top: `${-index * 0.5}px`, 
-                    left: `${-index * 0.5}px`, 
-                    transform: `rotate(${(index - 2) * 0.5}deg)`,
-                    zIndex: 5 - index
-                  }}
-                />
-              ))}
-            </div>
-          )}
-          
-          {deckCount === 0 && (
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
-                <span className="text-gray-400 text-xs">Empty</span>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex flex-col items-center">
+      </div>
+      
+      {/* Updated layout - cards now inline */}
+      <div className="flex justify-center gap-8 items-center min-h-24">
+        <div className="flex items-center gap-8">
+          {/* Deck */}
           <div className="relative">
-            <div className="mb-2 text-xs text-karma-foreground/70">
-              {sameRankCount > 1 && <span className="font-medium">({sameRankCount})</span>}
-              {isTenOnTop && (
-                <span className="ml-1 font-medium text-orange-500 flex items-center">
-                  <Flame className="h-3 w-3 mr-1" /> Burned
-                </span>
-              )}
-            </div>
-            
-            {topCard ? (
+            {deckCount > 0 && (
               <div className="relative">
-                {sameRankCount > 1 && (
-                  Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
-                    <div 
-                      key={`pile-card-${index}`}
-                      className="absolute w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
-                      style={{ 
-                        top: `${-3 - index * 2}px`, 
-                        left: `${-3 - index * 2}px`, 
-                        transform: `rotate(${(index - 1) * -3}deg)`,
-                        zIndex: 3 - index
-                      }}
-                    >
-                      <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                        {topCard.rank}
-                        <span className="text-lg">
-                          {topCard.suit === 'hearts' ? '♥' : 
-                          topCard.suit === 'diamonds' ? '♦' : 
-                          topCard.suit === 'clubs' ? '♣' : '♠'}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-                
-                <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
-                  <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                    {topCard.rank}
-                    <span className="text-lg">
-                      {topCard.suit === 'hearts' ? '♥' : 
-                      topCard.suit === 'diamonds' ? '♦' : 
-                      topCard.suit === 'clubs' ? '♣' : '♠'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
-                <span className="text-gray-400 text-xs">Empty</span>
+                {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
+                  <div 
+                    key={`deck-card-${index}`}
+                    className="absolute w-16 h-20 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md"
+                    style={{ 
+                      top: `${-index * 0.5}px`, 
+                      left: `${-index * 0.5}px`, 
+                      transform: `rotate(${(index - 2) * 0.5}deg)`,
+                      zIndex: 5 - index
+                    }}
+                  />
+                ))}
               </div>
             )}
+            
+            {deckCount === 0 && (
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                  <span className="text-gray-400 text-xs">Empty</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Pile */}
+          <div className="flex flex-col items-center">
+            <div className="relative">
+              <div className="mb-2 text-xs text-karma-foreground/70">
+                {sameRankCount > 1 && <span className="font-medium">({sameRankCount})</span>}
+                {isTenOnTop && (
+                  <span className="ml-1 font-medium text-orange-500 flex items-center">
+                    <Flame className="h-3 w-3 mr-1" /> Burned
+                  </span>
+                )}
+              </div>
+              
+              {topCard ? (
+                <div className="relative">
+                  {sameRankCount > 1 && (
+                    Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
+                      <div 
+                        key={`pile-card-${index}`}
+                        className="absolute w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
+                        style={{ 
+                          top: `${-3 - index * 2}px`, 
+                          left: `${-3 - index * 2}px`, 
+                          transform: `rotate(${(index - 1) * -3}deg)`,
+                          zIndex: 3 - index
+                        }}
+                      >
+                        <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                          {topCard.rank}
+                          <span className="text-lg">
+                            {topCard.suit === 'hearts' ? '♥' : 
+                            topCard.suit === 'diamonds' ? '♦' : 
+                            topCard.suit === 'clubs' ? '♣' : '♠'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  
+                  <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
+                    <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                      {topCard.rank}
+                      <span className="text-lg">
+                        {topCard.suit === 'hearts' ? '♥' : 
+                        topCard.suit === 'diamonds' ? '♦' : 
+                        topCard.suit === 'clubs' ? '♣' : '♠'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                  <span className="text-gray-400 text-xs">Empty</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
