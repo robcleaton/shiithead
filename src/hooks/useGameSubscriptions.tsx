@@ -7,14 +7,15 @@ import { jsonToCardValues } from '@/utils/gameUtils';
 import { handleAIPlayerTurn } from '@/context/game/actions/gamePlayActions';
 import { Dispatch } from 'react';
 import { toast } from 'sonner';
+import { RealtimeSubscription } from '@supabase/supabase-js';
 
 export const useGameSubscriptions = (
   gameId: string | null,
   playerId: string,
   dispatch: Dispatch<GameAction>
 ) => {
-  const gameChannelRef = useRef<any>(null);
-  const playersChannelRef = useRef<any>(null);
+  const gameChannelRef = useRef<RealtimeSubscription | null>(null);
+  const playersChannelRef = useRef<RealtimeSubscription | null>(null);
   const gameStateRef = useRef<GameState | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
