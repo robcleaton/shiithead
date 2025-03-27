@@ -5,12 +5,13 @@ import { Link, useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
 import { useGame } from '@/context/GameContext';
+import CursorTracker from '@/components/CursorTracker';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
   const { gameId } = useParams();
   const location = useLocation();
-  const { joinGame } = useGame();
+  const { joinGame, state } = useGame();
 
   useEffect(() => {
     // Check if we're on a join URL path
@@ -80,6 +81,9 @@ const Index = () => {
           <p>A beautiful implementation of the Shithead card game.</p>
         </motion.div>
       </footer>
+      
+      {/* Add cursor tracker when we're in a game lobby */}
+      {state.gameId && <CursorTracker />}
     </div>
   );
 };

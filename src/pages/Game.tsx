@@ -9,6 +9,7 @@ import LoadingGame from '@/components/game/LoadingGame';
 import GameSetup from '@/components/game/GameSetup';
 import GameOver from '@/components/game/GameOver';
 import ActiveGame from '@/components/game/ActiveGame';
+import CursorTracker from '@/components/CursorTracker';
 
 const Game = () => {
   const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
@@ -30,49 +31,50 @@ const Game = () => {
 
   const player = state.players.find(p => p.id === state.playerId);
 
-  if (state.isLoading) {
-    return <LoadingGame />;
-  }
-
-  if (!state.gameStarted && !state.setupPhase) {
-    return <Lobby />;
-  }
-
-  if (state.gameOver) {
-    return <GameOver players={state.players} resetGame={resetGame} />;
-  }
-
-  if (state.setupPhase && player) {
-    return (
-      <>
-        <GameSetup
-          player={player}
-          players={state.players}
-          isHost={state.isHost}
-          completeSetup={completeSetup}
-          selectFaceUpCard={selectFaceUpCard}
-          selectMultipleFaceUpCards={selectMultipleFaceUpCards}
-          onOpenRules={() => setRulesOpen(true)}
-        />
-        <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
-      </>
-    );
-  }
-
   return (
     <>
-      <ActiveGame
-        players={state.players}
-        playerId={state.playerId}
-        currentPlayerId={state.currentPlayerId}
-        pile={state.pile}
-        deck={state.deck}
-        drawCard={drawCard}
-        playCard={playCard}
-        resetGame={resetGame}
-        onOpenRules={() => setRulesOpen(true)}
-      />
-      <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
+      {state.isLoading && <LoadingGame />}
+      
+      {!state.isLoading && !state.gameStarted && !state.setupPhase && <Lobby />}
+      
+      {!state.isLoading && state.gameOver && (
+        <GameOver players={state.players} resetGame={resetGame} />
+      )}
+      
+      {!state.isLoading && state.setupPhase && player && (
+        <>
+          <GameSetup
+            player={player}
+            players={state.players}
+            isHost={state.isHost}
+            completeSetup={completeSetup}
+            selectFaceUpCard={selectFaceUpCard}
+            selectMultipleFaceUpCards={selectMultipleFaceUpCards}
+            onOpenRules={() => setRulesOpen(true)}
+          />
+          <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
+        </>
+      )}
+      
+      {!state.isLoading && state.gameStarted && !state.setupPhase && !state.gameOver && (
+        <>
+          <ActiveGame
+            players={state.players}
+            playerId={state.playerId}
+            currentPlayerId={state.currentPlayerId}
+            pile={state.pile}
+            deck={state.deck}
+            drawCard={drawCard}
+            playCard={playCard}
+            resetGame={resetGame}
+            onOpenRules={() => setRulesOpen(true)}
+          />
+          <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
+        </>
+      )}
+      
+      {/* Add cursor tracker when in game or setup */}
+      {state.gameId && <CursorTracker />}
     </>
   );
 };

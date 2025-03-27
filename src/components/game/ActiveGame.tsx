@@ -53,6 +53,13 @@ const ActiveGame = ({
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
+      <div className="fixed bottom-4 right-4 z-10">
+        <Button variant="outline" size="sm" onClick={onOpenRules}>
+          <BookOpen className="w-4 h-4 mr-2" />
+          Game Rules
+        </Button>
+      </div>
+
       <div className="flex flex-col gap-8 items-center">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {players
