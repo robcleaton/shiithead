@@ -45,8 +45,8 @@ const GameTable: React.FC<GameTableProps> = ({
       </div>
       
       {/* Card counts display - now inline above their respective piles */}
-      <div className="flex justify-center mb-4">
-        <div className="flex w-full max-w-xs justify-between px-8">
+      <div className="flex justify-center mb-2">
+        <div className="flex gap-16 justify-center">
           <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
             {deckCount} card{deckCount !== 1 ? 's' : ''} left
           </div>
@@ -56,9 +56,9 @@ const GameTable: React.FC<GameTableProps> = ({
         </div>
       </div>
       
-      {/* Updated layout - cards now inline */}
-      <div className="flex justify-center gap-8 items-center min-h-24">
-        <div className="flex items-center gap-8">
+      {/* Updated layout - cards side by side with a small gap */}
+      <div className="flex justify-center items-center min-h-24">
+        <div className="flex items-center gap-16">
           {/* Deck */}
           <div className="relative">
             {deckCount > 0 && (
@@ -89,16 +89,16 @@ const GameTable: React.FC<GameTableProps> = ({
           
           {/* Pile */}
           <div className="flex flex-col items-center">
+            <div className="mb-2 text-xs text-karma-foreground/70">
+              {sameRankCount > 1 && <span className="font-medium">({sameRankCount})</span>}
+              {isTenOnTop && (
+                <span className="ml-1 font-medium text-orange-500 flex items-center">
+                  <Flame className="h-3 w-3 mr-1" /> Burned
+                </span>
+              )}
+            </div>
+            
             <div className="relative">
-              <div className="mb-2 text-xs text-karma-foreground/70">
-                {sameRankCount > 1 && <span className="font-medium">({sameRankCount})</span>}
-                {isTenOnTop && (
-                  <span className="ml-1 font-medium text-orange-500 flex items-center">
-                    <Flame className="h-3 w-3 mr-1" /> Burned
-                  </span>
-                )}
-              </div>
-              
               {topCard ? (
                 <div className="relative">
                   {sameRankCount > 1 && (
