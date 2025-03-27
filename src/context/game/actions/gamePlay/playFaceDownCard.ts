@@ -5,6 +5,18 @@ import { GameState, CardValue } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 
+// Helper function to check if there are 4 cards of the same rank in the pile
+const checkForFourOfAKind = (pile: CardValue[], newCard: CardValue): boolean => {
+  if (pile.length < 3) return false;
+  
+  // Count how many cards in the pile have the same rank as the new card
+  const sameRankCount = pile.filter(card => card.rank === newCard.rank).length;
+  
+  // If there are exactly 3 cards in the pile with the same rank as the new card
+  // (which would make 4 of a kind when the new card is added)
+  return sameRankCount === 3;
+};
+
 export const playFaceDownCard = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
@@ -36,11 +48,21 @@ export const playFaceDownCard = async (
   if (playerError) throw playerError;
   
   let updatedPile: CardValue[] = [];
+  let shouldGetAnotherTurn = false;
   
+  // Check for burn conditions
   const isBurnCard = cardToPlay.rank === '10';
-  if (isBurnCard) {
+  const isFourOfAKind = checkForFourOfAKind(state.pile, cardToPlay);
+  
+  if (isBurnCard || isFourOfAKind) {
     updatedPile = [];
-    toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
+    shouldGetAnotherTurn = true;
+    
+    if (isBurnCard) {
+      toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
+    } else if (isFourOfAKind) {
+      toast.success(`Four of a kind! ${player.name} has completed a set of 4 ${cardToPlay.rank}s - the discard pile has been burned! ${player.name} gets another turn.`);
+    }
   } else {
     updatedPile = [...state.pile, cardToPlay];
   }
@@ -49,7 +71,7 @@ export const playFaceDownCard = async (
   const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
   let nextPlayerId = state.currentPlayerId;
   
-  if (cardToPlay.rank !== '2' && cardToPlay.rank !== '10') {
+  if (!shouldGetAnotherTurn && cardToPlay.rank !== '2') {
     const nextIndex = (currentPlayerIndex + 1) % state.players.length;
     nextPlayerId = state.players[nextIndex].id;
   }

@@ -6,6 +6,18 @@ import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { validateSingleCardPlay } from './cardValidation';
 
+// Helper function to check if there are 4 cards of the same rank in the pile
+const checkForFourOfAKind = (pile: CardValue[], newCard: CardValue): boolean => {
+  if (pile.length < 3) return false;
+  
+  // Count how many cards in the pile have the same rank as the new card
+  const sameRankCount = pile.filter(card => card.rank === newCard.rank).length;
+  
+  // If there are exactly 3 cards in the pile with the same rank as the new card
+  // (which would make 4 of a kind when the new card is added)
+  return sameRankCount === 3;
+};
+
 export const playFaceUpCard = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
@@ -23,11 +35,9 @@ export const playFaceUpCard = async (
   // Get the card from face up cards
   const cardToPlay = player.faceUpCards[faceUpIndex];
   
-  // Validate the play
   if (state.pile.length > 0) {
     const topCard = state.pile[state.pile.length - 1];
     
-    // Special case: if top card is a 3, only a 3 can be played
     if (topCard.rank === '3' && cardToPlay.rank !== '3') {
       toast.error("You must play a 3 or pick up the pile!");
       dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -56,11 +66,21 @@ export const playFaceUpCard = async (
   if (playerError) throw playerError;
   
   let updatedPile: CardValue[] = [];
+  let shouldGetAnotherTurn = false;
   
+  // Check for burn conditions
   const isBurnCard = cardToPlay.rank === '10';
-  if (isBurnCard) {
+  const isFourOfAKind = checkForFourOfAKind(state.pile, cardToPlay);
+  
+  if (isBurnCard || isFourOfAKind) {
     updatedPile = [];
-    toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
+    shouldGetAnotherTurn = true;
+    
+    if (isBurnCard) {
+      toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
+    } else if (isFourOfAKind) {
+      toast.success(`Four of a kind! ${player.name} has completed a set of 4 ${cardToPlay.rank}s - the discard pile has been burned! ${player.name} gets another turn.`);
+    }
   } else {
     updatedPile = [...state.pile, cardToPlay];
   }
@@ -69,13 +89,13 @@ export const playFaceUpCard = async (
   const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
   let nextPlayerId = state.currentPlayerId;
   
-  if (cardToPlay.rank !== '2' && cardToPlay.rank !== '10') {
+  if (!shouldGetAnotherTurn && cardToPlay.rank !== '2') {
     const nextIndex = (currentPlayerIndex + 1) % state.players.length;
     nextPlayerId = state.players[nextIndex].id;
   }
   
   // Check if game is over (no cards left)
-  const gameOver = player.hand.length === 0 && updatedFaceUpCards.length === 0 && player.faceDownCards.length === 0;
+  const gameOver = updatedFaceUpCards.length === 0 && player.faceDownCards.length === 0;
   
   const { error: gameError } = await supabase
     .from('games')
@@ -103,7 +123,7 @@ export const playFaceUpCard = async (
   
   if (gameOver) {
     toast.success(`${player.name} has won the game!`);
-  } else if (updatedFaceUpCards.length === 0 && player.faceDownCards.length === 1) {
+  } else if (player.faceDownCards.length === 1 && updatedFaceUpCards.length === 0) {
     toast.info(`${player.name} is down to their last card!`);
   }
 };

@@ -6,6 +6,35 @@ import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { validateSingleCardPlay, validateMultipleCardsPlay } from './cardValidation';
 
+// Helper function to check if there are 4 cards of the same rank in the pile
+const checkForFourOfAKind = (pile: CardValue[], newCards: CardValue[]): boolean => {
+  if (pile.length + newCards.length < 4) return false;
+  
+  // Create a map to count occurrences of each rank in the combined pile
+  const rankCounts = new Map<string, number>();
+  
+  // Count ranks in the existing pile
+  pile.forEach(card => {
+    const count = rankCounts.get(card.rank) || 0;
+    rankCounts.set(card.rank, count + 1);
+  });
+  
+  // Count ranks in the new cards being played
+  newCards.forEach(card => {
+    const count = rankCounts.get(card.rank) || 0;
+    rankCounts.set(card.rank, count + 1);
+  });
+  
+  // Check if any rank has exactly 4 cards
+  for (const [rank, count] of rankCounts.entries()) {
+    if (count === 4) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
 export const playHandCards = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
@@ -90,11 +119,21 @@ export const playHandCards = async (
   if (playerError) throw playerError;
   
   let updatedPile: CardValue[] = [];
+  let shouldGetAnotherTurn = false;
   
+  // Check for burn conditions
   const isBurnCard = cardsToPlay.some(card => card.rank === '10');
-  if (isBurnCard) {
+  const isFourOfAKind = checkForFourOfAKind(state.pile, cardsToPlay);
+  
+  if (isBurnCard || isFourOfAKind) {
     updatedPile = [];
-    toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
+    shouldGetAnotherTurn = true;
+    
+    if (isBurnCard) {
+      toast.success(`${player.name} played a 10 - the discard pile has been completely emptied! ${player.name} gets another turn.`);
+    } else if (isFourOfAKind) {
+      toast.success(`Four of a kind! ${player.name} has completed a set of 4 ${cardsToPlay[0].rank}s - the discard pile has been burned! ${player.name} gets another turn.`);
+    }
   } else {
     updatedPile = [...state.pile, ...cardsToPlay];
   }
@@ -102,7 +141,7 @@ export const playHandCards = async (
   const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
   let nextPlayerId = state.currentPlayerId;
   
-  if (!cardsToPlay.some(card => card.rank === '2' || card.rank === '10')) {
+  if (!shouldGetAnotherTurn && !cardsToPlay.some(card => card.rank === '2')) {
     const nextIndex = (currentPlayerIndex + 1) % state.players.length;
     nextPlayerId = state.players[nextIndex].id;
   }
