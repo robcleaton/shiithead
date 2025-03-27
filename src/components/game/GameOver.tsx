@@ -14,13 +14,13 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
   
   return (
     <motion.div 
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       <motion.div 
-        className="text-center glass-card p-8 rounded-xl max-w-md w-full"
+        className="text-center glass-card p-8 rounded-xl max-w-md w-full bg-white/80"
         initial={{ y: 20, scale: 0.9 }}
         animate={{ y: 0, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
