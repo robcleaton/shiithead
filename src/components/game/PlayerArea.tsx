@@ -1,4 +1,3 @@
-
 import { Player } from '@/types/game';
 import PlayerHand from '@/components/PlayerHand';
 import Card from '@/components/Card';
@@ -17,21 +16,17 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
   const [selectedFaceUpCardIndex, setSelectedFaceUpCardIndex] = useState<number | null>(null);
   const [selectedFaceDownCardIndex, setSelectedFaceDownCardIndex] = useState<number | null>(null);
   
-  // Reset selections when cards or active state changes
   useEffect(() => {
     setSelectedFaceUpCardIndex(null);
     setSelectedFaceDownCardIndex(null);
   }, [player.hand, player.faceUpCards, player.faceDownCards, isActive]);
   
-  // Check if hand and face up cards are empty
   const isHandEmpty = player.hand.length === 0;
   const isFaceUpEmpty = player.faceUpCards.length === 0;
   const isFaceDownEmpty = player.faceDownCards.length === 0;
   
-  // Check if player has no cards left
   const hasNoCardsLeft = isHandEmpty && isFaceUpEmpty && isFaceDownEmpty;
   
-  // Handle face up card selection
   const handleSelectFaceUpCard = (index: number) => {
     if (!isHandEmpty || !isActive) return;
     
@@ -39,12 +34,10 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       setSelectedFaceUpCardIndex(null);
     } else {
       setSelectedFaceUpCardIndex(index);
-      // Reset face down selection when selecting face up
       setSelectedFaceDownCardIndex(null);
     }
   };
   
-  // Handle face down card selection
   const handleSelectFaceDownCard = (index: number) => {
     if (!isHandEmpty || !isFaceUpEmpty || !isActive) return;
     
@@ -52,24 +45,19 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       setSelectedFaceDownCardIndex(null);
     } else {
       setSelectedFaceDownCardIndex(index);
-      // Reset face up selection when selecting face down
       setSelectedFaceUpCardIndex(null);
     }
   };
   
-  // Handle playing a face up card
   const handlePlayFaceUpCard = () => {
     if (selectedFaceUpCardIndex !== null) {
-      // We'll use negative indices to indicate face up cards
       onPlayCard(-(selectedFaceUpCardIndex + 1));
       setSelectedFaceUpCardIndex(null);
     }
   };
   
-  // Handle playing a face down card
   const handlePlayFaceDownCard = () => {
     if (selectedFaceDownCardIndex !== null) {
-      // We'll use large negative indices to indicate face down cards (e.g. -1000 and below)
       onPlayCard(-(selectedFaceDownCardIndex + 1000));
       setSelectedFaceDownCardIndex(null);
     }
@@ -107,9 +95,11 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
               />
             ))}
             {player.faceDownCards.length > 3 && (
-              <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                {player.faceDownCards.length}
-              </span>
+              <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
+                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                  {player.faceDownCards.length}
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -135,15 +125,16 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
               </div>
             ))}
             {player.faceUpCards.length > 3 && (
-              <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                {player.faceUpCards.length}
-              </span>
+              <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
+                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                  {player.faceUpCards.length}
+                </span>
+              </div>
             )}
           </div>
         </div>
       </div>
       
-      {/* Show play button for face up cards when hand is empty */}
       {isHandEmpty && isActive && selectedFaceUpCardIndex !== null && (
         <div className="flex justify-center mb-4">
           <Button
@@ -156,7 +147,6 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
         </div>
       )}
       
-      {/* Show play button for face down cards when hand and face up cards are empty */}
       {isHandEmpty && isFaceUpEmpty && isActive && selectedFaceDownCardIndex !== null && (
         <div className="flex justify-center mb-4">
           <Button

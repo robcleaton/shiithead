@@ -39,12 +39,14 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                   className="w-8 h-12 bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                 ></div>
               ))}
-              {opponent.hand.length > 3 && (
-                <span className="absolute bottom-0 right-0 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+            </div>
+            {opponent.hand.length > 3 && (
+              <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
+                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {opponent.hand.length}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
             {opponent.hand.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}
@@ -66,12 +68,14 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                   </div>
                 </div>
               ))}
-              {opponent.faceUpCards.length > 3 && (
-                <span className="absolute bottom-0 right-0 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+            </div>
+            {opponent.faceUpCards.length > 3 && (
+              <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
+                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {opponent.faceUpCards.length}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
             {opponent.faceUpCards.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}
@@ -88,12 +92,14 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                   className="w-8 h-12 bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                 ></div>
               ))}
-              {opponent.faceDownCards.length > 3 && (
-                <span className="absolute bottom-0 right-0 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+            </div>
+            {opponent.faceDownCards.length > 3 && (
+              <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
+                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {opponent.faceDownCards.length}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
             {opponent.faceDownCards.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}

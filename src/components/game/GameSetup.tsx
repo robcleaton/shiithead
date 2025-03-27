@@ -68,9 +68,11 @@ const GameSetup = ({
             </div>
           )}
           {player.faceDownCards && player.faceDownCards.length > 3 && (
-            <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-              {player.faceDownCards.length}
-            </span>
+            <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
+              <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                {player.faceDownCards.length}
+              </span>
+            </div>
           )}
         </div>
 
@@ -101,9 +103,11 @@ const GameSetup = ({
             ))
           )}
           {player.faceUpCards && player.faceUpCards.length > 3 && (
-            <span className="absolute bottom-1 right-1 text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-              {player.faceUpCards.length}
-            </span>
+            <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
+              <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                {player.faceUpCards.length}
+              </span>
+            </div>
           )}
         </div>
 
