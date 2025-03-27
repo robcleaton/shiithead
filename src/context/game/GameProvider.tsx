@@ -36,6 +36,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     gameContext.state.setupPhase,
     gameContext.state.gameOver
   ]);
+
+  // Add debug logging for player state changes
+  useEffect(() => {
+    console.log('Current players in GameProvider:', gameContext.state.players);
+  }, [gameContext.state.players]);
   
   return (
     <GameContext.Provider value={gameContext}>

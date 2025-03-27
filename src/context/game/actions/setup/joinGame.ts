@@ -35,6 +35,8 @@ export const joinGame = async (
       return;
     }
     
+    console.log(`Found game: ${gameId}`);
+    
     // Check if player exists in this game
     const { data: existingPlayer, error: playerQueryError } = await supabase
       .from('players')
@@ -51,10 +53,12 @@ export const joinGame = async (
     }
     
     if (existingPlayer) {
+      console.log(`Updating existing player: ${playerName} (${playerId})`);
+      
       // Update existing player
       const { error: updateError } = await supabase
         .from('players')
-        .update({ name: playerName })
+        .update({ name: playerName, is_active: true })
         .eq('id', playerId)
         .eq('game_id', gameId);
         
@@ -65,6 +69,8 @@ export const joinGame = async (
         return;
       }
     } else {
+      console.log(`Creating new player: ${playerName} (${playerId})`);
+      
       // Create new player
       const { error: insertError } = await supabase
         .from('players')

@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { isAIPlayer } from '@/context/game/actions/gamePlay';
@@ -28,8 +29,7 @@ export const useGameSubscriptions = (
   };
 
   useEffect(() => {
-    return () => {
-    };
+    return () => cleanupChannels();
   }, []);
 
   const updateGameStateRef = (state: GameState) => {
@@ -43,6 +43,42 @@ export const useGameSubscriptions = (
     }
     
     dispatch({ type: 'SET_LOADING', isLoading: true });
+    
+    // Initial fetch of all players for the game
+    const fetchInitialPlayers = async () => {
+      try {
+        const { data: playersData, error } = await supabase
+          .from('players')
+          .select('*')
+          .eq('game_id', gameId);
+          
+        if (error) {
+          console.error('Error fetching initial players:', error);
+          return;
+        }
+        
+        if (playersData) {
+          const mappedPlayers = playersData.map(p => ({
+            id: p.id,
+            name: p.name,
+            isHost: p.is_host,
+            hand: jsonToCardValues(p.hand),
+            faceDownCards: jsonToCardValues(p.face_down_cards),
+            faceUpCards: jsonToCardValues(p.face_up_cards),
+            isActive: p.is_active,
+            isReady: p.is_ready,
+            gameId: p.game_id
+          }));
+          
+          console.log('Initial players fetched:', mappedPlayers);
+          dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+        }
+      } catch (error) {
+        console.error('Error in fetchInitialPlayers:', error);
+      }
+    };
+    
+    fetchInitialPlayers();
     
     const gameChannel = supabase
       .channel('game_updates')
@@ -146,6 +182,7 @@ export const useGameSubscriptions = (
               gameId: p.game_id
             }));
             
+            console.log('Updated players after DB change:', mappedPlayers);
             dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
           }
         } catch (error) {
@@ -153,6 +190,10 @@ export const useGameSubscriptions = (
         }
       })
       .subscribe();
+    
+    playersChannelRef.current = playersChannel;
+    
+    dispatch({ type: 'SET_LOADING', isLoading: false });
     
     return () => {
       cleanupChannels();
