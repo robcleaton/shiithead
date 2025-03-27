@@ -1,60 +1,56 @@
 
-import { CardValue } from '@/types/game';
+import { GameState, CardValue } from '@/types/game';
 import { toast } from 'sonner';
 
-// Helper function to check if there are 4 cards of the same rank in the pile
-export const checkForFourOfAKind = (pile: CardValue[], newCards: CardValue[]): boolean => {
-  if (pile.length + newCards.length < 4) return false;
+export const processBurnConditions = (
+  state: GameState,
+  cardsToPlay: CardValue[]
+): {
+  updatedPile: CardValue[];
+  shouldGetAnotherTurn: boolean;
+  burnMessage: string | null;
+} => {
+  // Start with a copy of the current pile
+  let updatedPile = [...state.pile];
   
-  // Create a map to count occurrences of each rank in the combined pile
-  const rankCounts = new Map<string, number>();
+  // Add the new cards to the pile
+  updatedPile = [...updatedPile, ...cardsToPlay];
   
-  // Count ranks in the existing pile
-  pile.forEach(card => {
-    const count = rankCounts.get(card.rank) || 0;
-    rankCounts.set(card.rank, count + 1);
-  });
+  // If a 10 is played, clear the pile and give player another turn
+  if (cardsToPlay.some(card => card.rank === '10')) {
+    return {
+      updatedPile: [],
+      shouldGetAnotherTurn: true,
+      burnMessage: 'played a 10 and cleared the pile!'
+    };
+  }
   
-  // Count ranks in the new cards being played
-  newCards.forEach(card => {
-    const count = rankCounts.get(card.rank) || 0;
-    rankCounts.set(card.rank, count + 1);
-  });
+  // Check for 4 of a kind in the resulting pile
+  const rankCounts: Record<string, number> = {};
   
-  // Check if any rank has exactly 4 cards
-  for (const [rank, count] of rankCounts.entries()) {
-    if (count === 4) {
-      return true;
+  // Count occurrences of each rank
+  for (const card of updatedPile) {
+    if (!rankCounts[card.rank]) {
+      rankCounts[card.rank] = 0;
+    }
+    rankCounts[card.rank]++;
+  }
+  
+  // Check if any rank has 4 occurrences
+  for (const [rank, count] of Object.entries(rankCounts)) {
+    if (count >= 4) {
+      return {
+        updatedPile: [],
+        shouldGetAnotherTurn: true,
+        burnMessage: `played the 4th ${rank} and burned the pile!`
+      };
     }
   }
   
-  return false;
-};
-
-// Process burn conditions and update the pile accordingly
-export const processBurnConditions = (
-  state: { pile: CardValue[] },
-  cardsToPlay: CardValue[]
-): { updatedPile: CardValue[], shouldGetAnotherTurn: boolean, burnMessage: string | null } => {
-  let updatedPile: CardValue[] = [];
-  let shouldGetAnotherTurn = false;
-  let burnMessage = null;
-  
-  // Check for burn conditions
-  const isBurnCard = cardsToPlay.some(card => card.rank === '10');
-  const isFourOfAKind = checkForFourOfAKind(state.pile, cardsToPlay);
-  
-  if (isBurnCard) {
-    updatedPile = [];
-    shouldGetAnotherTurn = true;
-    burnMessage = "played a 10 - the discard pile has been completely emptied!";
-  } else if (isFourOfAKind) {
-    updatedPile = [];
-    shouldGetAnotherTurn = true;
-    burnMessage = `has completed a set of 4 ${cardsToPlay[0].rank}s - the discard pile has been burned!`;
-  } else {
-    updatedPile = [...state.pile, ...cardsToPlay];
-  }
-  
-  return { updatedPile, shouldGetAnotherTurn, burnMessage };
+  // No burn conditions met
+  return {
+    updatedPile,
+    shouldGetAnotherTurn: false,
+    burnMessage: null
+  };
 };
