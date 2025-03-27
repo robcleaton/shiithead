@@ -40,7 +40,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 ></div>
               ))}
             </div>
-            {opponent.hand.length > 3 && (
+            {opponent.hand.length > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
                 <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {opponent.hand.length}
@@ -69,7 +69,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 </div>
               ))}
             </div>
-            {opponent.faceUpCards.length > 3 && (
+            {opponent.faceUpCards.length > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
                 <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {opponent.faceUpCards.length}
@@ -93,7 +93,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 ></div>
               ))}
             </div>
-            {opponent.faceDownCards.length > 3 && (
+            {opponent.faceDownCards.length > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
                 <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {opponent.faceDownCards.length}

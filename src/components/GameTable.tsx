@@ -70,6 +70,14 @@ const GameTable: React.FC<GameTableProps> = ({
                         }}
                       />
                     ))}
+                    
+                    {deckCount > 1 && (
+                      <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
+                        <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                          {deckCount}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -138,6 +146,14 @@ const GameTable: React.FC<GameTableProps> = ({
                         </span>
                       </div>
                     </div>
+                    
+                    {pile.length > 1 && (
+                      <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
+                        <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                          {pile.length}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="w-20 h-28 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">

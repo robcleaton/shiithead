@@ -1,3 +1,4 @@
+
 import { Player } from '@/types/game';
 import PlayerHand from '@/components/PlayerHand';
 import Card from '@/components/Card';
@@ -94,7 +95,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                   ${selectedFaceDownCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : ''}`}
               />
             ))}
-            {player.faceDownCards.length > 3 && (
+            {player.faceDownCards.length > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
                 <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {player.faceDownCards.length}
@@ -124,7 +125,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                 </div>
               </div>
             ))}
-            {player.faceUpCards.length > 3 && (
+            {player.faceUpCards.length > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
                 <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
                   {player.faceUpCards.length}
