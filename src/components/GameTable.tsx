@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { CardValue } from '@/context/GameContext';
 import { Button } from './ui/button';
@@ -168,8 +169,6 @@ const GameTable: React.FC<GameTableProps> = ({
         {isTenOnTop && (
           <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely burned and removed from the game!</p>
         )}
-        <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s completely clear the discard pile and give you another turn.</p>
-        <p className="font-medium text-blue-500 mt-1">Four of a kind: If 4 cards of the same rank are in the pile (including your play), the pile will be burned and you get another turn!</p>
       </div>
     </div>
   );
