@@ -136,7 +136,7 @@ const GameTable: React.FC<GameTableProps> = ({
                     {sameRankCount > 1 && (
                       <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
                         <span className="text-xs bg-karma-accent text-karma-accent-foreground rounded-full px-2 py-0.5 font-medium border border-karma-border/20">
-                          {sameRankCount}× {topCard.rank}
+                          {sameRankCount}
                         </span>
                       </div>
                     )}
