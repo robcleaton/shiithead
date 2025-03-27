@@ -91,7 +91,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
               <div 
                 key={index}
                 onClick={() => handleSelectFaceDownCard(index)}
-                className={`w-12 h-16 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
+                className={`w-14 h-20 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
                   ${isHandEmpty && isFaceUpEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
                   ${selectedFaceDownCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : ''}`}
               />
@@ -106,7 +106,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
               <div 
                 key={`fu-${index}`}
                 onClick={() => handleSelectFaceUpCard(index)}
-                className={`w-12 h-16 bg-white rounded-lg shadow-sm border transition-all 
+                className={`w-14 h-20 bg-white rounded-lg shadow-sm border transition-all 
                   ${selectedFaceUpCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : 'border-gray-200'} 
                   ${isHandEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
                   flex items-center justify-center`}

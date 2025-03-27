@@ -61,7 +61,7 @@ const GameTable: React.FC<GameTableProps> = ({
                     {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
                       <div 
                         key={`deck-card-${index}`}
-                        className="absolute w-16 h-20 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md"
+                        className="absolute w-20 h-28 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md"
                         style={{ 
                           top: `${-index * 0.5}px`, 
                           left: `${-index * 0.5}px`, 
@@ -74,7 +74,7 @@ const GameTable: React.FC<GameTableProps> = ({
                 )}
                 
                 {deckCount === 0 && (
-                  <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="w-20 h-28 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
                     <span className="text-gray-400 text-xs">Empty</span>
                   </div>
                 )}
@@ -108,7 +108,7 @@ const GameTable: React.FC<GameTableProps> = ({
                       Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
                         <div 
                           key={`pile-card-${index}`}
-                          className="absolute w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
+                          className="absolute w-20 h-28 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center"
                           style={{ 
                             top: `${-3 - index * 2}px`, 
                             left: `${-3 - index * 2}px`, 
@@ -116,9 +116,9 @@ const GameTable: React.FC<GameTableProps> = ({
                             zIndex: 3 - index
                           }}
                         >
-                          <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                          <div className={`text-3xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                             {topCard.rank}
-                            <span className="text-lg">
+                            <span className="text-2xl">
                               {topCard.suit === 'hearts' ? '♥' : 
                               topCard.suit === 'diamonds' ? '♦' : 
                               topCard.suit === 'clubs' ? '♣' : '♠'}
@@ -128,10 +128,10 @@ const GameTable: React.FC<GameTableProps> = ({
                       ))
                     )}
                     
-                    <div className={`w-16 h-20 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
-                      <div className={`text-2xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                    <div className={`w-20 h-28 bg-white rounded-lg border border-gray-200 shadow-md flex items-center justify-center ${isTenOnTop ? 'ring-2 ring-orange-500' : ''}`}>
+                      <div className={`text-3xl ${topCard.suit === 'hearts' || topCard.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                         {topCard.rank}
-                        <span className="text-lg">
+                        <span className="text-2xl">
                           {topCard.suit === 'hearts' ? '♥' : 
                           topCard.suit === 'diamonds' ? '♦' : 
                           topCard.suit === 'clubs' ? '♣' : '♠'}
@@ -140,7 +140,7 @@ const GameTable: React.FC<GameTableProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="w-16 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="w-20 h-28 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
                     <span className="text-gray-400 text-xs">Empty</span>
                   </div>
                 )}
@@ -190,4 +190,3 @@ const GameTable: React.FC<GameTableProps> = ({
 };
 
 export default GameTable;
-
