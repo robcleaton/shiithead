@@ -14,7 +14,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
   
   return (
     <motion.div 
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600"
+      className="fixed inset-0 min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
