@@ -45,11 +45,19 @@ const GameTable: React.FC<GameTableProps> = ({
       </div>
       
       <div className="flex justify-center gap-16 items-center min-h-24">
-        <div className="relative">
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
-            {deckCount} card{deckCount !== 1 ? 's' : ''} left
+        {/* Card counts display - now inline above their respective piles */}
+        <div className="absolute top-16 left-0 right-0 flex justify-center">
+          <div className="flex w-full max-w-xs justify-between px-8">
+            <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+              {deckCount} card{deckCount !== 1 ? 's' : ''} left
+            </div>
+            <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+              {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
+            </div>
           </div>
-          
+        </div>
+        
+        <div className="relative">
           {deckCount > 0 && (
             <div className="relative">
               {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
@@ -85,10 +93,6 @@ const GameTable: React.FC<GameTableProps> = ({
                   <Flame className="h-3 w-3 mr-1" /> Burned
                 </span>
               )}
-            </div>
-            
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
-              {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
             </div>
             
             {topCard ? (
