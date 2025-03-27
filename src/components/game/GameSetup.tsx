@@ -26,6 +26,16 @@ const GameSetup = ({
   console.log('Rendering setup phase UI with player:', player);
   console.log('Player hand:', player.hand);
   
+  const getSuitSymbol = (suit: string) => {
+    switch (suit) {
+      case 'hearts': return '♥';
+      case 'diamonds': return '♦';
+      case 'clubs': return '♣';
+      case 'spades': return '♠';
+      default: return '';
+    }
+  };
+  
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
       <div className="flex flex-col gap-8 items-center">
@@ -69,7 +79,9 @@ const GameSetup = ({
               >
                 <div className={`text-2xl ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                   {card.rank}
-                  {card.suit === 'hearts' ? '♥' : card.suit === 'diamonds' ? '♦' : card.suit === 'clubs' ? '♣' : '♠'}
+                  <span className="text-xl">
+                    {getSuitSymbol(card.suit)}
+                  </span>
                 </div>
               </div>
             ))

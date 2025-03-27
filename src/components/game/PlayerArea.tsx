@@ -75,6 +75,16 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
     }
   };
   
+  const getSuitSymbol = (suit: string) => {
+    switch (suit) {
+      case 'hearts': return '♥';
+      case 'diamonds': return '♦';
+      case 'clubs': return '♣';
+      case 'spades': return '♠';
+      default: return '';
+    }
+  };
+  
   return (
     <div className={`w-full max-w-3xl ${hasNoCardsLeft ? 'bg-green-100 p-4 rounded-lg border border-green-300' : ''}`}>
       {hasNoCardsLeft && (
@@ -113,6 +123,9 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
               >
                 <div className={`text-lg ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                   {card.rank}
+                  <span className="text-lg">
+                    {getSuitSymbol(card.suit)}
+                  </span>
                 </div>
               </div>
             ))}

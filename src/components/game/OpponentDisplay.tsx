@@ -9,6 +9,16 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
   const totalCards = opponent.hand.length + opponent.faceUpCards.length + opponent.faceDownCards.length;
   const hasNoCardsLeft = totalCards === 0;
   
+  const getSuitSymbol = (suit: string) => {
+    switch (suit) {
+      case 'hearts': return '♥';
+      case 'diamonds': return '♦';
+      case 'clubs': return '♣';
+      case 'spades': return '♠';
+      default: return '';
+    }
+  };
+  
   return (
     <div className={`bg-white p-4 rounded-lg shadow-sm border ${hasNoCardsLeft ? 'bg-green-100 border-green-300' : 'border-gray-200'}`}>
       <div className="flex items-center justify-between mb-3">
@@ -50,6 +60,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 >
                   <div className={`text-xs ${opponent.faceUpCards[i].suit === 'hearts' || opponent.faceUpCards[i].suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
                     {opponent.faceUpCards[i].rank}
+                    <span>{getSuitSymbol(opponent.faceUpCards[i].suit)}</span>
                   </div>
                 </div>
               ))}
