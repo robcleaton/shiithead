@@ -86,7 +86,7 @@ const PlayerHand = ({
       <div className={`p-4 rounded-xl ${isActive ? 'bg-karma-primary/10 border border-karma-primary/30' : 'bg-transparent'} transition-all duration-300`}>
         <div className="mb-3 text-center">
           <span className={`text-sm font-medium px-3 py-1 rounded-full ${isActive ? 'bg-karma-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
-            {isActive ? 'Your Turn' : 'Waiting...'}
+            {isSetupPhase ? 'Select Cards' : (isActive ? 'Your Turn' : 'Waiting...')}
           </span>
         </div>
         

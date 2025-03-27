@@ -24,6 +24,18 @@ export const completeSetup = async (
     
     const emptyPile: CardValue[] = [];
     
+    // Update local state first for immediate UI response
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: {
+        gameStarted: true,
+        setupPhase: false,
+        currentPlayerId: firstPlayerId,
+        deck: updatedDeck,
+        pile: emptyPile
+      }
+    });
+    
     const { error: gameError } = await supabase
       .from('games')
       .update({ 
