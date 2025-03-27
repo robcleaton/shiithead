@@ -48,27 +48,8 @@ export const drawCard = async (
     const nextIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextIndex].id;
     
-    // First update the game state to ensure the deck is updated
-    const { error: gameError } = await supabase
-      .from('games')
-      .update({ 
-        deck: updatedDeck,
-        current_player_id: nextPlayerId
-      })
-      .eq('id', state.gameId);
-      
-    if (gameError) throw gameError;
-    
-    // Then update the player's hand
-    const { error: playerError } = await supabase
-      .from('players')
-      .update({ hand: updatedHand })
-      .eq('id', player.id)
-      .eq('game_id', state.gameId);
-      
-    if (playerError) throw playerError;
-    
     // Update the local state immediately to reflect changes
+    // This ensures the UI updates before waiting for the database
     dispatch({
       type: 'SET_GAME_STATE',
       gameState: {
@@ -87,6 +68,26 @@ export const drawCard = async (
       };
       dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     }
+    
+    // Then update the database (this might take a moment)
+    const { error: gameError } = await supabase
+      .from('games')
+      .update({ 
+        deck: updatedDeck,
+        current_player_id: nextPlayerId
+      })
+      .eq('id', state.gameId);
+      
+    if (gameError) throw gameError;
+    
+    // Then update the player's hand
+    const { error: playerError } = await supabase
+      .from('players')
+      .update({ hand: updatedHand })
+      .eq('id', player.id)
+      .eq('game_id', state.gameId);
+      
+    if (playerError) throw playerError;
     
     toast.info(`${player.name} drew a card.`);
     dispatch({ type: 'SET_LOADING', isLoading: false });

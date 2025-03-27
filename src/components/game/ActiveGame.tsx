@@ -47,9 +47,11 @@ const ActiveGame = ({
 
   // Function to handle picking up the pile
   const handlePickUpPile = () => {
-    // Use the pickupPile function from the game context
     pickupPile();
   };
+
+  // Log the deck count for debugging
+  console.log(`Current deck count in ActiveGame: ${deck.length}`);
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">

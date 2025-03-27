@@ -31,6 +31,8 @@ const GameTable: React.FC<GameTableProps> = ({
   const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
   
+  console.log(`Displaying deck count in GameTable: ${deckCount}`);
+  
   return (
     <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
       <div className="flex justify-center items-center mb-4">
