@@ -58,6 +58,21 @@ export const playHandCards = async (
   console.log(`Player hand status: hand=${finalHand.length}, faceUp=${updatedFaceUpCards.length}, faceDown=${updatedFaceDownCards.length}`);
   
   // First update the local state to ensure UI updates immediately
+  // Update the player's hand in the local state
+  const updatedPlayers = [...state.players];
+  const playerIndex = updatedPlayers.findIndex(p => p.id === player.id);
+  if (playerIndex !== -1) {
+    updatedPlayers[playerIndex] = {
+      ...updatedPlayers[playerIndex],
+      hand: finalHand,
+      faceUpCards: updatedFaceUpCards,
+      faceDownCards: updatedFaceDownCards
+    };
+    
+    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+  }
+  
+  // Update deck in local state
   dispatch({
     type: 'SET_GAME_STATE',
     gameState: {
@@ -86,6 +101,15 @@ export const playHandCards = async (
   
   // Determine the next player
   const nextPlayerId = determineNextPlayer(state, player, cardsToPlay, shouldGetAnotherTurn);
+  
+  // Update pile in local state
+  dispatch({
+    type: 'SET_GAME_STATE',
+    gameState: {
+      pile: updatedPile,
+      currentPlayerId: nextPlayerId
+    }
+  });
   
   // Generate game status messages
   const { gameOver, statusMessage } = generateGameStatusMessage(player, finalHand, updatedFaceUpCards, updatedFaceDownCards, state);

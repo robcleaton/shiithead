@@ -49,17 +49,7 @@ export const drawCard = async (
     const nextIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextIndex].id;
     
-    // Update the local state immediately to reflect changes
-    // This ensures the UI updates before waiting for the database
-    dispatch({
-      type: 'SET_GAME_STATE',
-      gameState: {
-        deck: updatedDeck,
-        currentPlayerId: nextPlayerId
-      }
-    });
-    
-    // Update the local player state
+    // Update the local player state immediately
     const updatedPlayers = [...state.players];
     const localPlayerIndex = updatedPlayers.findIndex(p => p.id === player.id);
     if (localPlayerIndex !== -1) {
@@ -69,6 +59,15 @@ export const drawCard = async (
       };
       dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     }
+    
+    // Update the local state immediately to reflect changes
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: {
+        deck: updatedDeck,
+        currentPlayerId: nextPlayerId
+      }
+    });
     
     // Then update the database (this might take a moment)
     const { error: gameError } = await supabase

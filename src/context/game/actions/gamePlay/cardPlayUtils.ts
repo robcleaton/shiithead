@@ -54,12 +54,6 @@ export const updateGameState = async (
     const drawnCard = updatedDeck.pop()!;
     updatedHand.push(drawnCard);
     console.log(`Drew card after playing from hand: ${drawnCard.rank} of ${drawnCard.suit}, deck now has ${updatedDeck.length} cards`);
-    
-    // First update local state for immediate UI updates
-    dispatch({
-      type: 'SET_GAME_STATE',
-      gameState: { deck: updatedDeck }
-    });
   }
   
   // Generate game status
@@ -70,6 +64,31 @@ export const updateGameState = async (
     updatedFaceDownCards || player.faceDownCards,
     { deck: updatedDeck }
   );
+  
+  // First update the local state immediately to reflect changes before database updates
+  // Update player's cards in the local state
+  const updatedPlayers = [...state.players];
+  const playerIndex = updatedPlayers.findIndex(p => p.id === player.id);
+  if (playerIndex !== -1) {
+    updatedPlayers[playerIndex] = {
+      ...updatedPlayers[playerIndex],
+      hand: updatedHand,
+      faceUpCards: updatedFaceUpCards !== null ? updatedFaceUpCards : player.faceUpCards,
+      faceDownCards: updatedFaceDownCards !== null ? updatedFaceDownCards : player.faceDownCards
+    };
+    
+    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+  }
+  
+  // Update game state in local state
+  dispatch({
+    type: 'SET_GAME_STATE',
+    gameState: {
+      pile: updatedPile,
+      deck: updatedDeck,
+      currentPlayerId: nextPlayerId
+    }
+  });
   
   // Prepare player update payload
   const playerUpdatePayload: any = {};
