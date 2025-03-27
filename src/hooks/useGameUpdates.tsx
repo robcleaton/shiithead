@@ -57,7 +57,7 @@ export const useGameUpdates = (
                 handleAIPlayerTurn(dispatch, {
                   ...gameStateRef.current,
                   currentPlayerId: gameData.current_player_id,
-                  deck: jsonToCardValues(gameData.deck),
+                  deck: deckCards,
                   pile: jsonToCardValues(gameData.pile)
                 });
               }

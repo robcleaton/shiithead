@@ -51,8 +51,18 @@ export const playHandCards = async (
     return;
   }
   
-  // Process player's hand after playing cards
-  const { finalHand, updatedFaceUpCards } = processPlayerHand(player, sortedIndices, state);
+  // Process player's hand after playing cards, including drawing new cards
+  const { finalHand, updatedFaceUpCards, updatedDeck } = processPlayerHand(player, sortedIndices, state);
+  
+  console.log(`After processing player hand: deck has ${updatedDeck.length} cards left`);
+  
+  // First update the local state to ensure UI updates immediately
+  dispatch({
+    type: 'SET_GAME_STATE',
+    gameState: {
+      deck: updatedDeck
+    }
+  });
   
   // Update player's hand in the database
   const { error: playerError } = await supabase
@@ -85,7 +95,7 @@ export const playHandCards = async (
       pile: updatedPile,
       current_player_id: nextPlayerId,
       ended: gameOver,
-      deck: state.deck
+      deck: updatedDeck
     })
     .eq('id', state.gameId);
     

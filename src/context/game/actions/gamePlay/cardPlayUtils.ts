@@ -26,12 +26,38 @@ export const updateGameState = async (
   // Determine next player
   const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);
   
+  // Create a copy of the deck for potential drawing
+  const updatedDeck = [...state.deck];
+  
+  // If player's hand is below 3 cards and deck is not empty, draw a card
+  let updatedHand = [...player.hand];
+  if (cardPlayedFromType === 'hand' && updatedHand.length < 3 && updatedDeck.length > 0) {
+    const drawnCard = updatedDeck.pop()!;
+    updatedHand.push(drawnCard);
+    console.log(`Drew card after playing from hand: ${drawnCard.rank} of ${drawnCard.suit}, deck now has ${updatedDeck.length} cards`);
+    
+    // First update local state for immediate UI updates
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: { deck: updatedDeck }
+    });
+    
+    // Update player's hand in database
+    const { error: handUpdateError } = await supabase
+      .from('players')
+      .update({ hand: updatedHand })
+      .eq('id', player.id)
+      .eq('game_id', state.gameId);
+      
+    if (handUpdateError) throw handUpdateError;
+  }
+  
   // Generate game status
   const { gameOver, statusMessage } = generateGameStatusMessage(
     player,
-    player.hand, 
+    updatedHand, 
     updatedFaceUpCards || player.faceUpCards, 
-    state
+    { deck: updatedDeck }
   );
   
   // Prepare player update payload
@@ -63,7 +89,8 @@ export const updateGameState = async (
     .update({ 
       pile: updatedPile,
       current_player_id: nextPlayerId,
-      ended: gameOver
+      ended: gameOver,
+      deck: updatedDeck
     })
     .eq('id', state.gameId);
     

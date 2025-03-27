@@ -1,5 +1,5 @@
 
-import { CardValue, Player } from '@/types/game';
+import { CardValue, Player, GameState } from '@/types/game';
 
 // Process the player's hand after playing cards
 export const processPlayerHand = (
@@ -8,7 +8,8 @@ export const processPlayerHand = (
   state: { deck: CardValue[] }
 ): {
   finalHand: CardValue[],
-  updatedFaceUpCards: CardValue[]
+  updatedFaceUpCards: CardValue[],
+  updatedDeck: CardValue[]
 } => {
   // Create a new hand array, removing the played cards
   const updatedHand = [...player.hand];
@@ -16,28 +17,35 @@ export const processPlayerHand = (
     updatedHand.splice(index, 1);
   }
   
+  // Make a copy of the deck for drawing cards
+  const updatedDeck = [...state.deck];
+  
   // Check for moving face-up cards to hand when hand is empty and deck is empty
   let finalHand = [...updatedHand];
   let updatedFaceUpCards = [...player.faceUpCards];
   
-  if (finalHand.length === 0 && state.deck.length === 0 && player.faceUpCards.length > 0) {
+  if (finalHand.length === 0 && updatedDeck.length === 0 && player.faceUpCards.length > 0) {
     // Move face-up cards to hand
     finalHand = [...player.faceUpCards];
     updatedFaceUpCards = [];
   } else {
     // Draw cards from the deck if needed
     const cardsToDrawCount = Math.max(0, 3 - updatedHand.length);
-    const updatedDeck = [...state.deck];
+    
+    console.log(`Drawing ${cardsToDrawCount} cards from deck (${updatedDeck.length} cards available)`);
+    
     const drawnCards = [];
     
     for (let i = 0; i < cardsToDrawCount && updatedDeck.length > 0; i++) {
-      drawnCards.push(updatedDeck.pop()!);
+      const card = updatedDeck.pop()!;
+      drawnCards.push(card);
+      console.log(`Drew card: ${card.rank} of ${card.suit}, deck now has ${updatedDeck.length} cards`);
     }
     
     finalHand = [...updatedHand, ...drawnCards];
   }
   
-  return { finalHand, updatedFaceUpCards };
+  return { finalHand, updatedFaceUpCards, updatedDeck };
 };
 
 // Determine the next player's ID based on game rules
