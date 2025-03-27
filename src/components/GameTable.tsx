@@ -139,7 +139,7 @@ const GameTable: React.FC<GameTableProps> = ({
                     
                     {pile.length > 1 && (
                       <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
-                        <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
+                        <span className="text-xs bg-karma-primary text-white rounded-full px-2 py-0.5 text-gray-100 font-medium border border-karma-primary/20">
                           {pile.length}
                         </span>
                       </div>
