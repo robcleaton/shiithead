@@ -113,7 +113,7 @@ const CursorTracker = () => {
           <div className="relative">
             <MousePointer className="h-6 w-6 filter drop-shadow-md" />
             <div 
-              className="absolute left-4 top-1 px-2 py-1 text-xs font-medium rounded-md shadow-md whitespace-nowrap"
+              className="absolute left-4 top-1 px-2 py-1 text-sm font-medium rounded-md shadow-md whitespace-nowrap"
               style={{ backgroundColor: cursor.color, color: '#fff' }}
             >
               {cursor.playerName}
