@@ -32,6 +32,12 @@ const CursorTracker = () => {
 
   useEffect(() => {
     if (!state.gameId || !state.playerId) return;
+    
+    // Don't track or show cursors during setup phase
+    if (state.setupPhase) {
+      setCursors({});
+      return;
+    }
 
     const playerColor = getPlayerColor(state.playerId);
     
@@ -88,7 +94,10 @@ const CursorTracker = () => {
       }
       supabase.removeChannel(channel);
     };
-  }, [state.gameId, state.playerId, state.currentPlayerName]);
+  }, [state.gameId, state.playerId, state.currentPlayerName, state.setupPhase]);
+
+  // Don't render any cursors if we're in setup phase
+  if (state.setupPhase) return null;
 
   return (
     <>

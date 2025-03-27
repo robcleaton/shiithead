@@ -70,11 +70,12 @@ const Game = () => {
             onOpenRules={() => setRulesOpen(true)}
           />
           <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
+          <CursorTracker />
         </>
       )}
       
-      {/* Add cursor tracker when in game or setup */}
-      {state.gameId && <CursorTracker />}
+      {/* Add cursor tracker only for lobby, not for setup or active game (handled in ActiveGame) */}
+      {state.gameId && !state.gameStarted && !state.setupPhase && <CursorTracker />}
     </>
   );
 };
