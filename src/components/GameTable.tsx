@@ -64,7 +64,7 @@ const GameTable: React.FC<GameTableProps> = ({
       {/* Game area */}
       <div className="flex justify-center mb-6">
         {/* Card counts display */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-baseline">
           <div className="flex gap-16 mb-2 justify-center">
             <div className="flex flex-col items-baseline">
               <div className="text-xs bg-karma-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
@@ -181,28 +181,15 @@ const GameTable: React.FC<GameTableProps> = ({
       
       <div className="flex justify-center gap-3">
         {isCurrentPlayer && (
-          <>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={onDrawCard}
-              disabled={deckCount === 0}
-              className="bg-karma-primary hover:bg-karma-primary/90"
-            >
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Draw Card
-            </Button>
-            
-            <Button
-              variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
-              size="sm"
-              onClick={onPickupPile}
-              disabled={pile.length === 0}
-            >
-              <HandMetal className="mr-2 h-4 w-4" />
-              Pick Up Pile
-            </Button>
-          </>
+          <Button
+            variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
+            size="sm"
+            onClick={onPickupPile}
+            disabled={pile.length === 0}
+          >
+            <HandMetal className="mr-2 h-4 w-4" />
+            Pick Up Pile
+          </Button>
         )}
       </div>
       
