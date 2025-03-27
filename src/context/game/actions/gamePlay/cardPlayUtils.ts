@@ -21,7 +21,7 @@ export const updateGameState = async (
   let newPile = [...state.pile, cardToPlay];
   
   // Process burn conditions
-  const { updatedPile, shouldGetAnotherTurn, burnMessage } = processBurnConditions(state, [cardToPlay], newPile);
+  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, [cardToPlay], newPile);
   
   // Determine next player
   const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);

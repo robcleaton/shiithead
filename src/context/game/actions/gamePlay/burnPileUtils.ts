@@ -9,6 +9,7 @@ export const processBurnConditions = (
   updatedPile: CardValue[];
   shouldGetAnotherTurn: boolean;
   burnMessage: string | null;
+  cardsBurned: boolean;
 } => {
   // Use the provided pile or create one based on existing pile and cards to play
   const pileWithPlayedCards = updatedPile || [...state.pile, ...cardsToPlay];
@@ -17,7 +18,8 @@ export const processBurnConditions = (
   let response = {
     updatedPile: pileWithPlayedCards,
     shouldGetAnotherTurn: false,
-    burnMessage: null as string | null
+    burnMessage: null as string | null,
+    cardsBurned: false
   };
   
   // Process 10s, which clear the pile
@@ -26,7 +28,8 @@ export const processBurnConditions = (
       return {
         updatedPile: [],
         shouldGetAnotherTurn: true,
-        burnMessage: "played a 10 and cleared the pile!"
+        burnMessage: "played a 10 and cleared the pile!",
+        cardsBurned: true
       };
     }
   }
@@ -43,7 +46,8 @@ export const processBurnConditions = (
       return {
         updatedPile: [],
         shouldGetAnotherTurn: true,
-        burnMessage: `played the 4th ${lastCardRank} and burned the pile!`
+        burnMessage: `played the 4th ${lastCardRank} and burned the pile!`,
+        cardsBurned: true
       };
     }
   }

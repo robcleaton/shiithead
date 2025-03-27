@@ -70,7 +70,7 @@ export const playHandCards = async (
   const newPile = [...state.pile, ...cardsToPlay];
   
   // Process burn conditions and update the pile
-  const { updatedPile, shouldGetAnotherTurn, burnMessage } = processBurnConditions(state, cardsToPlay, newPile);
+  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, cardsToPlay, newPile);
   
   // Determine the next player
   const nextPlayerId = determineNextPlayer(state, player, cardsToPlay, shouldGetAnotherTurn);

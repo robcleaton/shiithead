@@ -152,7 +152,7 @@ const GameTable: React.FC<GameTableProps> = ({
           <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3. Any 3s will be removed from the pile when picked up.</p>
         )}
         {isTenOnTop && (
-          <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely emptied!</p>
+          <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely burned and removed from the game!</p>
         )}
         <p>Remember: 2, 3, 7, 8, 10 can be played on any card. 7s force the next player to play a card of rank 7 or lower! 10s completely clear the discard pile and give you another turn.</p>
         <p className="font-medium text-blue-500 mt-1">Four of a kind: If 4 cards of the same rank are in the pile (including your play), the pile will be burned and you get another turn!</p>
