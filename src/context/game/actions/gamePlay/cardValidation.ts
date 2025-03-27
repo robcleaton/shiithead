@@ -80,12 +80,20 @@ export const validateMultipleCardsPlay = (
   else if (topCard.rank === '8') {
     return { valid: true };
   }
-  // Regular multiple card play validation
-  else if (!['2', '3', '8', '10'].includes(cardToPlay.rank) && cardToPlay.rank !== topCard.rank) {
-    return { 
-      valid: false, 
-      errorMessage: "When playing multiple cards, they must match the top card's rank or be special cards."
-    };
+  // Regular multiple card play validation - updated to allow same or higher rank
+  else if (!['2', '3', '8', '10'].includes(cardToPlay.rank)) {
+    // Special cards can always be played
+    if (['2', '3', '8', '10'].includes(cardToPlay.rank)) {
+      return { valid: true };
+    }
+    
+    // For regular cards, they must match OR be higher than the top card's rank
+    if (rankValues[cardToPlay.rank] < rankValues[topCard.rank]) {
+      return { 
+        valid: false, 
+        errorMessage: "When playing multiple cards, they must be of equal or higher rank than the top card or be special cards."
+      };
+    }
   }
   
   return { valid: true };
