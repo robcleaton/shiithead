@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { UserRoundCheck } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Player } from '@/types/game';
+import { useEffect, useState } from 'react';
 
 interface PlayerListProps {
   players: Player[];
@@ -10,14 +11,42 @@ interface PlayerListProps {
 }
 
 const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
+  const [renderedPlayers, setRenderedPlayers] = useState<Player[]>([]);
+  
+  // Add a safety mechanism to ensure players are properly rendered
+  useEffect(() => {
+    console.log('PlayerList received players:', players);
+    
+    if (players && players.length > 0) {
+      setRenderedPlayers(players);
+    } else {
+      // If we have a current player but no players list, at least show the current player
+      if (currentPlayerId) {
+        const fallbackPlayer: Player = {
+          id: currentPlayerId,
+          name: 'You',
+          isHost: true,
+          hand: [],
+          faceDownCards: [],
+          faceUpCards: [],
+          isActive: true,
+          isReady: false
+        };
+        
+        setRenderedPlayers([fallbackPlayer]);
+        console.warn('Using fallback player data since no players were received');
+      }
+    }
+  }, [players, currentPlayerId]);
+
   return (
     <ul className="space-y-2">
-      {players.length === 0 ? (
+      {renderedPlayers.length === 0 ? (
         <li className="flex items-center justify-center p-4 text-gray-500 italic">
           No players have joined yet
         </li>
       ) : (
-        players.map((player, index) => (
+        renderedPlayers.map((player, index) => (
           <motion.li
             key={player.id}
             className="flex items-center gap-3 bg-white/40 p-3 rounded-lg shadow-sm border border-gray-100"

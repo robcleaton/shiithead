@@ -40,6 +40,13 @@ const Lobby = () => {
     console.log('Players in lobby:', state.players);
   }, [state]);
 
+  // More reliable player list monitoring
+  useEffect(() => {
+    if (state.gameId && state.players.length === 0) {
+      console.warn('Game exists but no players detected - possible subscription issue');
+    }
+  }, [state.gameId, state.players]);
+
   const handleStartGame = () => {
     if (state.players.length < 2) {
       toast.error('You need at least 2 players to start the game');
