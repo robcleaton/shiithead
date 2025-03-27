@@ -64,17 +64,6 @@ const GameTable: React.FC<GameTableProps> = ({
                   }}
                 />
               ))}
-              
-              {isCurrentPlayer && (
-                <Button 
-                  onClick={onDrawCard}
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-karma-primary/80 hover:bg-karma-primary z-10"
-                  size="sm"
-                >
-                  <ArrowRight className="w-4 h-4 mr-1" />
-                  Draw
-                </Button>
-              )}
             </div>
           )}
           
@@ -150,24 +139,36 @@ const GameTable: React.FC<GameTableProps> = ({
       
       <div className="flex justify-center mt-6 gap-3">
         {isCurrentPlayer && (
-          <Button
-            variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
-            size="sm"
-            onClick={onPickupPile}
-            disabled={pile.length === 0}
-          >
-            <HandMetal className="mr-2 h-4 w-4" />
-            Pick Up Pile
-          </Button>
+          <>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onDrawCard}
+              disabled={deckCount === 0}
+            >
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Draw Card
+            </Button>
+            
+            <Button
+              variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
+              size="sm"
+              onClick={onPickupPile}
+              disabled={pile.length === 0}
+            >
+              <HandMetal className="mr-2 h-4 w-4" />
+              Pick Up Pile
+            </Button>
+          </>
         )}
       </div>
       
       <div className="text-center mt-4 text-xs text-karma-foreground/70">
         {isThreeOnTop && (
-          <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3. Any 3s will be removed from the pile when picked up.</p>
+          <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
         )}
         {isTenOnTop && (
-          <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been completely burned and removed from the game!</p>
+          <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been burned!</p>
         )}
       </div>
     </div>
