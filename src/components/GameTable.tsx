@@ -133,10 +133,10 @@ const GameTable: React.FC<GameTableProps> = ({
                       />
                     </div>
                     
-                    {pile.length > 1 && (
+                    {sameRankCount > 1 && (
                       <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
-                        <span className="text-xs bg-karma-primary text-white rounded-full px-2 py-0.5 text-gray-100 font-medium border border-karma-primary/20">
-                          {pile.length}
+                        <span className="text-xs bg-karma-accent text-karma-accent-foreground rounded-full px-2 py-0.5 font-medium border border-karma-border/20">
+                          {sameRankCount}× {topCard.rank}
                         </span>
                       </div>
                     )}
