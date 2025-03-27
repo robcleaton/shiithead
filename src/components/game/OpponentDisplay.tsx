@@ -40,13 +40,6 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 ></div>
               ))}
             </div>
-            {opponent.hand.length > 1 && (
-              <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
-                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                  {opponent.hand.length}
-                </span>
-              </div>
-            )}
             {opponent.hand.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}
@@ -69,13 +62,6 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 </div>
               ))}
             </div>
-            {opponent.faceUpCards.length > 1 && (
-              <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
-                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                  {opponent.faceUpCards.length}
-                </span>
-              </div>
-            )}
             {opponent.faceUpCards.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}
@@ -93,13 +79,6 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
                 ></div>
               ))}
             </div>
-            {opponent.faceDownCards.length > 1 && (
-              <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1">
-                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                  {opponent.faceDownCards.length}
-                </span>
-              </div>
-            )}
             {opponent.faceDownCards.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}

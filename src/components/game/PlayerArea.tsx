@@ -95,13 +95,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                   ${selectedFaceDownCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : ''}`}
               />
             ))}
-            {player.faceDownCards.length > 1 && (
-              <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
-                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                  {player.faceDownCards.length}
-                </span>
-              </div>
-            )}
+            {/* Removed the card count indicator */}
           </div>
         </div>
         
@@ -125,13 +119,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                 </div>
               </div>
             ))}
-            {player.faceUpCards.length > 1 && (
-              <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2">
-                <span className="text-xs bg-white/90 rounded-full px-1 text-gray-700 font-medium border border-gray-200">
-                  {player.faceUpCards.length}
-                </span>
-              </div>
-            )}
+            {/* Removed the card count indicator */}
           </div>
         </div>
       </div>
