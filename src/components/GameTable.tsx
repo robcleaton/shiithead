@@ -62,20 +62,24 @@ const GameTable: React.FC<GameTableProps> = ({
                     {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
                       <div 
                         key={`deck-card-${index}`}
-                        className="absolute w-20 h-28 bg-karma-card-back bg-card-texture rounded-lg border border-gray-800/20 shadow-md"
+                        className="absolute"
                         style={{ 
                           top: `${-index * 0.5}px`, 
                           left: `${-index * 0.5}px`, 
                           transform: `rotate(${(index - 2) * 0.5}deg)`,
                           zIndex: 5 - index
                         }}
-                      />
+                      >
+                        <div className="playing-card">
+                          <div className="card-back"></div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
                 
                 {deckCount === 0 && (
-                  <div className="w-20 h-28 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="playing-card bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center">
                     <span className="text-gray-400 text-xs">Empty</span>
                   </div>
                 )}
@@ -83,7 +87,7 @@ const GameTable: React.FC<GameTableProps> = ({
             </div>
             
             <div className="flex flex-col items-center">
-              <div className="text-xs bg-karma-secondary/70 text-karma-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
+              <div className="text-xs bg-karma-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
                 {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
               </div>
               
@@ -137,7 +141,7 @@ const GameTable: React.FC<GameTableProps> = ({
                     )}
                   </div>
                 ) : (
-                  <div className="w-20 h-28 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="playing-card bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
                     <span className="text-gray-400 text-xs">Empty</span>
                   </div>
                 )}
