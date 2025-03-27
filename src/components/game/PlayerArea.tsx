@@ -26,6 +26,10 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
   // Check if hand and face up cards are empty
   const isHandEmpty = player.hand.length === 0;
   const isFaceUpEmpty = player.faceUpCards.length === 0;
+  const isFaceDownEmpty = player.faceDownCards.length === 0;
+  
+  // Check if player has no cards left
+  const hasNoCardsLeft = isHandEmpty && isFaceUpEmpty && isFaceDownEmpty;
   
   // Handle face up card selection
   const handleSelectFaceUpCard = (index: number) => {
@@ -72,7 +76,13 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
   };
   
   return (
-    <div className="w-full max-w-3xl">
+    <div className={`w-full max-w-3xl ${hasNoCardsLeft ? 'bg-green-100 p-4 rounded-lg border border-green-300' : ''}`}>
+      {hasNoCardsLeft && (
+        <div className="text-center mb-4 text-green-700 font-medium">
+          Player has no cards left!
+        </div>
+      )}
+      
       <div className="flex justify-center gap-1 mb-6">
         <div className="flex flex-col items-center">
           <div className="text-xs text-gray-500 mb-1">Face Down</div>
