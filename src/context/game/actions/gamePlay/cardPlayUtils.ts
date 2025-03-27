@@ -208,7 +208,7 @@ export const validateCardPlay = (
   // Check if this is a valid play for face up cards
   if (topCard) {
     // Get the effective top card (accounting for 8s)
-    const effectiveTopCard = getEffectiveTopCard([...topCard]);
+    const effectiveTopCard = getEffectiveTopCard([topCard]); // Fix: Wrap single card in an array
     
     // Special exception for 3's
     if (effectiveTopCard?.rank === '3' && cardToPlay.rank !== '3') {

@@ -18,6 +18,11 @@ export const rankValues: Record<Rank, number> = {
   'K': 13
 };
 
+// Get the numeric value of a card rank for comparison
+export const getCardRankValue = (rank: Rank): number => {
+  return rankValues[rank];
+};
+
 // Find the effective top card, accounting for 8s being transparent
 export const getEffectiveTopCard = (pile: CardValue[]): CardValue | undefined => {
   if (pile.length === 0) return undefined;
