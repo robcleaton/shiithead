@@ -8,7 +8,7 @@ interface LobbyHeaderProps {
 }
 
 const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
-  // Transform gameId into middle-of-swear-words format
+  // Transform gameId into middle-of-swear-words format for fun display
   const transformedGameId = transformGameId(gameId);
 
   const handleCopyInviteLink = () => {
@@ -18,18 +18,28 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   };
 
   return (
-    <div className="bg-karma-secondary/50 p-4 rounded-lg">
-      <p className="text-sm text-karma-foreground/70 mb-2">Game ID (Share with friends)</p>
-      <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
-        <span className="truncate">{transformedGameId}</span>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleCopyInviteLink}
-          className="ml-2"
-        >
-          <Copy className="w-4 h-4" />
-        </Button>
+    <div className="space-y-3">
+      <div className="bg-karma-secondary/50 p-4 rounded-lg">
+        <p className="text-sm text-karma-foreground/70 mb-2">Game ID (Share with friends)</p>
+        <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
+          <span className="truncate">{gameId}</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleCopyInviteLink}
+            className="ml-2"
+          >
+            <Copy className="w-4 h-4" />
+          </Button>
+        </div>
+        <p className="text-xs text-karma-foreground/60 mt-2">Use this ID when joining the game</p>
+      </div>
+      
+      <div className="bg-karma-secondary/50 p-4 rounded-lg">
+        <p className="text-sm text-karma-foreground/70 mb-2">Fun Code (Just for display)</p>
+        <div className="font-mono text-lg bg-white/60 rounded px-3 py-2">
+          <span className="truncate">{transformedGameId}</span>
+        </div>
       </div>
     </div>
   );

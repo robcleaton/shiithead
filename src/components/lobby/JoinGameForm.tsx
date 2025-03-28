@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate, useParams } from 'react-router-dom';
+import { InfoCircle } from 'lucide-react';
 
 interface JoinGameFormProps {
   joinGame: (gameId: string, playerName: string) => void;
@@ -60,12 +61,17 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="gameId">Game Code</Label>
+            <Label htmlFor="gameId" className="flex items-center gap-1">
+              Game Code
+              <span className="inline-block ml-1 text-xs text-karma-foreground/70">
+                (Use the original code, not the fun code)
+              </span>
+            </Label>
             <Input 
               id="gameId" 
               value={gameId} 
               onChange={(e) => setGameId(e.target.value)} 
-              placeholder="Enter game code"
+              placeholder="Enter game code (e.g., abc123)"
               readOnly={isGameIdReadOnly}
               className={isGameIdReadOnly ? "bg-gray-100" : ""}
             />
