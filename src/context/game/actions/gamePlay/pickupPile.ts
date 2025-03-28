@@ -1,8 +1,10 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
+import { getUniqueCards, cardToString } from '@/utils/gameUtils';
 
 export const pickupPile = async (
   dispatch: Dispatch<GameAction>,
@@ -43,14 +45,30 @@ export const pickupPile = async (
     console.log(`Regular cards to add: ${regularCards.length}`);
     console.log(`Special cards to ignore: ${specialCardsCount}`);
     
+    // Track all cards to detect and prevent duplications
+    const existingCardIds = new Set(currentPlayer.hand.map(cardToString));
+    const uniqueCardsToAdd = regularCards.filter(card => {
+      const cardId = cardToString(card);
+      if (existingCardIds.has(cardId)) {
+        console.warn(`Prevented duplicate card from being added: ${cardId}`);
+        return false;
+      }
+      existingCardIds.add(cardId);
+      return true;
+    });
+    
+    console.log(`Unique cards to add after deduplication: ${uniqueCardsToAdd.length}`);
+    
     // Create a completely new hand array with deep copies of all cards
-    // This ensures we don't have any reference issues
     const newHand = [
       ...currentPlayer.hand.map(card => ({...card})),
-      ...regularCards.map(card => ({...card}))
+      ...uniqueCardsToAdd.map(card => ({...card}))
     ];
     
-    console.log(`Updated hand will have ${newHand.length} cards`);
+    // Double-check for any duplicates that might have slipped through
+    const finalHand = getUniqueCards(newHand);
+    
+    console.log(`Final hand will have ${finalHand.length} cards`);
     
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
@@ -60,7 +78,7 @@ export const pickupPile = async (
     // 1. Update the player's hand in the database
     const { error: playerError } = await supabase
       .from('players')
-      .update({ hand: newHand })
+      .update({ hand: finalHand })
       .eq('id', currentPlayer.id)
       .eq('game_id', state.gameId);
       
@@ -95,7 +113,7 @@ export const pickupPile = async (
         // Only update the current player's hand with the new cards
         return {
           ...player,
-          hand: newHand
+          hand: finalHand
         };
       }
       // Important: Create a new reference but keep the same data for other players
@@ -115,7 +133,7 @@ export const pickupPile = async (
     });
     
     // Create detailed message about the pickup
-    let message = `${currentPlayer.name} picked up ${regularCards.length} card${regularCards.length !== 1 ? 's' : ''}`;
+    let message = `${currentPlayer.name} picked up ${uniqueCardsToAdd.length} card${uniqueCardsToAdd.length !== 1 ? 's' : ''}`;
     
     if (specialCardsCount > 0) {
       message += `. ${specialCardsCount} special card${specialCardsCount > 1 ? 's were' : ' was'} removed from the game.`;

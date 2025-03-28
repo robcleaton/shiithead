@@ -1,8 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
-import { createDeck } from '@/utils/gameUtils';
+import { createDeck, cardToString } from '@/utils/gameUtils';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 
@@ -22,6 +21,8 @@ export const startGame = async (
     const deck = createDeck();
     console.log('Created deck with', deck.length, 'cards');
     
+    const dealtCardIds = new Set<string>();
+    
     const hands: Record<string, CardValue[]> = {};
     const faceDownCards: Record<string, CardValue[]> = {};
     const updatedDeck = [...deck];
@@ -30,7 +31,17 @@ export const startGame = async (
       const faceDown = [];
       for (let i = 0; i < 3; i++) {
         if (updatedDeck.length > 0) {
-          faceDown.push(updatedDeck.pop()!);
+          const card = updatedDeck.pop()!;
+          const cardId = cardToString(card);
+          
+          if (dealtCardIds.has(cardId)) {
+            console.error(`Duplicate card detected: ${cardId}`);
+            i--;
+            continue;
+          }
+          
+          dealtCardIds.add(cardId);
+          faceDown.push(card);
         }
       }
       faceDownCards[player.id] = faceDown;
@@ -38,7 +49,17 @@ export const startGame = async (
       const hand = [];
       for (let i = 0; i < 6; i++) {
         if (updatedDeck.length > 0) {
-          hand.push(updatedDeck.pop()!);
+          const card = updatedDeck.pop()!;
+          const cardId = cardToString(card);
+          
+          if (dealtCardIds.has(cardId)) {
+            console.error(`Duplicate card detected: ${cardId}`);
+            i--;
+            continue;
+          }
+          
+          dealtCardIds.add(cardId);
+          hand.push(card);
         }
       }
       hands[player.id] = hand;
