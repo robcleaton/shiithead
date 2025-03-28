@@ -35,13 +35,14 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   );
 };
 
-// Function to transform gameId into a shortened format with fewer swear words
+// Function to transform gameId into a shortened format with UK swear words and slang
 const transformGameId = (gameId: string): string => {
   if (!gameId) return '';
   
-  // Reduced list of uncensored swear words and slang (shorter list)
+  // UK-specific swear words and slang (shortened list)
   const words = [
-    'fuck', 'shit', 'cunt', 'dick', 'ass'
+    'bollocks', 'wanker', 'tosser', 'minger', 'twat',
+    'pillock', 'git', 'knob', 'arsehole', 'bugger'
   ];
   
   // Group gameId characters in pairs when possible
