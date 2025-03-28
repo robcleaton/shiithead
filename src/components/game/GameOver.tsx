@@ -11,6 +11,7 @@ interface GameOverProps {
 
 const GameOver = ({ players, resetGame }: GameOverProps) => {
   const winner = players.find(p => p.hand.length === 0 && p.faceUpCards.length === 0 && p.faceDownCards.length === 0);
+  const losers = players.filter(p => p.id !== winner?.id);
   
   return (
     <motion.div 
@@ -43,6 +44,17 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
           <p className="text-lg mb-1">Winner</p>
           <p className="text-2xl font-bold">{winner?.name || 'Unknown'}</p>
         </motion.div>
+        
+        {losers.length > 0 && (
+          <motion.div
+            className="my-6 py-4 bg-red-400/50 rounded-lg"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+          >
+            <p className="text-xl font-bold text-red-800">Bad luck Shithead</p>
+          </motion.div>
+        )}
         
         <motion.div
           initial={{ opacity: 0 }}
