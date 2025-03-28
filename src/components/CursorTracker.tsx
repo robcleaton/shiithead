@@ -15,9 +15,10 @@ type CursorPosition = {
 
 interface CursorTrackerProps {
   label?: string;
+  showOnlyUserCursor?: boolean;
 }
 
-const CursorTracker = ({ label }: CursorTrackerProps = {}) => {
+const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps = {}) => {
   const { state } = useGame();
   const [cursors, setCursors] = useState<Record<string, CursorPosition>>({});
   
@@ -87,10 +88,13 @@ const CursorTracker = ({ label }: CursorTrackerProps = {}) => {
       .on('broadcast', { event: 'cursor-move' }, ({ payload }) => {
         if (payload.playerId === (state.playerId || 'visitor')) return; // Ignore our own cursor
         
-        setCursors(prev => ({
-          ...prev,
-          [payload.playerId]: payload as CursorPosition
-        }));
+        // Only add other players' cursors if we're not in "show only user cursor" mode
+        if (!showOnlyUserCursor) {
+          setCursors(prev => ({
+            ...prev,
+            [payload.playerId]: payload as CursorPosition
+          }));
+        }
       })
       .subscribe();
 
@@ -101,7 +105,7 @@ const CursorTracker = ({ label }: CursorTrackerProps = {}) => {
       }
       supabase.removeChannel(channel);
     };
-  }, [state.gameId, state.playerId, state.currentPlayerName, state.setupPhase, label]);
+  }, [state.gameId, state.playerId, state.currentPlayerName, state.setupPhase, label, showOnlyUserCursor]);
 
   // Don't render any cursors if we're in setup phase
   if (state.setupPhase) return null;

@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation } from 'react-router-dom';
@@ -80,7 +81,7 @@ const Index = () => {
         </motion.div>
       </footer>
       
-      <CursorTracker label="Let's play" />
+      <CursorTracker label="Let's play" showOnlyUserCursor={true} />
     </div>
   );
 };
