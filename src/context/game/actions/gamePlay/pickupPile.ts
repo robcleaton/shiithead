@@ -23,28 +23,56 @@ export const pickupPile = async (
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
     const player = state.players.find(p => p.id === state.playerId);
-    if (!player) return;
+    if (!player) {
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
     
     // Check if there are any 3s in the pile
     const threesInPile = state.pile.filter(card => card.rank === '3');
     
-    // Filter out any cards with rank 3 from the pile
+    // Filter out any cards with rank 3 from the pile - we don't add these to the player's hand
     const pileWithoutThrees = state.pile.filter(card => card.rank !== '3');
     
     // Add remaining cards to the player's hand
     const updatedHand = [...player.hand, ...pileWithoutThrees];
     
+    // First update the local state to ensure UI updates immediately
+    const updatedPlayers = [...state.players];
+    const playerIndex = updatedPlayers.findIndex(p => p.id === state.playerId);
+    if (playerIndex !== -1) {
+      updatedPlayers[playerIndex] = {
+        ...updatedPlayers[playerIndex],
+        hand: updatedHand
+      };
+      dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+    }
+    
+    // Update the pile and next player in the local state
+    const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
+    const nextPlayerId = state.players[nextPlayerIndex].id;
+    
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: {
+        pile: [],
+        currentPlayerId: nextPlayerId
+      }
+    });
+    
+    // Now update the database
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })
       .eq('id', player.id)
       .eq('game_id', state.gameId);
       
-    if (playerError) throw playerError;
-    
-    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-    const nextIndex = (playerIndex + 1) % state.players.length;
-    const nextPlayerId = state.players[nextIndex].id;
+    if (playerError) {
+      console.error('Error updating player hand:', playerError);
+      toast.error('Failed to pick up pile');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
     
     const { error: gameError } = await supabase
       .from('games')
@@ -54,7 +82,12 @@ export const pickupPile = async (
       })
       .eq('id', state.gameId);
       
-    if (gameError) throw gameError;
+    if (gameError) {
+      console.error('Error updating game state:', gameError);
+      toast.error('Failed to pick up pile');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
     
     // Create a more detailed message about the pickup
     let message = `${player.name} picked up the pile (${pileWithoutThrees.length} cards)`;
