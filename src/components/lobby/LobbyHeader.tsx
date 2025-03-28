@@ -8,7 +8,7 @@ interface LobbyHeaderProps {
 }
 
 const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
-  // Transform gameId into readable format
+  // Transform gameId into middle-of-swear-words format
   const transformedGameId = transformGameId(gameId);
 
   const handleCopyInviteLink = () => {
@@ -35,14 +35,14 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   );
 };
 
-// Function to transform gameId into a shortened format with readable words
+// Function to transform gameId into a shortened format with UK swear words and slang
 const transformGameId = (gameId: string): string => {
   if (!gameId) return '';
   
-  // List of readable, everyday words
+  // UK-specific swear words and slang (shortened list)
   const words = [
-    'apple', 'banana', 'cherry', 'donut', 'eagle',
-    'forest', 'garden', 'happy', 'island', 'jungle'
+    'bollocks', 'wanker', 'tosser', 'minger', 'twat',
+    'pillock', 'git', 'knob', 'arsehole', 'bugger'
   ];
   
   // Group gameId characters in pairs when possible
