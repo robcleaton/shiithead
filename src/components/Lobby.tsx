@@ -15,6 +15,7 @@ import JoinGameForm from './lobby/JoinGameForm';
 import PlayerList from './lobby/PlayerList';
 import TestPlayerForm from './lobby/TestPlayerForm';
 import LobbyHeader from './lobby/LobbyHeader';
+import CursorTracker from './CursorTracker';
 
 const Lobby = () => {
   const { createGame, joinGame, startGame, state, addTestPlayer } = useGame();
@@ -145,6 +146,7 @@ const Lobby = () => {
           </CardFooter>
         </Card>
       </motion.div>
+      {state.gameId && <CursorTracker hideUserCursor={true} />}
     </motion.div>
   );
 };

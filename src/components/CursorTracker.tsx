@@ -16,9 +16,10 @@ type CursorPosition = {
 interface CursorTrackerProps {
   label?: string;
   showOnlyUserCursor?: boolean;
+  hideUserCursor?: boolean;
 }
 
-const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps = {}) => {
+const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = false }: CursorTrackerProps = {}) => {
   const { state } = useGame();
   const [cursors, setCursors] = useState<Record<string, CursorPosition>>({});
   const [userCursor, setUserCursor] = useState<CursorPosition | null>(null);
@@ -147,8 +148,8 @@ const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps
         </motion.div>
       ))}
       
-      {/* Always render user's own cursor */}
-      {userCursor && (
+      {/* Render user's own cursor only if not hidden */}
+      {userCursor && !hideUserCursor && (
         <motion.div
           className="pointer-events-none fixed top-0 left-0 z-50"
           initial={{ x: userCursor.x, y: userCursor.y }}
