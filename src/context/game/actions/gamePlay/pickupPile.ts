@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState } from '@/types/game';
@@ -38,17 +39,16 @@ export const pickupPile = async (
     // Add remaining cards to the player's hand
     const updatedHand = [...currentPlayer.hand, ...pileWithoutThrees];
     
-    // Create a new array of players to avoid mutation
+    // Create a new array of players with the currentPlayer having an updated hand
+    // This ensures we only update the current player's hand and not any other players
     const updatedPlayers = state.players.map(player => {
-      // Only update the hand of the current player
       if (player.id === currentPlayer.id) {
         return {
           ...player,
           hand: updatedHand
         };
       }
-      // Return all other players unchanged
-      return player;
+      return player; // Return all other players unchanged
     });
     
     // Update the players in the local state
