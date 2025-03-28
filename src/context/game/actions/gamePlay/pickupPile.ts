@@ -23,14 +23,15 @@ export const pickupPile = async (
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
     // Get a completely fresh copy of the current player
-    const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
-    if (!currentPlayer) {
+    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+    if (playerIndex === -1) {
       console.error('Current player not found');
       toast.error("Error: Current player not found");
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
     
+    const currentPlayer = state.players[playerIndex];
     console.log(`Player ${currentPlayer.name} is picking up pile with ${state.pile.length} cards`);
     
     // Make a deep copy of the player's current hand
@@ -69,7 +70,6 @@ export const pickupPile = async (
     console.log(`Final hand will have ${finalHand.length} cards`);
     
     // Calculate the next player turn
-    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     const nextPlayerIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
@@ -104,24 +104,30 @@ export const pickupPile = async (
       return;
     }
     
-    // 3. Update local state AFTER database updates succeed
+    // 3. Wait for the database updates to be processed before updating local state
+    // This is crucial to prevent race conditions with Supabase realtime subscriptions
+
+    // We'll update the local state immediately for better UX, but we need to be careful
+    // to create brand new object references so React state updates properly
     
-    // Create a completely new players array with new player objects to avoid reference issues
+    // Create brand new player objects with new references to avoid state mutation issues
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
-        // Create a totally new player object with the updated hand
+        // For the current player, update their hand with the finalHand
         return {
           ...player,
-          hand: finalHand // This is already a deep copy
+          hand: [...finalHand] // Create a new array to ensure React detects the change
+        };
+      } else {
+        // For other players, create a new reference but keep the same data
+        // This prevents React from thinking other players have changed
+        return {
+          ...player,
+          hand: [...player.hand], 
+          faceUpCards: [...player.faceUpCards],
+          faceDownCards: [...player.faceDownCards]
         };
       }
-      // Create a new player object for all other players, but keep their data the same
-      return {
-        ...player,
-        hand: [...player.hand],
-        faceDownCards: [...player.faceDownCards],
-        faceUpCards: [...player.faceUpCards]
-      };
     });
     
     // Verify the game state integrity in development
