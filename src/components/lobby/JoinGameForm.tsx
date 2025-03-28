@@ -1,10 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface JoinGameFormProps {
   joinGame: (gameId: string, playerName: string) => void;
@@ -16,6 +16,14 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
   const [playerName, setPlayerName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { gameId: urlGameId } = useParams();
+
+  useEffect(() => {
+    // If there's a gameId in the URL and no initialGameId was provided, use the URL gameId
+    if (urlGameId && !initialGameId) {
+      setGameId(urlGameId);
+    }
+  }, [urlGameId, initialGameId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +47,9 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
     }
   };
 
+  // Determine if the game code field should be read-only
+  const isGameIdReadOnly = !!initialGameId || !!urlGameId;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -55,8 +66,8 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
               value={gameId} 
               onChange={(e) => setGameId(e.target.value)} 
               placeholder="Enter game code"
-              readOnly={!!initialGameId}
-              className={initialGameId ? "bg-gray-100" : ""}
+              readOnly={isGameIdReadOnly}
+              className={isGameIdReadOnly ? "bg-gray-100" : ""}
             />
           </div>
           
@@ -67,7 +78,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
               value={playerName} 
               onChange={(e) => setPlayerName(e.target.value)} 
               placeholder="Enter your name"
-              autoFocus={!!initialGameId}
+              autoFocus={isGameIdReadOnly}
             />
           </div>
         </CardContent>
