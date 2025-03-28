@@ -23,28 +23,33 @@ export const updateGameState = async (
   const isThreePlayed = cardToPlay.rank === '3';
   const isTwoPlayerGame = state.players.length === 2;
   
-  // Handle the special case: if it's a 3 on an empty pile in a 2-player game
+  // Handle the special case for 3 on empty pile
   let newPile = [...state.pile];
-  if (isThreePlayed && wasEmptyPile && isTwoPlayerGame) {
-    // In a 2-player game, playing a 3 on an empty pile burns the pile and allows playing any card
-    // We don't add the 3 to the pile, it effectively burns the pile
-    toast.info("3 played on empty pile in 2-player game - pile is emptied!");
+  let emptyPileSpecialCase = false;
+  
+  if (isThreePlayed && wasEmptyPile) {
+    if (isTwoPlayerGame) {
+      // In a 2-player game, playing a 3 on an empty pile empties the pile and gives the player another turn
+      emptyPileSpecialCase = true;
+      // Add the 3 to the pile temporarily for display, but we'll clear it later
+      newPile = [cardToPlay];
+    } else {
+      // In a game with more than 2 players, the 3 is added to the pile
+      newPile = [...state.pile, cardToPlay];
+    }
   } else {
     // Normal case - add the card to the pile
     newPile = [...state.pile, cardToPlay];
   }
   
-  // Process burn conditions
-  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, [cardToPlay], newPile);
-  
-  // For a 3 on empty pile in 2-player game, force an empty pile regardless of burn condition
-  if (isThreePlayed && wasEmptyPile && isTwoPlayerGame) {
-    // Ensure pile is empty
-    newPile = [];
-  }
+  // Process burn conditions except for the special case
+  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = 
+    emptyPileSpecialCase ? 
+    { updatedPile: [], shouldGetAnotherTurn: true, burnMessage: null, cardsBurned: false } : 
+    processBurnConditions(state, [cardToPlay], newPile);
   
   // Determine next player
-  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn, wasEmptyPile);
+  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn || emptyPileSpecialCase, wasEmptyPile);
   
   // Create a copy of the deck for potential drawing
   const updatedDeck = [...state.deck];
@@ -100,11 +105,14 @@ export const updateGameState = async (
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
   }
   
+  // Special case for 3 on empty pile in 2-player game: show the 3 briefly, then clear the pile
+  const finalPile = emptyPileSpecialCase ? [] : updatedPile;
+  
   // Update game state in local state
   dispatch({
     type: 'SET_GAME_STATE',
     gameState: {
-      pile: isThreePlayed && wasEmptyPile && isTwoPlayerGame ? [] : updatedPile,
+      pile: finalPile,
       deck: updatedDeck,
       currentPlayerId: nextPlayerId
     }
@@ -138,11 +146,11 @@ export const updateGameState = async (
     if (playerError) throw playerError;
   }
   
-  // Update game state - use the final pile state for 3 on empty pile in 2-player game
+  // Update game state - using the final pile state (empty for 3 on empty pile in 2-player)
   const { error: gameError } = await supabase
     .from('games')
     .update({ 
-      pile: isThreePlayed && wasEmptyPile && isTwoPlayerGame ? [] : updatedPile,
+      pile: finalPile,
       current_player_id: nextPlayerId,
       ended: gameOver,
       deck: updatedDeck

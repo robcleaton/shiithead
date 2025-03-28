@@ -72,12 +72,12 @@ export const determineNextPlayer = (
   const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
   const isThreePlayed = cardsToPlay.some(card => card.rank === '3');
   
-  // If a 3 was played on an empty pile and it's 2 players, the current player plays again
+  // If a 3 was played on an empty pile in a 2-player game, current player goes again
   if (isThreePlayed && wasEmptyPile && state.players.length === 2) {
     return state.currentPlayerId || player.id;
   }
   
-  // If a 3 was played on an empty pile, skip one player (with more than 2 players)
+  // If a 3 was played on an empty pile with more than 2 players, skip the next player
   if (isThreePlayed && wasEmptyPile && state.players.length > 2) {
     const skipIndex = (currentPlayerIndex + 2) % state.players.length;
     return state.players[skipIndex].id;

@@ -82,17 +82,33 @@ export const playHandCards = async (
   
   // Check if the pile was empty before adding the card
   const wasEmptyPile = state.pile.length === 0;
+  const isThreePlayed = cardsToPlay.some(card => card.rank === '3');
+  const isTwoPlayerGame = state.players.length === 2;
   
-  // First add cards to the pile then process burn conditions
-  const newPile = [...state.pile, ...cardsToPlay];
+  // Special handling for 3 on empty pile in 2-player game
+  let newPile = [...state.pile, ...cardsToPlay];
+  let updatedPile;
+  let shouldGetAnotherTurn = false;
+  let burnMessage = null;
+  let cardsBurned = false;
   
-  // Process burn conditions and update the pile
-  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, cardsToPlay, newPile);
+  if (isThreePlayed && wasEmptyPile && isTwoPlayerGame) {
+    // In a 2-player game, playing a 3 on an empty pile empties the pile and gives another turn
+    updatedPile = [];
+    shouldGetAnotherTurn = true;
+  } else {
+    // Process burn conditions and update the pile for normal cases
+    const burnResult = processBurnConditions(state, cardsToPlay, newPile);
+    updatedPile = burnResult.updatedPile;
+    shouldGetAnotherTurn = burnResult.shouldGetAnotherTurn;
+    burnMessage = burnResult.burnMessage;
+    cardsBurned = burnResult.cardsBurned;
+  }
   
   // Determine the next player
   const nextPlayerId = determineNextPlayer(state, player, cardsToPlay, shouldGetAnotherTurn, wasEmptyPile);
   
-  // Update pile in local state
+  // Update pile in local state with the final pile state
   dispatch({
     type: 'SET_GAME_STATE',
     gameState: {
