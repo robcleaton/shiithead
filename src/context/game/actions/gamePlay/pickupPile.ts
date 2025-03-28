@@ -40,11 +40,15 @@ export const pickupPile = async (
     // First update the local state to ensure UI updates immediately
     const updatedPlayers = [...state.players];
     const playerIndex = updatedPlayers.findIndex(p => p.id === state.playerId);
+    
     if (playerIndex !== -1) {
+      // Create a new player object with only the updated hand - this is the key fix
+      // We only modify the current player's hand, not touching any other players
       updatedPlayers[playerIndex] = {
         ...updatedPlayers[playerIndex],
         hand: updatedHand
       };
+      
       dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     }
     
