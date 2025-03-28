@@ -49,6 +49,14 @@ const GameTable: React.FC<GameTableProps> = ({
   
   const cardBelowEight = findCardBelowEight();
   
+  // Count special cards in the pile
+  const specialCardsCount = pile.filter(card => 
+    card.rank === '3' || card.rank === '10' || card.rank === '8'
+  ).length;
+  
+  // Count regular cards that would be picked up
+  const regularCardsCount = pile.length - specialCardsCount;
+  
   useEffect(() => {
     console.log(`GameTable received deckCount: ${deckCount}`);
   }, [deckCount]);
@@ -186,9 +194,13 @@ const GameTable: React.FC<GameTableProps> = ({
             variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
             size="sm"
             onClick={onPickupPile}
+            title={regularCardsCount > 0 ? `Pick up ${regularCardsCount} regular cards (special cards will be discarded)` : "No regular cards to pick up"}
           >
             <HandMetal className="mr-2 h-4 w-4" />
             Pick Up Pile
+            {regularCardsCount > 0 && specialCardsCount > 0 && (
+              <span className="ml-1 text-xs">({regularCardsCount})</span>
+            )}
           </Button>
         )}
       </div>
@@ -202,6 +214,9 @@ const GameTable: React.FC<GameTableProps> = ({
         )}
         {isEightOnTop && (
           <p className="font-medium text-blue-500 mb-1">8 has been played! This card is transparent - play on the card below it.</p>
+        )}
+        {pile.length > 0 && specialCardsCount > 0 && (
+          <p className="font-medium text-gray-500 mt-2">Note: Special cards (3s, 8s, 10s) will be discarded when picking up the pile.</p>
         )}
       </div>
     </div>
