@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState } from '@/types/game';
@@ -30,36 +29,38 @@ export const pickupPile = async (
       return;
     }
     
-    // Identify special cards that should be removed from the game (3, 10, 8)
-    const specialCards = state.pile.filter(card => 
+    // Count special cards that should be removed from the game (3, 10, 8)
+    const specialCardsCount = state.pile.filter(card => 
       card.rank === '3' || card.rank === '10' || card.rank === '8'
-    );
+    ).length;
     
-    // Find all regular cards that should be added to the player's hand
-    const cardsToAdd = state.pile.filter(card => 
+    // Get all regular cards that should be added to the player's hand
+    const regularCards = state.pile.filter(card => 
       card.rank !== '3' && card.rank !== '10' && card.rank !== '8'
     );
     
-    // Make a deep copy of the hand and cards to add to prevent reference issues
-    const updatedHand = [...currentPlayer.hand];
-    cardsToAdd.forEach(card => {
-      updatedHand.push({...card}); // Add a copy of each card
-    });
+    console.log(`Player ${currentPlayer.name} is picking up pile with ${state.pile.length} cards`);
+    console.log(`Regular cards to add: ${regularCards.length}`);
+    console.log(`Special cards to ignore: ${specialCardsCount}`);
+    
+    // Create a completely new hand array with deep copies of all cards
+    // This ensures we don't have any reference issues
+    const newHand = [
+      ...currentPlayer.hand.map(card => ({...card})),
+      ...regularCards.map(card => ({...card}))
+    ];
+    
+    console.log(`Updated hand will have ${newHand.length} cards`);
     
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    console.log(`Player ${currentPlayer.name} is picking up pile with ${state.pile.length} cards`);
-    console.log(`Regular cards to add: ${cardsToAdd.length}`);
-    console.log(`Special cards to remove: ${specialCards.length}`);
-    console.log(`Updated hand size will be: ${updatedHand.length}`);
-    
-    // CRITICAL: First update the database before modifying local state
-    // 1. Update the player's hand
+    // CRITICAL: First update the database before local state
+    // 1. Update the player's hand in the database
     const { error: playerError } = await supabase
       .from('players')
-      .update({ hand: updatedHand })
+      .update({ hand: newHand })
       .eq('id', currentPlayer.id)
       .eq('game_id', state.gameId);
       
@@ -86,24 +87,25 @@ export const pickupPile = async (
       return;
     }
     
-    // 3. Update local state ONLY AFTER database updates succeed
-    // Create a new players array with only the current player's hand updated
+    // 3. Update local state AFTER database updates succeed
+    
+    // Create a completely new players array to avoid any reference issues
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
-        // Only update the current player's hand
+        // Only update the current player's hand with the new cards
         return {
           ...player,
-          hand: updatedHand 
+          hand: newHand
         };
       }
-      // Important: Return other players exactly as they are
-      return {...player}; 
+      // Important: Create a new reference but keep the same data for other players
+      return {...player};
     });
     
     // Update the players in the local state
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     
-    // Clear the pile in local state
+    // Clear the pile in local state and update current player
     dispatch({
       type: 'SET_GAME_STATE',
       gameState: {
@@ -112,11 +114,11 @@ export const pickupPile = async (
       }
     });
     
-    // Create more detailed message about the pickup
-    let message = `${currentPlayer.name} picked up ${cardsToAdd.length} card${cardsToAdd.length !== 1 ? 's' : ''}`;
+    // Create detailed message about the pickup
+    let message = `${currentPlayer.name} picked up ${regularCards.length} card${regularCards.length !== 1 ? 's' : ''}`;
     
-    if (specialCards.length > 0) {
-      message += `. ${specialCards.length} special card${specialCards.length > 1 ? 's were' : ' was'} removed from the game.`;
+    if (specialCardsCount > 0) {
+      message += `. ${specialCardsCount} special card${specialCardsCount > 1 ? 's were' : ' was'} removed from the game.`;
     }
     
     toast.info(message);
