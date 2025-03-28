@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Player } from '@/types/game';
@@ -18,6 +19,9 @@ export const updateGameState = async (
   updatedFaceDownCards: CardValue[] | null = null,
   cardPlayedFromType: 'faceUp' | 'faceDown' | 'hand' = 'hand'
 ): Promise<void> => {
+  // Check if pile was empty before adding card
+  const wasEmptyPile = state.pile.length === 0;
+  
   // First, add the card to the pile before processing burn conditions
   let newPile = [...state.pile, cardToPlay];
   
@@ -25,7 +29,7 @@ export const updateGameState = async (
   const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, [cardToPlay], newPile);
   
   // Determine next player
-  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);
+  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn, wasEmptyPile);
   
   // Create a copy of the deck for potential drawing
   const updatedDeck = [...state.deck];
@@ -138,7 +142,11 @@ export const updateGameState = async (
   } else if (cardToPlay.rank === '2') {
     toast.success(`${player.name} played a 2 - they get another turn!`);
   } else if (cardToPlay.rank === '3') {
-    toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
+    if (wasEmptyPile) {
+      toast.success(`${player.name} played a 3 on an empty pile - next player's turn is skipped!`);
+    } else {
+      toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
+    }
   } else if (cardToPlay.rank === '7') {
     toast.success(`${player.name} played a 7 - the next player must play a card of rank lower than 7 or another 7!`);
   } else if (cardToPlay.rank === '8') {

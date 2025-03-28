@@ -61,13 +61,24 @@ export const determineNextPlayer = (
   state: { players: Player[], currentPlayerId: string | null },
   player: Player,
   cardsToPlay: CardValue[],
-  shouldGetAnotherTurn: boolean
+  shouldGetAnotherTurn: boolean,
+  wasEmptyPile: boolean = false
 ): string => {
+  // If a 3 was played on an empty pile, skip the next player's turn
+  const isThreePlayed = cardsToPlay.some(card => card.rank === '3');
+  
   if (shouldGetAnotherTurn || cardsToPlay.some(card => card.rank === '2')) {
     return state.currentPlayerId || player.id;
   }
   
   const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+  
+  // If a 3 was played on an empty pile, skip one player
+  if (isThreePlayed && wasEmptyPile) {
+    const skipIndex = (currentPlayerIndex + 2) % state.players.length;
+    return state.players[skipIndex].id;
+  }
+  
   const nextIndex = (currentPlayerIndex + 1) % state.players.length;
   return state.players[nextIndex].id;
 };
@@ -76,7 +87,8 @@ export const determineNextPlayer = (
 export const generateCardPlayMessage = (
   playerName: string,
   cardsToPlay: CardValue[],
-  burnMessage: string | null
+  burnMessage: string | null,
+  wasEmptyPile: boolean = false
 ): string => {
   if (burnMessage) {
     return `${playerName} ${burnMessage} ${playerName} gets another turn.`;
@@ -91,6 +103,9 @@ export const generateCardPlayMessage = (
   if (rank === '2') {
     return `${playerName} played a 2 - they get another turn!`;
   } else if (rank === '3') {
+    if (wasEmptyPile) {
+      return `${playerName} played a 3 on an empty pile - next player's turn is skipped!`;
+    }
     return `${playerName} played a 3 - next player must pick up the pile or play a 3!`;
   } else if (rank === '7') {
     return `${playerName} played a 7 - the next player must play a card of rank lower than 7 or another 7!`;
