@@ -17,7 +17,11 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
   
   return (
     <motion.div 
-      className="fixed inset-0 min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600"
+      className={`fixed inset-0 min-h-screen flex items-center justify-center ${
+        isCurrentPlayerWinner 
+          ? 'bg-gradient-to-br from-green-400 to-green-600' 
+          : 'bg-gradient-to-br from-red-400 to-red-600'
+      }`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -29,7 +33,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <motion.h1 
-          className="text-3xl font-bold text-karma-primary mb-4"
+          className={`text-3xl font-bold ${isCurrentPlayerWinner ? 'text-karma-primary' : 'text-red-600'} mb-4`}
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
@@ -54,7 +58,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
         >
           <Button 
             onClick={resetGame}
-            className="w-full bg-karma-primary hover:bg-karma-primary/90 mt-4"
+            className={`w-full ${isCurrentPlayerWinner ? 'bg-karma-primary hover:bg-karma-primary/90' : 'bg-red-600 hover:bg-red-700'} mt-4`}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Play Again
