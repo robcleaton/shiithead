@@ -44,7 +44,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <p className="text-lg mb-1">Winner</p>
-          <p className="text-2xl font-bold">{winner?.name || 'Unknown'}</p>
+          <p className="text-2xl font-bold">{winner?.name}</p>
         </motion.div>
         
         <motion.div
