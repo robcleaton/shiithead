@@ -8,6 +8,9 @@ interface LobbyHeaderProps {
 }
 
 const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
+  // Transform gameId into middle-of-words format
+  const transformedGameId = transformGameId(gameId);
+
   const handleCopyInviteLink = () => {
     const inviteLink = `${window.location.origin}/join/${gameId}`;
     navigator.clipboard.writeText(inviteLink);
@@ -18,7 +21,7 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
     <div className="bg-karma-secondary/50 p-4 rounded-lg">
       <p className="text-sm text-karma-foreground/70 mb-2">Game ID (Share with friends)</p>
       <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
-        <span className="truncate">{gameId}</span>
+        <span className="truncate">{transformedGameId}</span>
         <Button 
           variant="ghost" 
           size="sm" 
@@ -30,6 +33,37 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
       </div>
     </div>
   );
+};
+
+// Function to transform gameId into middle-of-words format
+const transformGameId = (gameId: string): string => {
+  if (!gameId) return '';
+  
+  // List of words to use for the middle-of-words format
+  const words = [
+    'apple', 'banana', 'cherry', 'dragon', 'elephant', 
+    'falcon', 'guitar', 'hammer', 'island', 'jumper',
+    'kangaroo', 'lemon', 'mango', 'ninja', 'orange',
+    'penguin', 'quasar', 'rocket', 'sunset', 'tiger',
+    'umbrella', 'violet', 'whisper', 'xylophone', 'yellow', 'zebra'
+  ];
+  
+  // Use the gameId characters to select words
+  let result = '';
+  for (let i = 0; i < gameId.length; i++) {
+    const char = gameId[i];
+    const charCode = char.charCodeAt(0);
+    const wordIndex = charCode % words.length;
+    const word = words[wordIndex];
+    
+    // Insert the character in the middle of the word
+    const middle = Math.floor(word.length / 2);
+    const transformedWord = word.slice(0, middle) + char + word.slice(middle);
+    
+    result += (i > 0 ? '-' : '') + transformedWord;
+  }
+  
+  return result;
 };
 
 export default LobbyHeader;
