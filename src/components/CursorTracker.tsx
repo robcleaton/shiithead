@@ -21,6 +21,7 @@ interface CursorTrackerProps {
 const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps = {}) => {
   const { state } = useGame();
   const [cursors, setCursors] = useState<Record<string, CursorPosition>>({});
+  const [userCursor, setUserCursor] = useState<CursorPosition | null>(null);
   
   // Generate a consistent color based on player ID
   const getPlayerColor = (playerId: string) => {
@@ -41,6 +42,7 @@ const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps
     // Don't track or show cursors during setup phase
     if (state.setupPhase) {
       setCursors({});
+      setUserCursor(null);
       return;
     }
 
@@ -57,14 +59,19 @@ const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps
         color: playerColor
       };
       
-      // Broadcast cursor position to other players
-      const channelId = state.gameId ? `cursor:${state.gameId}` : 'cursor:home';
-      const channel = supabase.channel(channelId);
-      channel.send({
-        type: 'broadcast',
-        event: 'cursor-move',
-        payload: position,
-      });
+      // Update user's cursor position
+      setUserCursor(position);
+      
+      // Broadcast cursor position to other players if not in showOnlyUserCursor mode
+      if (!showOnlyUserCursor) {
+        const channelId = state.gameId ? `cursor:${state.gameId}` : 'cursor:home';
+        const channel = supabase.channel(channelId);
+        channel.send({
+          type: 'broadcast',
+          event: 'cursor-move',
+          payload: position,
+        });
+      }
     };
 
     // Throttle the mousemove event to avoid too many updates
@@ -80,31 +87,37 @@ const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps
 
     window.addEventListener('mousemove', throttledMouseMove);
 
-    // Subscribe to cursor movements from other players
-    const channelId = state.gameId ? `cursor:${state.gameId}` : 'cursor:home';
-    const channel = supabase.channel(channelId);
-    
-    channel
-      .on('broadcast', { event: 'cursor-move' }, ({ payload }) => {
-        if (payload.playerId === (state.playerId || 'visitor')) return; // Ignore our own cursor
-        
-        // Only add other players' cursors if we're not in "show only user cursor" mode
-        if (!showOnlyUserCursor) {
+    // Subscribe to cursor movements from other players if not in showOnlyUserCursor mode
+    if (!showOnlyUserCursor) {
+      const channelId = state.gameId ? `cursor:${state.gameId}` : 'cursor:home';
+      const channel = supabase.channel(channelId);
+      
+      channel
+        .on('broadcast', { event: 'cursor-move' }, ({ payload }) => {
+          if (payload.playerId === (state.playerId || 'visitor')) return; // Ignore our own cursor
+          
           setCursors(prev => ({
             ...prev,
             [payload.playerId]: payload as CursorPosition
           }));
-        }
-      })
-      .subscribe();
+        })
+        .subscribe();
 
-    return () => {
-      window.removeEventListener('mousemove', throttledMouseMove);
-      if (throttleTimeout) {
-        clearTimeout(throttleTimeout);
-      }
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        window.removeEventListener('mousemove', throttledMouseMove);
+        if (throttleTimeout) {
+          clearTimeout(throttleTimeout);
+        }
+        supabase.removeChannel(channel);
+      };
+    } else {
+      return () => {
+        window.removeEventListener('mousemove', throttledMouseMove);
+        if (throttleTimeout) {
+          clearTimeout(throttleTimeout);
+        }
+      };
+    }
   }, [state.gameId, state.playerId, state.currentPlayerName, state.setupPhase, label, showOnlyUserCursor]);
 
   // Don't render any cursors if we're in setup phase
@@ -112,7 +125,8 @@ const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps
 
   return (
     <>
-      {Object.values(cursors).map((cursor) => (
+      {/* Render other players' cursors */}
+      {!showOnlyUserCursor && Object.values(cursors).map((cursor) => (
         <motion.div
           key={cursor.playerId}
           className="pointer-events-none fixed top-0 left-0 z-50"
@@ -132,6 +146,27 @@ const CursorTracker = ({ label, showOnlyUserCursor = false }: CursorTrackerProps
           </div>
         </motion.div>
       ))}
+      
+      {/* Always render user's own cursor */}
+      {userCursor && (
+        <motion.div
+          className="pointer-events-none fixed top-0 left-0 z-50"
+          initial={{ x: userCursor.x, y: userCursor.y }}
+          animate={{ x: userCursor.x, y: userCursor.y }}
+          transition={{ type: 'spring', damping: 15 }}
+          style={{ color: userCursor.color }}
+        >
+          <div className="relative">
+            <MousePointer className="h-6 w-6 filter drop-shadow-md" />
+            <div 
+              className="absolute left-4 top-1 px-2 py-1 text-base font-medium rounded-md shadow-md whitespace-nowrap"
+              style={{ backgroundColor: userCursor.color, color: '#fff' }}
+            >
+              {userCursor.playerName}
+            </div>
+          </div>
+        </motion.div>
+      )}
     </>
   );
 };
