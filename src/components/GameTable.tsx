@@ -180,12 +180,12 @@ const GameTable: React.FC<GameTableProps> = ({
       </div>
       
       <div className="flex justify-center gap-3">
-        {isCurrentPlayer && (
+        {/* Only show "Pick Up Pile" button when there are cards in the pile */}
+        {isCurrentPlayer && pile.length > 0 && (
           <Button
             variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
             size="sm"
             onClick={onPickupPile}
-            disabled={pile.length === 0}
           >
             <HandMetal className="mr-2 h-4 w-4" />
             Pick Up Pile
