@@ -8,7 +8,7 @@ interface LobbyHeaderProps {
 }
 
 const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
-  // Transform gameId into middle-of-words format
+  // Transform gameId into middle-of-swear-words format
   const transformedGameId = transformGameId(gameId);
 
   const handleCopyInviteLink = () => {
@@ -35,17 +35,17 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   );
 };
 
-// Function to transform gameId into middle-of-words format
+// Function to transform gameId into middle-of-swear-words format
 const transformGameId = (gameId: string): string => {
   if (!gameId) return '';
   
-  // List of words to use for the middle-of-words format
+  // List of censored swear words to use for the middle-of-words format
   const words = [
-    'apple', 'banana', 'cherry', 'dragon', 'elephant', 
-    'falcon', 'guitar', 'hammer', 'island', 'jumper',
-    'kangaroo', 'lemon', 'mango', 'ninja', 'orange',
-    'penguin', 'quasar', 'rocket', 'sunset', 'tiger',
-    'umbrella', 'violet', 'whisper', 'xylophone', 'yellow', 'zebra'
+    'sh*t', 'f*ck', 'a*s', 'b*tch', 'd*mn', 
+    'cr*p', 'p*ss', 'tw*t', 'w*nker', 'b*llocks',
+    'j*rk', 'd*ck', 'a**hole', 'b*stard', 'sh*thead',
+    'f*cker', 'a**hat', 'douch*', 'pr*ck', 'sh*tbag',
+    'f*ckface', 'a**wipe', 'd*ckhead', 'c*nt', 'b*llsh*t'
   ];
   
   // Use the gameId characters to select words
