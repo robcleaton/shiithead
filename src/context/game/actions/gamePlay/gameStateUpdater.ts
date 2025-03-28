@@ -5,11 +5,10 @@ import { GameState, CardValue, Player } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { processBurnConditions } from './burnPileUtils';
-import { determineNextPlayer, generateGameStatusMessage } from './cardHandlingUtils';
-import { validateSingleCardPlay } from './cardValidation';
+import { determineNextPlayer, generateGameStatusMessage, generateCardPlayMessage } from './cardHandlingUtils';
 import { getEffectiveTopCard } from './utils';
 
-// Shared function to handle updating player and game state after a card is played
+// Main function to handle updating player and game state after a card is played
 export const updateGameState = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
@@ -91,6 +90,56 @@ export const updateGameState = async (
     { deck: updatedDeck }
   );
   
+  // Update player's cards in the local state
+  await updateLocalState(
+    dispatch, 
+    state, 
+    player, 
+    updatedHand, 
+    updatedFaceUpCards, 
+    updatedFaceDownCards, 
+    updatedPile, 
+    updatedDeck, 
+    nextPlayerId
+  );
+  
+  // Update database
+  await updateDatabase(
+    state, 
+    player, 
+    updatedHand, 
+    updatedFaceUpCards, 
+    updatedFaceDownCards, 
+    updatedPile, 
+    updatedDeck, 
+    nextPlayerId,
+    gameOver
+  );
+  
+  // Display messages based on card played
+  displayCardPlayMessages(
+    player, 
+    cardToPlay, 
+    burnMessage, 
+    cardPlayedFromType, 
+    wasEmptyPile, 
+    gameOver, 
+    statusMessage
+  );
+};
+
+// Helper function to update local state
+const updateLocalState = async (
+  dispatch: Dispatch<GameAction>,
+  state: GameState,
+  player: Player,
+  updatedHand: CardValue[],
+  updatedFaceUpCards: CardValue[] | null,
+  updatedFaceDownCards: CardValue[] | null,
+  updatedPile: CardValue[],
+  updatedDeck: CardValue[],
+  nextPlayerId: string
+) => {
   // First update the local state immediately to reflect changes before database updates
   // Update player's cards in the local state
   const updatedPlayers = [...state.players];
@@ -106,19 +155,29 @@ export const updateGameState = async (
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
   }
   
-  // Special case for 3 on empty pile in 2-player game: show the 3 briefly, then clear the pile
-  let finalPile = emptyPileSpecialCase ? [] : updatedPile;
-  
   // Update game state in local state
   dispatch({
     type: 'SET_GAME_STATE',
     gameState: {
-      pile: finalPile,
+      pile: updatedPile,
       deck: updatedDeck,
       currentPlayerId: nextPlayerId
     }
   });
-  
+};
+
+// Helper function to update database
+const updateDatabase = async (
+  state: GameState,
+  player: Player,
+  updatedHand: CardValue[],
+  updatedFaceUpCards: CardValue[] | null,
+  updatedFaceDownCards: CardValue[] | null,
+  updatedPile: CardValue[],
+  updatedDeck: CardValue[],
+  nextPlayerId: string,
+  gameOver: boolean
+) => {
   // Prepare player update payload
   const playerUpdatePayload: any = {};
   
@@ -147,11 +206,11 @@ export const updateGameState = async (
     if (playerError) throw playerError;
   }
   
-  // Update game state - using the final pile state (empty for 3 on empty pile in 2-player)
+  // Update game state
   const { error: gameError } = await supabase
     .from('games')
     .update({ 
-      pile: finalPile,
+      pile: updatedPile,
       current_player_id: nextPlayerId,
       ended: gameOver,
       deck: updatedDeck
@@ -159,7 +218,18 @@ export const updateGameState = async (
     .eq('id', state.gameId);
     
   if (gameError) throw gameError;
-  
+};
+
+// Helper function to display messages
+const displayCardPlayMessages = (
+  player: Player,
+  cardToPlay: CardValue,
+  burnMessage: string | null,
+  cardPlayedFromType: 'faceUp' | 'faceDown' | 'hand',
+  wasEmptyPile: boolean,
+  gameOver: boolean,
+  statusMessage: string | null
+) => {
   // Display messages based on card played
   if (burnMessage) {
     toast.success(`${player.name} ${burnMessage} ${player.name} gets another turn.`);
@@ -167,10 +237,10 @@ export const updateGameState = async (
     toast.success(`${player.name} played a 2 - they get another turn!`);
   } else if (cardToPlay.rank === '3') {
     if (wasEmptyPile) {
-      if (isTwoPlayerGame) {
-        toast.success(`${player.name} played a 3 on an empty pile - pile is emptied and ${player.name} gets another turn!`);
-      } else {
+      if (cardPlayedFromType === 'hand' && player.faceUpCards.length <= 2) {
         toast.success(`${player.name} played a 3 on an empty pile - next player's turn is skipped!`);
+      } else {
+        toast.success(`${player.name} played a 3 on an empty pile - pile is emptied and ${player.name} gets another turn!`);
       }
     } else {
       toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
@@ -195,71 +265,4 @@ export const updateGameState = async (
   } else if (statusMessage) {
     toast.info(statusMessage);
   }
-};
-
-// Shared validation for face up and face down cards
-export const validateCardPlay = (
-  player: Player,
-  cardIndex: number,
-  cardType: 'faceUp' | 'faceDown',
-  topCard: CardValue | undefined,
-  validation: (card: CardValue, topCard: CardValue | undefined) => { valid: boolean; errorMessage?: string },
-  dispatch: Dispatch<GameAction>
-): {
-  isValid: boolean;
-  cardToPlay?: CardValue;
-  updatedCards?: CardValue[];
-} => {
-  const cardArray = cardType === 'faceUp' ? player.faceUpCards : player.faceDownCards;
-  
-  if (cardIndex < 0 || cardIndex >= cardArray.length) {
-    toast.error(`Invalid ${cardType === 'faceUp' ? 'face up' : 'face down'} card selection`);
-    dispatch({ type: 'SET_LOADING', isLoading: false });
-    return { isValid: false };
-  }
-  
-  // Cannot play these cards if the player still has cards in hand
-  if (player.hand.length > 0) {
-    toast.error("You must play all cards in your hand first!");
-    dispatch({ type: 'SET_LOADING', isLoading: false });
-    return { isValid: false };
-  }
-  
-  // Cannot play face down cards if the player still has face up cards
-  if (cardType === 'faceDown' && player.faceUpCards.length > 0) {
-    toast.error("You must play all your face up cards first!");
-    dispatch({ type: 'SET_LOADING', isLoading: false });
-    return { isValid: false };
-  }
-  
-  const cardToPlay = cardArray[cardIndex];
-  const updatedCards = [...cardArray];
-  updatedCards.splice(cardIndex, 1);
-  
-  // Skip validation for face down cards (they're revealed when played)
-  if (cardType === 'faceDown') {
-    return { isValid: true, cardToPlay, updatedCards };
-  }
-  
-  // Check if this is a valid play for face up cards
-  if (topCard) {
-    // Get the effective top card (accounting for 8s)
-    const effectiveTopCard = getEffectiveTopCard([topCard]); // Fix: Wrap single card in an array
-    
-    // Special exception for 3's
-    if (effectiveTopCard?.rank === '3' && cardToPlay.rank !== '3') {
-      toast.error("You must play a 3 or pick up the pile!");
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      return { isValid: false };
-    }
-    
-    const validationResult = validation(cardToPlay, effectiveTopCard);
-    if (!validationResult.valid) {
-      toast.error(validationResult.errorMessage);
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      return { isValid: false };
-    }
-  }
-  
-  return { isValid: true, cardToPlay, updatedCards };
 };

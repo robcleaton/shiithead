@@ -4,5 +4,7 @@ export {
   playCard,
   drawCard,
   pickupPile,
-  handleAIPlayerTurn
+  handleAIPlayerTurn,
+  updateGameState,
+  validateCardPlay
 } from './gamePlay';

@@ -7,4 +7,5 @@ export { handleAIPlayerTurn, isAIPlayer } from './aiPlayerActions';
 export { playFaceDownCard } from './playFaceDownCard';
 export { playFaceUpCard } from './playFaceUpCard';
 export { playHandCards } from './playHandCards';
-export { updateGameState, validateCardPlay } from './cardPlayUtils';
+export { updateGameState } from './gameStateUpdater';
+export { validateCardPlay } from './cardPlayValidator';
