@@ -22,7 +22,7 @@ export const pickupPile = async (
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
-    // Find the player who is picking up the pile (current player)
+    // Find the current player (the one who's picking up the pile)
     const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
     if (!currentPlayer) {
       console.error('Current player not found');
@@ -39,35 +39,11 @@ export const pickupPile = async (
     // Add remaining cards to the player's hand
     const updatedHand = [...currentPlayer.hand, ...pileWithoutThrees];
     
-    // Create a new array of players with the currentPlayer having an updated hand
-    const updatedPlayers = state.players.map(player => {
-      if (player.id === currentPlayer.id) {
-        return {
-          ...player,
-          hand: updatedHand
-        };
-      }
-      return player; // Return all other players unchanged
-    });
-    
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    // First update the local state directly
-    // Update the players in the local state
-    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
-    
-    // Clear the pile and update next player in local state
-    dispatch({
-      type: 'SET_GAME_STATE',
-      gameState: {
-        pile: [],
-        currentPlayerId: nextPlayerId
-      }
-    });
-    
-    // Update the database - important to do this AFTER updating local state
+    // Important: Update only the database first to avoid any race conditions
     // Update ONLY the current player's hand in the database
     const { error: playerError } = await supabase
       .from('players')
@@ -97,6 +73,31 @@ export const pickupPile = async (
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
+    
+    // After database update is successful, update local state for just this player
+    // This prevents premature state updates that could be overwritten by subscription updates
+    // Create a new array with only the current player updated
+    const updatedPlayers = state.players.map(player => {
+      if (player.id === currentPlayer.id) {
+        return {
+          ...player,
+          hand: updatedHand
+        };
+      }
+      return player; // Return all other players unchanged
+    });
+    
+    // Update the players in the local state
+    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+    
+    // Clear the pile and update next player in local state
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: {
+        pile: [],
+        currentPlayerId: nextPlayerId
+      }
+    });
     
     // Create a more detailed message about the pickup
     let message = `${currentPlayer.name} picked up the pile (${pileWithoutThrees.length} cards)`;
