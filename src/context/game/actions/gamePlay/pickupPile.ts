@@ -47,7 +47,7 @@ export const pickupPile = async (
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    // Important: Update only the database first to avoid any race conditions
+    // Important: Update database first to avoid any race conditions
     // Update ONLY the current player's hand in the database
     const { error: playerError } = await supabase
       .from('players')
@@ -78,8 +78,7 @@ export const pickupPile = async (
       return;
     }
     
-    // After database update is successful, update local state for just this player
-    // This prevents premature state updates that could be overwritten by subscription updates
+    // After database update is successful, update local state
     // Create a new array with only the current player updated
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
