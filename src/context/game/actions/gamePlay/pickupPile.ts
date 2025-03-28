@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState } from '@/types/game';
@@ -22,8 +21,10 @@ export const pickupPile = async (
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
-    const player = state.players.find(p => p.id === state.playerId);
-    if (!player) {
+    // Find the player who is picking up the pile (current player)
+    const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
+    if (!currentPlayer) {
+      console.error('Current player not found');
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
@@ -35,22 +36,23 @@ export const pickupPile = async (
     const pileWithoutThrees = state.pile.filter(card => card.rank !== '3');
     
     // Add remaining cards to the player's hand
-    const updatedHand = [...player.hand, ...pileWithoutThrees];
+    const updatedHand = [...currentPlayer.hand, ...pileWithoutThrees];
     
-    // First update the local state to ensure UI updates immediately
-    const updatedPlayers = [...state.players];
-    const playerIndex = updatedPlayers.findIndex(p => p.id === state.playerId);
+    // Create a new array of players to avoid mutation
+    const updatedPlayers = state.players.map(player => {
+      // Only update the hand of the current player
+      if (player.id === currentPlayer.id) {
+        return {
+          ...player,
+          hand: updatedHand
+        };
+      }
+      // Return all other players unchanged
+      return player;
+    });
     
-    if (playerIndex !== -1) {
-      // Create a new player object with only the updated hand - this is the key fix
-      // We only modify the current player's hand, not touching any other players
-      updatedPlayers[playerIndex] = {
-        ...updatedPlayers[playerIndex],
-        hand: updatedHand
-      };
-      
-      dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
-    }
+    // Update the players in the local state
+    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     
     // Update the pile and next player in the local state
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
@@ -69,7 +71,7 @@ export const pickupPile = async (
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })
-      .eq('id', player.id)
+      .eq('id', currentPlayer.id)
       .eq('game_id', state.gameId);
       
     if (playerError) {
@@ -95,7 +97,7 @@ export const pickupPile = async (
     }
     
     // Create a more detailed message about the pickup
-    let message = `${player.name} picked up the pile (${pileWithoutThrees.length} cards)`;
+    let message = `${currentPlayer.name} picked up the pile (${pileWithoutThrees.length} cards)`;
     
     if (threesInPile.length > 0) {
       message += `. ${threesInPile.length} three${threesInPile.length > 1 ? 's were' : ' was'} removed from the game.`;
