@@ -1,10 +1,9 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState } from '@/types/game';
+import { GameState, CardValue } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
-import { getUniqueCards, cardToString } from '@/utils/gameUtils';
+import { getUniqueCards, cardToString, copyCards, copyCard, verifyGameCards } from '@/utils/gameUtils';
 
 export const pickupPile = async (
   dispatch: Dispatch<GameAction>,
@@ -23,31 +22,33 @@ export const pickupPile = async (
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
-    // Find the current player (the one who's picking up the pile)
+    // Get a completely fresh copy of the current player
     const currentPlayer = state.players.find(p => p.id === state.currentPlayerId);
     if (!currentPlayer) {
       console.error('Current player not found');
+      toast.error("Error: Current player not found");
       dispatch({ type: 'SET_LOADING', isLoading: false });
       return;
     }
     
-    // Count special cards that should be removed from the game (3, 10, 8)
-    const specialCardsCount = state.pile.filter(card => 
-      card.rank === '3' || card.rank === '10' || card.rank === '8'
-    ).length;
-    
-    // Get all regular cards that should be added to the player's hand
-    const regularCards = state.pile.filter(card => 
-      card.rank !== '3' && card.rank !== '10' && card.rank !== '8'
-    );
-    
     console.log(`Player ${currentPlayer.name} is picking up pile with ${state.pile.length} cards`);
-    console.log(`Regular cards to add: ${regularCards.length}`);
-    console.log(`Special cards to ignore: ${specialCardsCount}`);
     
-    // Track all cards to detect and prevent duplications
-    const existingCardIds = new Set(currentPlayer.hand.map(cardToString));
-    const uniqueCardsToAdd = regularCards.filter(card => {
+    // Make a deep copy of the player's current hand
+    const existingHand = copyCards(currentPlayer.hand);
+    console.log(`Existing hand has ${existingHand.length} cards`);
+    
+    // Make a deep copy of the pile, excluding special cards (3, 10, 8)
+    const pileToPickup = state.pile
+      .filter(card => card.rank !== '3' && card.rank !== '10' && card.rank !== '8')
+      .map(copyCard);
+    
+    console.log(`Pile to pickup: ${pileToPickup.length} cards after filtering special cards`);
+    
+    // Track all existing card IDs to avoid duplicates
+    const existingCardIds = new Set(existingHand.map(cardToString));
+    
+    // Filter cards in the pile that are already in the player's hand
+    const uniqueCardsToAdd = pileToPickup.filter(card => {
       const cardId = cardToString(card);
       if (existingCardIds.has(cardId)) {
         console.warn(`Prevented duplicate card from being added: ${cardId}`);
@@ -57,13 +58,10 @@ export const pickupPile = async (
       return true;
     });
     
-    console.log(`Unique cards to add after deduplication: ${uniqueCardsToAdd.length}`);
+    console.log(`Unique cards to add: ${uniqueCardsToAdd.length} cards`);
     
-    // Create a completely new hand array with deep copies of all cards
-    const newHand = [
-      ...currentPlayer.hand.map(card => ({...card})),
-      ...uniqueCardsToAdd.map(card => ({...card}))
-    ];
+    // Create a complete new hand with deep copies of all cards
+    const newHand = [...existingHand, ...uniqueCardsToAdd];
     
     // Double-check for any duplicates that might have slipped through
     const finalHand = getUniqueCards(newHand);
@@ -71,10 +69,11 @@ export const pickupPile = async (
     console.log(`Final hand will have ${finalHand.length} cards`);
     
     // Calculate the next player turn
-    const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
+    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+    const nextPlayerIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    // CRITICAL: First update the database before local state
+    // CRITICAL: First update the database
     // 1. Update the player's hand in the database
     const { error: playerError } = await supabase
       .from('players')
@@ -107,18 +106,34 @@ export const pickupPile = async (
     
     // 3. Update local state AFTER database updates succeed
     
-    // Create a completely new players array to avoid any reference issues
+    // Create a completely new players array with new player objects to avoid reference issues
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
-        // Only update the current player's hand with the new cards
+        // Create a totally new player object with the updated hand
         return {
           ...player,
-          hand: finalHand
+          hand: finalHand // This is already a deep copy
         };
       }
-      // Important: Create a new reference but keep the same data for other players
-      return {...player};
+      // Create a new player object for all other players, but keep their data the same
+      return {
+        ...player,
+        hand: [...player.hand],
+        faceDownCards: [...player.faceDownCards],
+        faceUpCards: [...player.faceUpCards]
+      };
     });
+    
+    // Verify the game state integrity in development
+    if (process.env.NODE_ENV !== 'production') {
+      const allPlayerHands = updatedPlayers.map(p => p.hand);
+      const isValid = verifyGameCards(state.deck, [], allPlayerHands);
+      if (!isValid) {
+        console.error('Game state integrity check failed after pickup pile!');
+      } else {
+        console.log('Game state integrity verified after pickup pile');
+      }
+    }
     
     // Update the players in the local state
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
@@ -134,9 +149,10 @@ export const pickupPile = async (
     
     // Create detailed message about the pickup
     let message = `${currentPlayer.name} picked up ${uniqueCardsToAdd.length} card${uniqueCardsToAdd.length !== 1 ? 's' : ''}`;
+    const specialCardsCount = state.pile.length - pileToPickup.length;
     
     if (specialCardsCount > 0) {
-      message += `. ${specialCardsCount} special card${specialCardsCount > 1 ? 's were' : ' was'} removed from the game.`;
+      message += `. ${specialCardsCount} special card${specialCardsCount !== 1 ? 's were' : ' was'} removed from the game.`;
     }
     
     toast.info(message);

@@ -1,7 +1,8 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
-import { createDeck, cardToString } from '@/utils/gameUtils';
+import { createDeck, cardToString, verifyGameCards } from '@/utils/gameUtils';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 
@@ -21,52 +22,80 @@ export const startGame = async (
     const deck = createDeck();
     console.log('Created deck with', deck.length, 'cards');
     
+    // Use a Set to track which cards have been dealt
     const dealtCardIds = new Set<string>();
     
+    // Create objects to store player cards
     const hands: Record<string, CardValue[]> = {};
     const faceDownCards: Record<string, CardValue[]> = {};
     const updatedDeck = [...deck];
     
+    let cardsDealt = 0;
+    
+    // Deal cards to players
     for (const player of state.players) {
-      const faceDown = [];
+      // Deal 3 face down cards first
+      const faceDown: CardValue[] = [];
       for (let i = 0; i < 3; i++) {
         if (updatedDeck.length > 0) {
           const card = updatedDeck.pop()!;
           const cardId = cardToString(card);
           
+          // Extra check to prevent duplicates
           if (dealtCardIds.has(cardId)) {
-            console.error(`Duplicate card detected: ${cardId}`);
-            i--;
+            console.error(`Duplicate card detected during deal: ${cardId}`);
+            i--; // Try again
             continue;
           }
           
           dealtCardIds.add(cardId);
-          faceDown.push(card);
+          faceDown.push({...card}); // Create a new card object
+          cardsDealt++;
         }
       }
       faceDownCards[player.id] = faceDown;
       
-      const hand = [];
-      for (let i = 0; i < 6; i++) {
-        if (updatedDeck.length > 0) {
-          const card = updatedDeck.pop()!;
-          const cardId = cardToString(card);
-          
-          if (dealtCardIds.has(cardId)) {
-            console.error(`Duplicate card detected: ${cardId}`);
-            i--;
-            continue;
-          }
-          
-          dealtCardIds.add(cardId);
-          hand.push(card);
+      // Then deal 6 cards to hand
+      const hand: CardValue[] = [];
+      for (let i = 0; i < 6 && updatedDeck.length > 0; i++) {
+        const card = updatedDeck.pop()!;
+        const cardId = cardToString(card);
+        
+        // Extra check to prevent duplicates
+        if (dealtCardIds.has(cardId)) {
+          console.error(`Duplicate card detected during deal: ${cardId}`);
+          i--; // Try again
+          continue;
         }
+        
+        dealtCardIds.add(cardId);
+        hand.push({...card}); // Create a new card object
+        cardsDealt++;
       }
       hands[player.id] = hand;
       
       console.log(`Dealt ${faceDown.length} face down cards and ${hand.length} hand cards to player ${player.name}`);
     }
     
+    console.log(`Total cards dealt: ${cardsDealt}, remaining in deck: ${updatedDeck.length}`);
+    console.log(`Unique card IDs dealt: ${dealtCardIds.size}`);
+    
+    // Verify no duplicates across all areas
+    const allPlayerHands = Object.values(hands);
+    const allFaceDownCards = Object.values(faceDownCards);
+    const combinedPlayerCards = [...allPlayerHands, ...allFaceDownCards].flat();
+    const uniqueCardIdsAfterDeal = new Set(combinedPlayerCards.map(cardToString));
+    
+    console.log(`Unique cards after deal: ${uniqueCardIdsAfterDeal.size} out of ${combinedPlayerCards.length} total cards`);
+    
+    if (uniqueCardIdsAfterDeal.size !== combinedPlayerCards.length) {
+      console.error('CRITICAL: Duplicate cards detected after dealing!');
+      toast.error('Game setup error: duplicate cards detected');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
+    
+    // Update game in database
     const { error: gameError } = await supabase
       .from('games')
       .update({ 
@@ -77,11 +106,14 @@ export const startGame = async (
       
     if (gameError) {
       console.error('Error updating game:', gameError);
-      throw gameError;
+      toast.error('Failed to start game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
     }
     
     console.log('Updated game with setup_phase=true and deck');
     
+    // Update each player in database
     for (const player of state.players) {
       console.log(`Updating player ${player.name} with cards:`, {
         hand: hands[player.id],
@@ -101,10 +133,13 @@ export const startGame = async (
         
       if (playerError) {
         console.error('Error updating player:', playerError);
-        throw playerError;
+        toast.error('Failed to start game');
+        dispatch({ type: 'SET_LOADING', isLoading: false });
+        return;
       }
     }
     
+    // Update local state
     dispatch({ type: 'SET_GAME_STATE', gameState: { setupPhase: true } });
     dispatch({ type: 'DEAL_CARDS' });
     dispatch({ type: 'SET_LOADING', isLoading: false });
