@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,9 +11,10 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   // Transform gameId into middle-of-swear-words format for fun display
   const transformedGameId = transformGameId(gameId);
 
-  const handleCopyFunCode = () => {
-    navigator.clipboard.writeText(transformedGameId);
-    toast.success('Fun code copied to clipboard!');
+  const handleCopyGameLink = () => {
+    const inviteLink = `${window.location.origin}/join/${gameId}`;
+    navigator.clipboard.writeText(inviteLink);
+    toast.success('Game link copied to clipboard!');
   };
 
   return (
@@ -24,7 +26,7 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={handleCopyFunCode}
+            onClick={handleCopyGameLink}
             className="ml-2"
           >
             <Copy className="w-4 h-4" />
