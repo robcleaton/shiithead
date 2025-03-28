@@ -30,7 +30,7 @@ export const pickupPile = async (
       return;
     }
     
-    // Identify special cards that should be removed from the game
+    // Identify special cards that should be removed from the game (3, 10, 8)
     const specialCards = state.pile.filter(card => 
       card.rank === '3' || card.rank === '10' || card.rank === '8'
     );
@@ -40,15 +40,20 @@ export const pickupPile = async (
       card.rank !== '3' && card.rank !== '10' && card.rank !== '8'
     );
     
-    // Add regular cards to the player's hand
-    const updatedHand = [...currentPlayer.hand, ...cardsToAdd];
+    // Create deep copies to avoid reference issues
+    const updatedHand = JSON.parse(JSON.stringify([...currentPlayer.hand, ...cardsToAdd]));
     
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    // Important: Update database first to avoid any race conditions
-    // Update ONLY the current player's hand in the database
+    console.log(`Player ${currentPlayer.name} is picking up pile with ${state.pile.length} cards`);
+    console.log(`Regular cards to add: ${cardsToAdd.length}`);
+    console.log(`Special cards to remove: ${specialCards.length}`);
+    console.log(`Updated hand size will be: ${updatedHand.length}`);
+    
+    // CRITICAL FIX: First update the database before modifying local state
+    // 1. Update the player's hand
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })
@@ -62,7 +67,7 @@ export const pickupPile = async (
       return;
     }
     
-    // Update game state in the database (pile and current player)
+    // 2. Clear the pile and update next player in database
     const { error: gameError } = await supabase
       .from('games')
       .update({ 
@@ -78,8 +83,8 @@ export const pickupPile = async (
       return;
     }
     
-    // After database update is successful, update local state
-    // Create a new array with only the current player updated
+    // 3. ONLY after database is updated, update local state to match
+    // Updated players array with current player's new hand
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
         return {
@@ -93,7 +98,7 @@ export const pickupPile = async (
     // Update the players in the local state
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     
-    // Clear the pile and update next player in local state
+    // Clear the pile in local state
     dispatch({
       type: 'SET_GAME_STATE',
       gameState: {
@@ -103,17 +108,15 @@ export const pickupPile = async (
     });
     
     // Create more detailed message about the pickup
-    const countSpecialCards = specialCards.length;
-    const countRegularCards = cardsToAdd.length;
+    let message = `${currentPlayer.name} picked up ${cardsToAdd.length} card${cardsToAdd.length !== 1 ? 's' : ''}`;
     
-    let message = `${currentPlayer.name} picked up the pile (${countRegularCards} cards)`;
-    
-    if (countSpecialCards > 0) {
-      message += `. ${countSpecialCards} special card${countSpecialCards > 1 ? 's were' : ' was'} removed from the game.`;
+    if (specialCards.length > 0) {
+      message += `. ${specialCards.length} special card${specialCards.length > 1 ? 's were' : ' was'} removed from the game.`;
     }
     
     toast.info(message);
     dispatch({ type: 'SET_LOADING', isLoading: false });
+    
   } catch (error) {
     console.error('Error picking up pile:', error);
     toast.error('Failed to pick up pile');
