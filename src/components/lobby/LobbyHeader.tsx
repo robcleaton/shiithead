@@ -35,30 +35,26 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   );
 };
 
-// Function to transform gameId into middle-of-swear-words format
+// Function to transform gameId into a shortened format with fewer swear words
 const transformGameId = (gameId: string): string => {
   if (!gameId) return '';
   
-  // List of uncensored swear words and slang to use for the middle-of-words format
+  // Reduced list of uncensored swear words and slang (shorter list)
   const words = [
-    'shit', 'fuck', 'ass', 'bitch', 'damn', 
-    'crap', 'piss', 'twat', 'wanker', 'bollocks',
-    'jerk', 'dick', 'asshole', 'bastard', 'shithead',
-    'fucker', 'asshat', 'douche', 'prick', 'shitbag',
-    'fuckface', 'asswipe', 'dickhead', 'cunt', 'bullshit'
+    'fuck', 'shit', 'cunt', 'dick', 'ass'
   ];
   
-  // Use the gameId characters to select words
+  // Group gameId characters in pairs when possible
   let result = '';
-  for (let i = 0; i < gameId.length; i++) {
-    const char = gameId[i];
-    const charCode = char.charCodeAt(0);
+  for (let i = 0; i < gameId.length; i += 2) {
+    const chars = gameId.slice(i, i + 2);
+    const charCode = chars.charCodeAt(0);
     const wordIndex = charCode % words.length;
     const word = words[wordIndex];
     
-    // Insert the character in the middle of the word
+    // Insert the character(s) in the middle of the word
     const middle = Math.floor(word.length / 2);
-    const transformedWord = word.slice(0, middle) + char + word.slice(middle);
+    const transformedWord = word.slice(0, middle) + chars + word.slice(middle);
     
     result += (i > 0 ? '-' : '') + transformedWord;
   }
