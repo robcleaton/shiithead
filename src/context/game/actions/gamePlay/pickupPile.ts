@@ -40,8 +40,11 @@ export const pickupPile = async (
       card.rank !== '3' && card.rank !== '10' && card.rank !== '8'
     );
     
-    // Create deep copies to avoid reference issues
-    const updatedHand = JSON.parse(JSON.stringify([...currentPlayer.hand, ...cardsToAdd]));
+    // Make a deep copy of the hand and cards to add to prevent reference issues
+    const updatedHand = [...currentPlayer.hand];
+    cardsToAdd.forEach(card => {
+      updatedHand.push({...card}); // Add a copy of each card
+    });
     
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
@@ -52,7 +55,7 @@ export const pickupPile = async (
     console.log(`Special cards to remove: ${specialCards.length}`);
     console.log(`Updated hand size will be: ${updatedHand.length}`);
     
-    // CRITICAL FIX: First update the database before modifying local state
+    // CRITICAL: First update the database before modifying local state
     // 1. Update the player's hand
     const { error: playerError } = await supabase
       .from('players')
@@ -83,16 +86,18 @@ export const pickupPile = async (
       return;
     }
     
-    // 3. ONLY after database is updated, update local state to match
-    // Updated players array with current player's new hand
+    // 3. Update local state ONLY AFTER database updates succeed
+    // Create a new players array with only the current player's hand updated
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
+        // Only update the current player's hand
         return {
           ...player,
-          hand: updatedHand
+          hand: updatedHand 
         };
       }
-      return player; // Return all other players unchanged
+      // Important: Return other players exactly as they are
+      return {...player}; 
     });
     
     // Update the players in the local state
