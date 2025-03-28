@@ -50,14 +50,15 @@ export const pickupPile = async (
       return player; // Return all other players unchanged
     });
     
-    // Update the players in the local state
-    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
-    
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    // Clear the pile in local state
+    // First update the local state directly
+    // Update the players in the local state
+    dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+    
+    // Clear the pile and update next player in local state
     dispatch({
       type: 'SET_GAME_STATE',
       gameState: {
@@ -67,6 +68,7 @@ export const pickupPile = async (
     });
     
     // Update the database - important to do this AFTER updating local state
+    // Update ONLY the current player's hand in the database
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })
@@ -80,6 +82,7 @@ export const pickupPile = async (
       return;
     }
     
+    // Update game state in the database (pile and current player)
     const { error: gameError } = await supabase
       .from('games')
       .update({ 
