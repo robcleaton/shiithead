@@ -64,17 +64,21 @@ export const determineNextPlayer = (
   shouldGetAnotherTurn: boolean,
   wasEmptyPile: boolean = false
 ): string => {
-  // If a 3 was played on an empty pile, skip the next player's turn
-  const isThreePlayed = cardsToPlay.some(card => card.rank === '3');
-  
+  // If a player gets another turn (due to burn or playing a 2)
   if (shouldGetAnotherTurn || cardsToPlay.some(card => card.rank === '2')) {
     return state.currentPlayerId || player.id;
   }
   
   const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+  const isThreePlayed = cardsToPlay.some(card => card.rank === '3');
   
-  // If a 3 was played on an empty pile, skip one player
-  if (isThreePlayed && wasEmptyPile) {
+  // If a 3 was played on an empty pile and it's 2 players, the current player plays again
+  if (isThreePlayed && wasEmptyPile && state.players.length === 2) {
+    return state.currentPlayerId || player.id;
+  }
+  
+  // If a 3 was played on an empty pile, skip one player (with more than 2 players)
+  if (isThreePlayed && wasEmptyPile && state.players.length > 2) {
     const skipIndex = (currentPlayerIndex + 2) % state.players.length;
     return state.players[skipIndex].id;
   }
@@ -104,7 +108,11 @@ export const generateCardPlayMessage = (
     return `${playerName} played a 2 - they get another turn!`;
   } else if (rank === '3') {
     if (wasEmptyPile) {
-      return `${playerName} played a 3 on an empty pile - next player's turn is skipped!`;
+      if (cardsToPlay.length <= 2) {
+        return `${playerName} played a 3 on an empty pile - next player's turn is skipped!`;
+      } else {
+        return `${playerName} played a 3 on an empty pile - pile is emptied and gets another turn!`;
+      }
     }
     return `${playerName} played a 3 - next player must pick up the pile or play a 3!`;
   } else if (rank === '7') {

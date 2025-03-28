@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Player } from '@/types/game';
@@ -21,12 +20,28 @@ export const updateGameState = async (
 ): Promise<void> => {
   // Check if pile was empty before adding card
   const wasEmptyPile = state.pile.length === 0;
+  const isThreePlayed = cardToPlay.rank === '3';
+  const isTwoPlayerGame = state.players.length === 2;
   
-  // First, add the card to the pile before processing burn conditions
-  let newPile = [...state.pile, cardToPlay];
+  // Handle the special case: if it's a 3 on an empty pile in a 2-player game
+  let newPile = [...state.pile];
+  if (isThreePlayed && wasEmptyPile && isTwoPlayerGame) {
+    // In a 2-player game, playing a 3 on an empty pile burns the pile and allows playing any card
+    // We don't add the 3 to the pile, it effectively burns the pile
+    toast.info("3 played on empty pile in 2-player game - pile is emptied!");
+  } else {
+    // Normal case - add the card to the pile
+    newPile = [...state.pile, cardToPlay];
+  }
   
   // Process burn conditions
   const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, [cardToPlay], newPile);
+  
+  // For a 3 on empty pile in 2-player game, force an empty pile regardless of burn condition
+  if (isThreePlayed && wasEmptyPile && isTwoPlayerGame) {
+    // Ensure pile is empty
+    newPile = [];
+  }
   
   // Determine next player
   const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn, wasEmptyPile);
@@ -89,7 +104,7 @@ export const updateGameState = async (
   dispatch({
     type: 'SET_GAME_STATE',
     gameState: {
-      pile: updatedPile,
+      pile: isThreePlayed && wasEmptyPile && isTwoPlayerGame ? [] : updatedPile,
       deck: updatedDeck,
       currentPlayerId: nextPlayerId
     }
@@ -123,11 +138,11 @@ export const updateGameState = async (
     if (playerError) throw playerError;
   }
   
-  // Update game state
+  // Update game state - use the final pile state for 3 on empty pile in 2-player game
   const { error: gameError } = await supabase
     .from('games')
     .update({ 
-      pile: updatedPile,
+      pile: isThreePlayed && wasEmptyPile && isTwoPlayerGame ? [] : updatedPile,
       current_player_id: nextPlayerId,
       ended: gameOver,
       deck: updatedDeck
@@ -143,7 +158,11 @@ export const updateGameState = async (
     toast.success(`${player.name} played a 2 - they get another turn!`);
   } else if (cardToPlay.rank === '3') {
     if (wasEmptyPile) {
-      toast.success(`${player.name} played a 3 on an empty pile - next player's turn is skipped!`);
+      if (isTwoPlayerGame) {
+        toast.success(`${player.name} played a 3 on an empty pile - pile is emptied and ${player.name} gets another turn!`);
+      } else {
+        toast.success(`${player.name} played a 3 on an empty pile - next player's turn is skipped!`);
+      }
     } else {
       toast.success(`${player.name} played a 3 - next player must pick up the pile or play a 3!`);
     }
