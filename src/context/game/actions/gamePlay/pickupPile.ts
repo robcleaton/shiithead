@@ -40,7 +40,6 @@ export const pickupPile = async (
     const updatedHand = [...currentPlayer.hand, ...pileWithoutThrees];
     
     // Create a new array of players with the currentPlayer having an updated hand
-    // This ensures we only update the current player's hand and not any other players
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
         return {
@@ -54,7 +53,7 @@ export const pickupPile = async (
     // Update the players in the local state
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     
-    // Update the pile and next player in the local state
+    // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
@@ -67,7 +66,7 @@ export const pickupPile = async (
       }
     });
     
-    // Now update the database - important to do this AFTER updating local state
+    // Update the database - important to do this AFTER updating local state
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })
