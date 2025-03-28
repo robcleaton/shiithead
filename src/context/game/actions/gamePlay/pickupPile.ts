@@ -30,20 +30,18 @@ export const pickupPile = async (
       return;
     }
     
-    // Check how many special cards are in the pile that should not be picked up
-    const specialCards = {
-      threes: state.pile.filter(card => card.rank === '3'),
-      tens: state.pile.filter(card => card.rank === '10'),
-      eights: state.pile.filter(card => card.rank === '8')
-    };
+    // Identify special cards that should be removed from the game
+    const specialCards = state.pile.filter(card => 
+      card.rank === '3' || card.rank === '10' || card.rank === '8'
+    );
     
-    // Filter out special cards from the pile - we don't add these to the player's hand
-    const pileWithoutSpecialCards = state.pile.filter(card => 
+    // Find all regular cards that should be added to the player's hand
+    const cardsToAdd = state.pile.filter(card => 
       card.rank !== '3' && card.rank !== '10' && card.rank !== '8'
     );
     
-    // Add remaining cards to the player's hand
-    const updatedHand = [...currentPlayer.hand, ...pileWithoutSpecialCards];
+    // Add regular cards to the player's hand
+    const updatedHand = [...currentPlayer.hand, ...cardsToAdd];
     
     // Calculate the next player turn
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
@@ -106,27 +104,13 @@ export const pickupPile = async (
     });
     
     // Create more detailed message about the pickup
-    let specialCardsMessage = [];
+    const countSpecialCards = specialCards.length;
+    const countRegularCards = cardsToAdd.length;
     
-    if (specialCards.threes.length > 0) {
-      specialCardsMessage.push(`${specialCards.threes.length} three${specialCards.threes.length > 1 ? 's' : ''}`);
-    }
-    if (specialCards.tens.length > 0) {
-      specialCardsMessage.push(`${specialCards.tens.length} ten${specialCards.tens.length > 1 ? 's' : ''}`);
-    }
-    if (specialCards.eights.length > 0) {
-      specialCardsMessage.push(`${specialCards.eights.length} eight${specialCards.eights.length > 1 ? 's' : ''}`);
-    }
+    let message = `${currentPlayer.name} picked up the pile (${countRegularCards} cards)`;
     
-    let message = `${currentPlayer.name} picked up the pile (${pileWithoutSpecialCards.length} cards)`;
-    
-    if (specialCardsMessage.length > 0) {
-      const lastSpecialCard = specialCardsMessage.pop();
-      const specialCardsText = specialCardsMessage.length 
-        ? specialCardsMessage.join(', ') + ' and ' + lastSpecialCard 
-        : lastSpecialCard;
-      
-      message += `. ${specialCardsText} ${specialCardsMessage.length > 0 || specialCards.threes.length + specialCards.tens.length + specialCards.eights.length > 1 ? 'were' : 'was'} removed from the game.`;
+    if (countSpecialCards > 0) {
+      message += `. ${countSpecialCards} special card${countSpecialCards > 1 ? 's were' : ' was'} removed from the game.`;
     }
     
     toast.info(message);
