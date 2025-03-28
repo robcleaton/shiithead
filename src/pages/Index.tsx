@@ -80,7 +80,7 @@ const Index = () => {
         </motion.div>
       </footer>
       
-      {state.gameId && <CursorTracker />}
+      <CursorTracker label="Let's play" />
     </div>
   );
 };

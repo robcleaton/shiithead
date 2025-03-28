@@ -13,7 +13,11 @@ type CursorPosition = {
   color: string;
 };
 
-const CursorTracker = () => {
+interface CursorTrackerProps {
+  label?: string;
+}
+
+const CursorTracker = ({ label }: CursorTrackerProps = {}) => {
   const { state } = useGame();
   const [cursors, setCursors] = useState<Record<string, CursorPosition>>({});
   
@@ -31,7 +35,7 @@ const CursorTracker = () => {
   };
 
   useEffect(() => {
-    if (!state.gameId || !state.playerId) return;
+    if (!state.gameId && !label) return;
     
     // Don't track or show cursors during setup phase
     if (state.setupPhase) {
@@ -39,20 +43,22 @@ const CursorTracker = () => {
       return;
     }
 
-    const playerColor = getPlayerColor(state.playerId);
+    const playerColor = getPlayerColor(state.playerId || 'visitor');
+    const displayName = label || state.currentPlayerName || 'You';
     
     // Track mouse movement
     const handleMouseMove = (e: MouseEvent) => {
       const position = {
         x: e.clientX,
         y: e.clientY,
-        playerId: state.playerId,
-        playerName: state.currentPlayerName || 'You',
+        playerId: state.playerId || 'visitor',
+        playerName: displayName,
         color: playerColor
       };
       
       // Broadcast cursor position to other players
-      const channel = supabase.channel(`cursor:${state.gameId}`);
+      const channelId = state.gameId ? `cursor:${state.gameId}` : 'cursor:home';
+      const channel = supabase.channel(channelId);
       channel.send({
         type: 'broadcast',
         event: 'cursor-move',
@@ -74,11 +80,12 @@ const CursorTracker = () => {
     window.addEventListener('mousemove', throttledMouseMove);
 
     // Subscribe to cursor movements from other players
-    const channel = supabase.channel(`cursor:${state.gameId}`);
+    const channelId = state.gameId ? `cursor:${state.gameId}` : 'cursor:home';
+    const channel = supabase.channel(channelId);
     
     channel
       .on('broadcast', { event: 'cursor-move' }, ({ payload }) => {
-        if (payload.playerId === state.playerId) return; // Ignore our own cursor
+        if (payload.playerId === (state.playerId || 'visitor')) return; // Ignore our own cursor
         
         setCursors(prev => ({
           ...prev,
@@ -94,7 +101,7 @@ const CursorTracker = () => {
       }
       supabase.removeChannel(channel);
     };
-  }, [state.gameId, state.playerId, state.currentPlayerName, state.setupPhase]);
+  }, [state.gameId, state.playerId, state.currentPlayerName, state.setupPhase, label]);
 
   // Don't render any cursors if we're in setup phase
   if (state.setupPhase) return null;
