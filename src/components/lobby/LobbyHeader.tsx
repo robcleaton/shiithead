@@ -20,19 +20,19 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   return (
     <div className="space-y-3">
       <div className="bg-karma-secondary/50 p-4 rounded-lg">
-        <p className="text-sm text-karma-foreground/70 mb-2">Game ID (Share with friends)</p>
-        <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
-          <span className="truncate">{gameId}</span>
+        <p className="text-sm text-karma-foreground/70 mb-2">Share with friends</p>
+        <div className="flex items-center justify-between">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
             onClick={handleCopyInviteLink}
-            className="ml-2"
+            className="w-full"
           >
-            <Copy className="w-4 h-4" />
+            Copy Invite Link
+            <Copy className="w-4 h-4 ml-2" />
           </Button>
         </div>
-        <p className="text-xs text-karma-foreground/60 mt-2">Use this ID when joining the game</p>
+        <p className="text-xs text-karma-foreground/60 mt-2">Friends can use this link to join your game</p>
       </div>
       
       <div className="bg-karma-secondary/50 p-4 rounded-lg">
