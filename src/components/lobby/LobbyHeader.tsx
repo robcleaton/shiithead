@@ -39,13 +39,13 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
 const transformGameId = (gameId: string): string => {
   if (!gameId) return '';
   
-  // List of censored swear words to use for the middle-of-words format
+  // List of uncensored swear words and slang to use for the middle-of-words format
   const words = [
-    'sh*t', 'f*ck', 'a*s', 'b*tch', 'd*mn', 
-    'cr*p', 'p*ss', 'tw*t', 'w*nker', 'b*llocks',
-    'j*rk', 'd*ck', 'a**hole', 'b*stard', 'sh*thead',
-    'f*cker', 'a**hat', 'douch*', 'pr*ck', 'sh*tbag',
-    'f*ckface', 'a**wipe', 'd*ckhead', 'c*nt', 'b*llsh*t'
+    'shit', 'fuck', 'ass', 'bitch', 'damn', 
+    'crap', 'piss', 'twat', 'wanker', 'bollocks',
+    'jerk', 'dick', 'asshole', 'bastard', 'shithead',
+    'fucker', 'asshat', 'douche', 'prick', 'shitbag',
+    'fuckface', 'asswipe', 'dickhead', 'cunt', 'bullshit'
   ];
   
   // Use the gameId characters to select words
