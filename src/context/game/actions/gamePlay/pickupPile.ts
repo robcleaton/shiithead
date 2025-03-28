@@ -52,6 +52,7 @@ export const pickupPile = async (
     const nextPlayerIndex = (state.players.findIndex(p => p.id === state.currentPlayerId) + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
+    // Clear the pile in local state
     dispatch({
       type: 'SET_GAME_STATE',
       gameState: {
@@ -60,7 +61,7 @@ export const pickupPile = async (
       }
     });
     
-    // Now update the database
+    // Now update the database - important to do this AFTER updating local state
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })

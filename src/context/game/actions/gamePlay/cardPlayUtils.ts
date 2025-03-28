@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Player } from '@/types/game';
@@ -106,7 +107,7 @@ export const updateGameState = async (
   }
   
   // Special case for 3 on empty pile in 2-player game: show the 3 briefly, then clear the pile
-  const finalPile = emptyPileSpecialCase ? [] : updatedPile;
+  let finalPile = emptyPileSpecialCase ? [] : updatedPile;
   
   // Update game state in local state
   dispatch({
