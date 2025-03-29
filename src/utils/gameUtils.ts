@@ -92,13 +92,23 @@ export const getUniqueCards = (cards: CardValue[]): CardValue[] => {
   cards.forEach(card => {
     const cardId = cardToString(card);
     if (!uniqueCards[cardId]) {
-      uniqueCards[cardId] = {...card};
+      uniqueCards[cardId] = copyCard(card); // Use copyCard to ensure no reference issues
     } else {
       console.warn(`Removed duplicate card: ${cardId}`);
     }
   });
   
   return Object.values(uniqueCards);
+};
+
+// Create a brand new copy of a card to prevent reference issues
+export const copyCard = (card: CardValue): CardValue => {
+  return { suit: card.suit, rank: card.rank };
+};
+
+// Create a brand new copy of an array of cards
+export const copyCards = (cards: CardValue[]): CardValue[] => {
+  return cards.map(copyCard);
 };
 
 // Verify the integrity of all cards in the game
@@ -143,14 +153,4 @@ export const verifyGameCards = (
   }
   
   return true;
-};
-
-// Create a brand new copy of a card to prevent reference issues
-export const copyCard = (card: CardValue): CardValue => {
-  return { suit: card.suit, rank: card.rank };
-};
-
-// Create a brand new copy of an array of cards
-export const copyCards = (cards: CardValue[]): CardValue[] => {
-  return cards.map(copyCard);
 };

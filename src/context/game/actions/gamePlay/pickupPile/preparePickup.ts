@@ -17,10 +17,10 @@ export const preparePickup = (
   
   console.log(`Pile to pickup: ${pileToPickup.length} cards after filtering special cards`);
   
-  // Track all existing card IDs to avoid duplicates
+  // Create a set of existing card IDs to check for duplicates
   const existingCardIds = new Set(existingHand.map(cardToString));
   
-  // Filter cards in the pile that are already in the player's hand
+  // Filter out cards that are already in the player's hand
   const uniqueCardsToAdd = pileToPickup.filter(card => {
     const cardId = cardToString(card);
     if (existingCardIds.has(cardId)) {
@@ -33,13 +33,13 @@ export const preparePickup = (
   
   console.log(`Unique cards to add: ${uniqueCardsToAdd.length} cards`);
   
-  // Create a complete new hand with deep copies of all cards
-  const newHand = [...existingHand, ...uniqueCardsToAdd];
+  // Create a final hand with deep copies of all cards
+  const newHandCards = [...existingHand.map(copyCard), ...uniqueCardsToAdd.map(copyCard)];
   
-  // Double-check for any duplicates that might have slipped through
-  const finalHand = getUniqueCards(newHand);
+  // Double-check for any duplicates in the new hand
+  const finalHand = getUniqueCards(newHandCards);
   
-  console.log(`Final hand will have ${finalHand.length} cards`);
+  console.log(`Final hand will have ${finalHand.length} cards after deduplication`);
   
   return { finalHand, uniqueCardsToAdd, pileToPickup };
 };

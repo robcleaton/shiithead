@@ -22,7 +22,7 @@ export const pickupPile = async (
     
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
-    // Get a completely fresh copy of the current player
+    // Get the current player 
     const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
     if (playerIndex === -1) {
       console.error('Current player not found');
@@ -45,11 +45,17 @@ export const pickupPile = async (
     const nextPlayerIndex = (playerIndex + 1) % state.players.length;
     const nextPlayerId = state.players[nextPlayerIndex].id;
     
-    // CRITICAL: First update the database
+    // First update the database
     await updateDatabase(currentPlayer.id, state.gameId || '', finalHand, nextPlayerId);
     
-    // Update the local state
-    updateLocalState(dispatch, state.players, currentPlayer.id, finalHand, nextPlayerId);
+    // Update the local state with care to avoid modifying other players' cards
+    updateLocalState(
+      dispatch,
+      state.players,
+      currentPlayer.id,
+      finalHand,
+      nextPlayerId
+    );
     
     // Create detailed message about the pickup
     const specialCardsCount = state.pile.length - pileToPickup.length;
