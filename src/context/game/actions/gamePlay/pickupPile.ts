@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
@@ -34,7 +35,7 @@ export const pickupPile = async (
     const currentPlayer = state.players[playerIndex];
     console.log(`Player ${currentPlayer.name} is picking up pile with ${state.pile.length} cards`);
     
-    // Make a deep copy of the player's current hand
+    // Make a deep copy of the player's current hand using our utility
     const existingHand = copyCards(currentPlayer.hand);
     console.log(`Existing hand has ${existingHand.length} cards`);
     
@@ -104,33 +105,30 @@ export const pickupPile = async (
       return;
     }
     
-    // 3. Wait for the database updates to be processed before updating local state
-    // This is crucial to prevent race conditions with Supabase realtime subscriptions
-
-    // We'll update the local state immediately for better UX, but we need to be careful
-    // to create brand new object references so React state updates properly
+    // IMPORTANT: Now we need to handle the local state update carefully to prevent
+    // any React state reference issues that could cause cards to be duplicated
     
-    // Create brand new player objects with new references to avoid state mutation issues
+    // Create completely new player objects with new references to avoid state mutation issues
     const updatedPlayers = state.players.map(player => {
       if (player.id === currentPlayer.id) {
-        // For the current player, update their hand with the finalHand
+        // For the current player, make a completely new player object with a new hand array
         return {
           ...player,
           hand: [...finalHand] // Create a new array to ensure React detects the change
         };
       } else {
-        // For other players, create a new reference but keep the same data
-        // This prevents React from thinking other players have changed
+        // For other players, create completely new player objects with their existing data
+        // This is crucial to ensure React properly detects state changes and doesn't mix up references
         return {
           ...player,
-          hand: [...player.hand], 
-          faceUpCards: [...player.faceUpCards],
-          faceDownCards: [...player.faceDownCards]
+          hand: player.hand.map(card => ({ ...card })), // Deep copy each card
+          faceUpCards: player.faceUpCards.map(card => ({ ...card })), // Deep copy each card
+          faceDownCards: player.faceDownCards.map(card => ({ ...card })) // Deep copy each card
         };
       }
     });
     
-    // Verify the game state integrity in development
+    // Verify game state integrity in development
     if (process.env.NODE_ENV !== 'production') {
       const allPlayerHands = updatedPlayers.map(p => p.hand);
       const isValid = verifyGameCards(state.deck, [], allPlayerHands);
@@ -141,10 +139,11 @@ export const pickupPile = async (
       }
     }
     
-    // Update the players in the local state
+    // First dispatch the updated players - this should be done before updating the pile
+    // to ensure the state updates are properly sequenced
     dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
     
-    // Clear the pile in local state and update current player
+    // Then clear the pile in local state and update current player
     dispatch({
       type: 'SET_GAME_STATE',
       gameState: {
