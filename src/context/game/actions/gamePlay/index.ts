@@ -9,3 +9,8 @@ export { playFaceUpCard } from './playFaceUpCard';
 export { playHandCards } from './playHandCards';
 export { updateGameState } from './gameStateUpdater';
 export { validateCardPlay } from './cardPlayValidator';
+export { 
+  updateLocalState,
+  updateDatabase,
+  displayMessages
+} from './gameState';
