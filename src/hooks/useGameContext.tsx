@@ -15,7 +15,7 @@ import {
   drawCard,
   pickupPile,
   handleAIPlayerTurn
-} from '@/context/game/actions/gamePlayActions';
+} from '@/context/game/actions/gamePlay';
 
 import {
   selectFaceUpCard,
