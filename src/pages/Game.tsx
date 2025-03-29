@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useGame from '@/hooks/useGame';
 import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
@@ -11,20 +10,10 @@ import GameSetup from '@/components/game/GameSetup';
 import GameOver from '@/components/game/GameOver';
 import ActiveGame from '@/components/game/ActiveGame';
 import CursorTracker from '@/components/CursorTracker';
-import { hasSavedGameSession } from '@/utils/sessionStorage';
 
 const Game = () => {
   const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // Redirect to home page if no game is active and no saved session
-  useEffect(() => {
-    if (!state.isLoading && !state.gameId && !hasSavedGameSession()) {
-      console.log('No active game or saved session, redirecting to home page');
-      navigate('/');
-    }
-  }, [state.isLoading, state.gameId, navigate]);
 
   useEffect(() => {
     console.log('Game component rendered. Game started:', state.gameStarted);

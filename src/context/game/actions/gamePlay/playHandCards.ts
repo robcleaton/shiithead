@@ -80,35 +80,29 @@ export const playHandCards = async (
     }
   });
   
-  // Check if the pile was empty before adding the card
-  const wasEmptyPile = state.pile.length === 0;
-  const isThreePlayed = cardsToPlay.some(card => card.rank === '3');
-  const isTwoPlayerGame = state.players.length === 2;
+  // Update player's hand in the database
+  const { error: playerError } = await supabase
+    .from('players')
+    .update({ 
+      hand: finalHand,
+      face_up_cards: updatedFaceUpCards,
+      face_down_cards: updatedFaceDownCards
+    })
+    .eq('id', player.id)
+    .eq('game_id', state.gameId);
+    
+  if (playerError) throw playerError;
   
-  // Special handling for 3 on empty pile in 2-player game
-  let newPile = [...state.pile, ...cardsToPlay];
-  let updatedPile;
-  let shouldGetAnotherTurn = false;
-  let burnMessage = null;
-  let cardsBurned = false;
+  // First add cards to the pile then process burn conditions
+  const newPile = [...state.pile, ...cardsToPlay];
   
-  if (isThreePlayed && wasEmptyPile && isTwoPlayerGame) {
-    // In a 2-player game, playing a 3 on an empty pile empties the pile and gives another turn
-    updatedPile = [];
-    shouldGetAnotherTurn = true;
-  } else {
-    // Process burn conditions and update the pile for normal cases
-    const burnResult = processBurnConditions(state, cardsToPlay, newPile);
-    updatedPile = burnResult.updatedPile;
-    shouldGetAnotherTurn = burnResult.shouldGetAnotherTurn;
-    burnMessage = burnResult.burnMessage;
-    cardsBurned = burnResult.cardsBurned;
-  }
+  // Process burn conditions and update the pile
+  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, cardsToPlay, newPile);
   
   // Determine the next player
-  const nextPlayerId = determineNextPlayer(state, player, cardsToPlay, shouldGetAnotherTurn, wasEmptyPile);
+  const nextPlayerId = determineNextPlayer(state, player, cardsToPlay, shouldGetAnotherTurn);
   
-  // Update pile in local state with the final pile state
+  // Update pile in local state
   dispatch({
     type: 'SET_GAME_STATE',
     gameState: {
@@ -134,7 +128,7 @@ export const playHandCards = async (
   if (gameError) throw gameError;
   
   // Display card play message
-  toast.success(generateCardPlayMessage(player.name, cardsToPlay, burnMessage, wasEmptyPile));
+  toast.success(generateCardPlayMessage(player.name, cardsToPlay, burnMessage));
   
   // Display game status message
   if (statusMessage) {
