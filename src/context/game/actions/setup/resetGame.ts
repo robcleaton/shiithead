@@ -1,54 +1,67 @@
 
+import { Dispatch } from 'react';
+import { GameState, GameAction } from '@/types/game';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState } from '@/types/game';
-import { Dispatch } from 'react';
-import { GameAction } from '@/types/game';
+import { clearGameSession } from '@/utils/sessionStorage';
 
-export const resetGame = async (
-  dispatch: Dispatch<GameAction>,
-  state: GameState
-) => {
+export const resetGame = async (dispatch: Dispatch<GameAction>, state: GameState) => {
+  if (!state.gameId) {
+    toast.error("No active game to reset");
+    return;
+  }
+  
   try {
-    if (!state.gameId) return;
+    console.log('Resetting game:', state.gameId);
     
-    dispatch({ type: 'SET_LOADING', isLoading: true });
+    // Clear session data
+    clearGameSession();
     
-    const { error: gameError } = await supabase
-      .from('games')
-      .update({ 
-        started: false,
-        ended: false,
-        setup_phase: false,
-        deck: [],
-        pile: [],
-        current_player_id: null
-      })
-      .eq('id', state.gameId);
+    // Reset local state first for immediate feedback
+    dispatch({ type: 'RESET_GAME' });
+    
+    // Only update database if user is host
+    if (state.isHost) {
+      // Reset game in database
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({
+          deck: [],
+          pile: [],
+          started: false,
+          setup_phase: false,
+          current_player_id: null,
+          ended: false
+        })
+        .eq('id', state.gameId);
+        
+      if (gameError) {
+        console.error('Error resetting game:', gameError);
+        toast.error('Error resetting game');
+        return;
+      }
       
-    if (gameError) throw gameError;
-    
-    for (const player of state.players) {
-      const { error: playerError } = await supabase
+      // Reset all players in the game
+      const { error: playersError } = await supabase
         .from('players')
-        .update({ 
+        .update({
           hand: [],
           face_down_cards: [],
           face_up_cards: [],
           is_ready: false
         })
-        .eq('id', player.id)
         .eq('game_id', state.gameId);
         
-      if (playerError) throw playerError;
+      if (playersError) {
+        console.error('Error resetting players:', playersError);
+        toast.error('Error resetting players');
+        return;
+      }
+      
+      toast.success('Game has been reset');
     }
-    
-    dispatch({ type: 'RESET_GAME' });
-    dispatch({ type: 'SET_LOADING', isLoading: false });
-    toast.success('Game has been reset');
   } catch (error) {
-    console.error('Error resetting game:', error);
+    console.error('Error in resetGame:', error);
     toast.error('Failed to reset game');
-    dispatch({ type: 'SET_LOADING', isLoading: false });
   }
 };

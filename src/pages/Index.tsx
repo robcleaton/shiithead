@@ -1,15 +1,18 @@
+
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
 import useGame from '@/hooks/useGame';
 import CursorTracker from '@/components/CursorTracker';
+import { hasSavedGameSession } from '@/utils/sessionStorage';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
   const { gameId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { joinGame, state } = useGame();
 
   useEffect(() => {
@@ -18,6 +21,14 @@ const Index = () => {
       console.log(`Detected join URL with gameId: ${gameId}`);
     }
   }, [gameId, location]);
+
+  // Check for saved session and navigate to game if found
+  useEffect(() => {
+    if (hasSavedGameSession() && state.gameId) {
+      console.log('Found saved game session, redirecting to game page');
+      navigate('/game');
+    }
+  }, [navigate, state.gameId]);
 
   return (
     <div className="flex flex-col">
