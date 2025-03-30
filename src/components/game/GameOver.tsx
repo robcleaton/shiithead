@@ -3,6 +3,7 @@ import { Player } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useGame } from '@/hooks/useGame';
 
 interface GameOverProps {
   players: Player[];
@@ -10,11 +11,21 @@ interface GameOverProps {
 }
 
 const GameOver = ({ players, resetGame }: GameOverProps) => {
+  const { state } = useGame();
   const winner = players.find(p => p.hand.length === 0 && p.faceUpCards.length === 0 && p.faceDownCards.length === 0);
+  const currentPlayer = players.find(p => p.id === state.playerId);
+  
+  // Determine if current player is the winner
+  const isWinner = winner && currentPlayer && winner.id === currentPlayer.id;
+  
+  // Set colors based on win/loss status
+  const gradientColors = isWinner 
+    ? "from-green-400 to-green-600"  // Winner gets green
+    : "from-red-400 to-red-600";     // Loser gets red
   
   return (
     <motion.div 
-      className="fixed inset-0 min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600"
+      className={`fixed inset-0 min-h-screen flex items-center justify-center bg-gradient-to-br ${gradientColors}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -45,13 +56,24 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
         </motion.div>
         
         <motion.div
+          className="my-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+        >
+          <p className="text-lg">
+            {isWinner ? "Congratulations, you won!" : "Better luck next time!"}
+          </p>
+        </motion.div>
+        
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
           <Button 
             onClick={resetGame}
-            className="w-full bg-karma-primary hover:bg-karma-primary/90 mt-4"
+            className={`w-full ${isWinner ? "bg-karma-primary hover:bg-karma-primary/90" : "bg-red-500 hover:bg-red-600"} mt-4`}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Play Again
