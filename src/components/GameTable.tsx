@@ -163,7 +163,7 @@ const GameTable: React.FC<GameTableProps> = ({
                     {isEightOnTop && cardBelowEight && (
                       <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 z-10">
                         <span className="text-xs bg-blue-500 text-white rounded-full px-2 py-0.5 font-medium border border-blue-600/20">
-                          Play on {cardBelowEight.rank} of {cardBelowEight.suit}
+                          Playing on {cardBelowEight.rank}
                         </span>
                       </div>
                     )}
