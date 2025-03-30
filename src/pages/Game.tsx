@@ -83,6 +83,7 @@ const Game = () => {
             playCard={playCard}
             resetGame={resetGame}
             onOpenRules={() => setRulesOpen(true)}
+            isLoading={state.isLoading}
           />
           <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
           <CursorTracker hideUserCursor={true} />

@@ -18,6 +18,7 @@ interface ActiveGameProps {
   playCard: (cardIndex: number | number[]) => void;
   resetGame: () => void;
   onOpenRules: () => void;
+  isLoading?: boolean;
 }
 
 const ActiveGame = ({
@@ -29,7 +30,8 @@ const ActiveGame = ({
   drawCard,
   playCard,
   resetGame,
-  onOpenRules
+  onOpenRules,
+  isLoading = false
 }: ActiveGameProps) => {
   const { pickupPile } = useGame();
   const currentPlayer = players.find(p => p.id === currentPlayerId);
@@ -71,6 +73,7 @@ const ActiveGame = ({
           currentPlayer={currentPlayer?.name || 'Unknown'}
           isCurrentPlayer={currentPlayerId === playerId}
           mustPickUpPileOrPlayThree={mustPickUpPileOrPlayThree}
+          isLoading={isLoading}
         />
 
         <PlayerArea 

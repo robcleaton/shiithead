@@ -14,6 +14,7 @@ interface GameTableProps {
   currentPlayer: string;
   isCurrentPlayer: boolean;
   mustPickUpPileOrPlayThree: boolean;
+  isLoading?: boolean;
 }
 
 const GameTable: React.FC<GameTableProps> = ({ 
@@ -23,7 +24,8 @@ const GameTable: React.FC<GameTableProps> = ({
   onPickupPile,
   currentPlayer, 
   isCurrentPlayer,
-  mustPickUpPileOrPlayThree
+  mustPickUpPileOrPlayThree,
+  isLoading = false
 }) => {
   const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
   const sameRankCount = pile.length > 0 
@@ -186,9 +188,10 @@ const GameTable: React.FC<GameTableProps> = ({
             variant={mustPickUpPileOrPlayThree ? "destructive" : "secondary"}
             size="sm"
             onClick={onPickupPile}
+            disabled={isLoading}
           >
             <HandMetal className="mr-2 h-4 w-4" />
-            Pick Up Pile
+            {isLoading ? "Picking up..." : "Pick Up Pile"}
           </Button>
         )}
       </div>

@@ -20,10 +20,15 @@ export const pickupPile = async (
   }
   
   try {
+    // Set loading state immediately to prevent multiple clicks
     dispatch({ type: 'SET_LOADING', isLoading: true });
     
     const player = state.players.find(p => p.id === state.playerId);
-    if (!player) return;
+    if (!player) {
+      toast.error("Player not found!");
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
     
     // Check if there are any 3s in the pile
     const threesInPile = state.pile.filter(card => card.rank === '3');
@@ -34,6 +39,24 @@ export const pickupPile = async (
     // Add remaining cards to the player's hand
     const updatedHand = [...player.hand, ...pileWithoutThrees];
     
+    // Update local state first for immediate feedback
+    const updatedPlayers = [...state.players];
+    const playerIndex = updatedPlayers.findIndex(p => p.id === state.playerId);
+    if (playerIndex !== -1) {
+      updatedPlayers[playerIndex] = {
+        ...updatedPlayers[playerIndex],
+        hand: updatedHand
+      };
+      dispatch({ type: 'SET_PLAYERS', players: updatedPlayers });
+    }
+    
+    // Also update the pile in local state immediately
+    dispatch({
+      type: 'SET_GAME_STATE',
+      gameState: { pile: [] }
+    });
+    
+    // Now update the database
     const { error: playerError } = await supabase
       .from('players')
       .update({ hand: updatedHand })
@@ -42,9 +65,8 @@ export const pickupPile = async (
       
     if (playerError) throw playerError;
     
-    const playerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
-    const nextIndex = (playerIndex + 1) % state.players.length;
-    const nextPlayerId = state.players[nextIndex].id;
+    const nextPlayerIndex = (playerIndex + 1) % state.players.length;
+    const nextPlayerId = state.players[nextPlayerIndex].id;
     
     const { error: gameError } = await supabase
       .from('games')
@@ -64,10 +86,11 @@ export const pickupPile = async (
     }
     
     toast.info(message);
-    dispatch({ type: 'SET_LOADING', isLoading: false });
   } catch (error) {
     console.error('Error picking up pile:', error);
     toast.error('Failed to pick up pile');
+  } finally {
+    // Always ensure loading state is reset
     dispatch({ type: 'SET_LOADING', isLoading: false });
   }
 };
