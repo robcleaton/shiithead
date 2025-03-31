@@ -77,7 +77,7 @@ const Index = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 1 }}
         >
-          <p>A beautiful implementation of the Shithead card game.</p>
+          {/* Footer text removed as requested */}
         </motion.div>
       </footer>
       
