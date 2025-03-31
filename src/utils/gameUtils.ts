@@ -11,10 +11,10 @@ const ukSwearWords = [
 
 export const generateId = () => {
   if (window.location.pathname === "/" || window.location.pathname.includes("/game")) {
-    const randomNum = Math.floor(Math.random() * 1000);
     const word1 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
     const word2 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
-    return `${word1}-${word2}-${randomNum}`;
+    const word3 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
+    return `${word1}-${word2}-${word3}`;
   }
   return Math.random().toString(36).substring(2, 9);
 };
