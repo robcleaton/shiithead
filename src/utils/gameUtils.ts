@@ -1,19 +1,19 @@
+
 import { Json } from '@/integrations/supabase/types';
 import { CardValue, Suit, Rank } from '@/types/game';
 
-const ukSlangWords = [
-  'ace', 'barmy', 'blimey', 'bloke', 'brolly', 'chuffed', 'dodgy', 
-  'faff', 'geezer', 'gobsmacked', 'gutted', 'knackered', 'leg-it', 
-  'manky', 'minted', 'naff', 'nutter', 'pear-shaped', 'peckish', 
-  'plastered', 'posh', 'proper', 'quid', 'skint', 'snog', 'sorted', 
-  'trollied', 'wicked', 'wonky', 'yonks'
+const ukSwearWords = [
+  'bloody', 'bugger', 'bollocks', 'wanker', 'tosser', 'muppet', 'git', 
+  'prat', 'pillock', 'plonker', 'twat', 'berk', 'naff', 'sod', 'twit', 
+  'numpty', 'knob', 'daft', 'piss', 'arse', 'blighter', 'chav', 'minger', 
+  'munter', 'nitwit', 'prick', 'twerp', 'mong', 'dodgy', 'gormless'
 ];
 
 export const generateId = () => {
   if (window.location.pathname === "/" || window.location.pathname.includes("/game")) {
     const randomNum = Math.floor(Math.random() * 1000);
-    const word1 = ukSlangWords[Math.floor(Math.random() * ukSlangWords.length)];
-    const word2 = ukSlangWords[Math.floor(Math.random() * ukSlangWords.length)];
+    const word1 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
+    const word2 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
     return `${word1}-${word2}-${randomNum}`;
   }
   return Math.random().toString(36).substring(2, 9);
