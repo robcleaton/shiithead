@@ -1,8 +1,23 @@
-
 import { Json } from '@/integrations/supabase/types';
 import { CardValue, Suit, Rank } from '@/types/game';
 
-export const generateId = () => Math.random().toString(36).substring(2, 9);
+const ukSlangWords = [
+  'ace', 'barmy', 'blimey', 'bloke', 'brolly', 'chuffed', 'dodgy', 
+  'faff', 'geezer', 'gobsmacked', 'gutted', 'knackered', 'leg-it', 
+  'manky', 'minted', 'naff', 'nutter', 'pear-shaped', 'peckish', 
+  'plastered', 'posh', 'proper', 'quid', 'skint', 'snog', 'sorted', 
+  'trollied', 'wicked', 'wonky', 'yonks'
+];
+
+export const generateId = () => {
+  if (window.location.pathname === "/" || window.location.pathname.includes("/game")) {
+    const randomNum = Math.floor(Math.random() * 1000);
+    const word1 = ukSlangWords[Math.floor(Math.random() * ukSlangWords.length)];
+    const word2 = ukSlangWords[Math.floor(Math.random() * ukSlangWords.length)];
+    return `${word1}-${word2}-${randomNum}`;
+  }
+  return Math.random().toString(36).substring(2, 9);
+};
 
 export const createDeck = (): CardValue[] => {
   const suits: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
