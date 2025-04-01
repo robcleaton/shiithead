@@ -100,7 +100,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
         </div>
 
         <div className="flex flex-col items-center ml-6">
-          <div className="text-xs text-gray-500 mb-1">Face Up</div>
+          <div className="text-xs text-gray-100 mb-1">Face Up</div>
           <div className="flex gap-2 relative">
             {player.faceUpCards.map((card, index) => (
               <div
