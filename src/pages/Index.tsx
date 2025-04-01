@@ -35,24 +35,15 @@ const Index = () => {
             </motion.div>
           ) : (
             <>
-              <motion.h1 
+              <motion.h1
                 className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-karma-primary to-karma-accent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
               >
-                Shithead Card Game
+                Shithead
               </motion.h1>
-              
-              <motion.p 
-                className="text-xl text-karma-foreground/80 mb-12 max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.4 }}
-              >
-                Play the classic Shithead card game online with friends. Create a game, share the code, and enjoy this timeless card game with beautiful animations and intuitive design.
-              </motion.p>
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -71,7 +62,7 @@ const Index = () => {
       </div>
 
       <footer className="container mx-auto px-6 py-8">
-        <motion.div 
+        <motion.div
           className="text-center text-sm text-karma-foreground/60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -80,7 +71,7 @@ const Index = () => {
           {/* Footer text removed as requested */}
         </motion.div>
       </footer>
-      
+
       <CursorTracker label="Let's play" showOnlyUserCursor={true} />
     </div>
   );
