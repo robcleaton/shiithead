@@ -27,6 +27,7 @@ import {
 import { useGameSubscriptions } from './useGameSubscriptions';
 import { useFetchGameData } from './useFetchGameData';
 import { GameState } from '@/types/game';
+import { toast } from 'sonner';
 
 const useGameContext = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
@@ -43,6 +44,121 @@ const useGameContext = () => {
     updateGameStateRef(state);
   }, [state, updateGameStateRef]);
 
+  // Function to refresh the game state without reloading the page
+  const refreshGameState = async () => {
+    if (!state.gameId) {
+      toast.error("No active game to refresh");
+      return;
+    }
+    
+    dispatch({ type: 'SET_LOADING', isLoading: true });
+    
+    try {
+      // Re-fetch game data from Supabase
+      const fetchGameData = async () => {
+        const { fetchPlayers } = await import('./useFetchPlayers');
+        const { useFetchGameData } = await import('./useFetchGameData');
+        
+        // Create a temporary fetchPlayers function
+        const tempFetchPlayers = fetchPlayers(dispatch);
+        
+        // Fetch the latest players data
+        await tempFetchPlayers.fetchPlayers(state.gameId);
+        
+        // Create mock hooks to get the fetchGameData function
+        const mockDispatch = dispatch;
+        
+        // Manually call the fetch function from useFetchGameData
+        const fetchGameDataFn = () => {
+          // Recreate the function from useFetchGameData but call it immediately
+          const fetchData = async () => {
+            try {
+              const { supabase } = await import('@/integrations/supabase/client');
+              const { jsonToCardValues } = await import('@/utils/gameUtils');
+              
+              const { data: gameData, error: gameError } = await supabase
+                .from('games')
+                .select('*')
+                .eq('id', state.gameId)
+                .maybeSingle();
+                
+              if (gameError) {
+                console.error('Error refreshing game data:', gameError);
+                toast.error('Error refreshing game data');
+                dispatch({ type: 'SET_LOADING', isLoading: false });
+                return;
+              }
+              
+              const { data: playersData, error: playersError } = await supabase
+                .from('players')
+                .select('*')
+                .eq('game_id', state.gameId);
+                
+              if (playersError) {
+                console.error('Error refreshing players data:', playersError);
+                toast.error('Error refreshing players data');
+                dispatch({ type: 'SET_LOADING', isLoading: false });
+                return;
+              }
+              
+              if (gameData) {
+                dispatch({ 
+                  type: 'SET_GAME_STATE', 
+                  gameState: {
+                    gameStarted: gameData.started,
+                    gameOver: gameData.ended,
+                    currentPlayerId: gameData.current_player_id,
+                    deck: jsonToCardValues(gameData.deck),
+                    pile: jsonToCardValues(gameData.pile),
+                    setupPhase: gameData.setup_phase
+                  }
+                });
+                
+                console.log('Game state refreshed successfully');
+              }
+              
+              if (playersData) {
+                const mappedPlayers = playersData.map(p => ({
+                  id: p.id,
+                  name: p.name,
+                  isHost: p.is_host,
+                  hand: jsonToCardValues(p.hand),
+                  faceDownCards: jsonToCardValues(p.face_down_cards),
+                  faceUpCards: jsonToCardValues(p.face_up_cards),
+                  isActive: p.is_active,
+                  isReady: p.is_ready,
+                  gameId: p.game_id
+                }));
+                
+                dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+                console.log('Players refreshed successfully:', mappedPlayers.length);
+              }
+              
+              toast.success('Game refreshed successfully');
+            } catch (error) {
+              console.error('Error in refreshGameState:', error);
+              toast.error('Failed to refresh game');
+            } finally {
+              dispatch({ type: 'SET_LOADING', isLoading: false });
+            }
+          };
+          
+          // Call the function
+          fetchData();
+        };
+        
+        // Execute the fetch
+        fetchGameDataFn();
+      };
+      
+      await fetchGameData();
+    } catch (error) {
+      console.error('Error refreshing game state:', error);
+      toast.error('Failed to refresh the game. Please try again.');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+    }
+  };
+
   return {
     state,
     createGame: (playerName: string) => createGame(dispatch, playerName, state.playerId, navigate),
@@ -57,7 +173,8 @@ const useGameContext = () => {
     resetGame: () => resetGame(dispatch, state),
     addTestPlayer: (playerName: string) => addTestPlayer(dispatch, state, playerName),
     invitePlayer: (email: string) => invitePlayer(dispatch, state, email),
-    triggerAITurn: () => handleAIPlayerTurn(dispatch, state)
+    triggerAITurn: () => handleAIPlayerTurn(dispatch, state),
+    refreshGameState: refreshGameState
   };
 };
 

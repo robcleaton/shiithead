@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import useGame from '@/hooks/useGame';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface ActiveGameProps {
   players: Player[];
@@ -34,7 +35,7 @@ const ActiveGame = ({
   onOpenRules,
   isLoading = false
 }: ActiveGameProps) => {
-  const { pickupPile } = useGame();
+  const { pickupPile, refreshGameState } = useGame();
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const player = players.find(p => p.id === playerId);
 
@@ -49,7 +50,7 @@ const ActiveGame = ({
       <div className="container mx-auto p-8 text-center">
         <h2 className="text-xl font-bold mb-4">Error: Player not found</h2>
         <p className="mb-4">There was a problem loading your player data.</p>
-        <Button onClick={() => window.location.reload()}>Refresh Game</Button>
+        <Button onClick={refreshGameState}>Refresh Game</Button>
       </div>
     );
   }
@@ -62,6 +63,12 @@ const ActiveGame = ({
   // Function to handle picking up the pile
   const handlePickUpPile = () => {
     pickupPile();
+  };
+
+  // Handle game refresh
+  const handleRefreshGame = () => {
+    toast.info("Refreshing game state...");
+    refreshGameState();
   };
 
   // Log the deck count for debugging
@@ -95,11 +102,11 @@ const ActiveGame = ({
           onPlayCard={playCard}
         />
         
-        {/* Add a refresh button for stuck games */}
+        {/* Update refresh button to use custom refresh function */}
         <div className="mt-4">
           <Button 
             variant="outline" 
-            onClick={() => window.location.reload()}
+            onClick={handleRefreshGame}
             className="text-xs"
           >
             Game stuck? Click to refresh
