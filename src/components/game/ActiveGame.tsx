@@ -68,7 +68,7 @@ const ActiveGame = ({
 
   // Handle game refresh with loading state
   const handleRefreshGame = () => {
-    toast.info("Refreshing game state...");
+    toast.info("Refreshing game state for all players...");
     refreshGameState();
   };
 
@@ -111,7 +111,7 @@ const ActiveGame = ({
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
-            Game stuck? Click to refresh
+            Game stuck? Click to refresh all players
           </Button>
         </div>
       </div>

@@ -50,7 +50,7 @@ const useGameContext = () => {
   // Get the fetchPlayers function from the hook
   const { fetchPlayers } = useFetchPlayers(dispatch);
 
-  // Function to refresh the game state without reloading the page
+  // Function to refresh the game state for all players
   const refreshGameState = async () => {
     if (!state.gameId) {
       toast.error("No active game to refresh");
@@ -77,20 +77,36 @@ const useGameContext = () => {
       }
       
       if (gameData) {
-        dispatch({ 
-          type: 'SET_GAME_STATE', 
-          gameState: {
-            gameStarted: gameData.started,
-            gameOver: gameData.ended,
-            currentPlayerId: gameData.current_player_id,
-            deck: jsonToCardValues(gameData.deck),
-            pile: jsonToCardValues(gameData.pile),
-            setupPhase: gameData.setup_phase
-          }
-        });
-        
-        console.log('Game state refreshed successfully');
-        toast.success('Game refreshed successfully');
+        // Force a refresh for all connected clients by updating a timestamp in the database
+        const { error: updateError } = await supabase
+          .from('games')
+          .update({ 
+            // Trigger an update that will be picked up by all clients' realtime subscriptions
+            // We're updating with the same values to avoid changing game state
+            current_player_id: gameData.current_player_id
+          })
+          .eq('id', state.gameId);
+          
+        if (updateError) {
+          console.error('Error triggering global refresh:', updateError);
+          toast.error('Failed to refresh the game for all players');
+        } else {
+          // Update local state as well
+          dispatch({ 
+            type: 'SET_GAME_STATE', 
+            gameState: {
+              gameStarted: gameData.started,
+              gameOver: gameData.ended,
+              currentPlayerId: gameData.current_player_id,
+              deck: jsonToCardValues(gameData.deck),
+              pile: jsonToCardValues(gameData.pile),
+              setupPhase: gameData.setup_phase
+            }
+          });
+          
+          console.log('Game state refreshed successfully for all players');
+          toast.success('Game refreshed for all players');
+        }
       } else {
         console.warn('No game data found for ID:', state.gameId);
         toast.error('Game not found. Please check if the game still exists.');
