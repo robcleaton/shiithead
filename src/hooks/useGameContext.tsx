@@ -56,14 +56,15 @@ const useGameContext = () => {
     try {
       // Re-fetch game data from Supabase
       const fetchGameData = async () => {
-        const { fetchPlayers } = await import('./useFetchPlayers');
+        // Import the useFetchPlayers hook rather than trying to destructure fetchPlayers directly
+        const { useFetchPlayers } = await import('./useFetchPlayers');
         const { useFetchGameData } = await import('./useFetchGameData');
         
-        // Create a temporary fetchPlayers function
-        const tempFetchPlayers = fetchPlayers(dispatch);
+        // Create a temporary instance of the hook to get the fetchPlayers function
+        const { fetchPlayers } = useFetchPlayers(dispatch);
         
         // Fetch the latest players data
-        await tempFetchPlayers.fetchPlayers(state.gameId);
+        await fetchPlayers(state.gameId);
         
         // Create mock hooks to get the fetchGameData function
         const mockDispatch = dispatch;
