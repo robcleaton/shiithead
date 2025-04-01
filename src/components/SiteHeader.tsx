@@ -15,24 +15,24 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
 
   return (
     <div className="flex justify-between items-center">
-      <motion.div 
-        className="text-2xl font-bold text-karma-primary"
+      <motion.div
+        className="shithead-logo text-2xl font-bold text-karma-primary"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
         <Link to="/">Shithead</Link>
       </motion.div>
-      
+
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
         {showRulesButton && (
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="flex items-center gap-2"
             onClick={() => setShowRules(true)}
           >
