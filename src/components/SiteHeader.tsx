@@ -21,9 +21,7 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Link to="/">
-          <img src="/assets/logo.svg" alt="Home" width="150">Shithead
-        </Link>
+        <Link to="/">Shithead</Link>
       </motion.div>
 
       <motion.div
