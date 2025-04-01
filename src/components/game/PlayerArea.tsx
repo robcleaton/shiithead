@@ -16,21 +16,21 @@ interface PlayerAreaProps {
 const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
   const [selectedFaceUpCardIndex, setSelectedFaceUpCardIndex] = useState<number | null>(null);
   const [selectedFaceDownCardIndex, setSelectedFaceDownCardIndex] = useState<number | null>(null);
-  
+
   useEffect(() => {
     setSelectedFaceUpCardIndex(null);
     setSelectedFaceDownCardIndex(null);
   }, [player.hand, player.faceUpCards, player.faceDownCards, isActive]);
-  
+
   const isHandEmpty = player.hand.length === 0;
   const isFaceUpEmpty = player.faceUpCards.length === 0;
   const isFaceDownEmpty = player.faceDownCards.length === 0;
-  
+
   const hasNoCardsLeft = isHandEmpty && isFaceUpEmpty && isFaceDownEmpty;
-  
+
   const handleSelectFaceUpCard = (index: number) => {
     if (!isHandEmpty || !isActive) return;
-    
+
     if (selectedFaceUpCardIndex === index) {
       setSelectedFaceUpCardIndex(null);
     } else {
@@ -38,10 +38,10 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       setSelectedFaceDownCardIndex(null);
     }
   };
-  
+
   const handleSelectFaceDownCard = (index: number) => {
     if (!isHandEmpty || !isFaceUpEmpty || !isActive) return;
-    
+
     if (selectedFaceDownCardIndex === index) {
       setSelectedFaceDownCardIndex(null);
     } else {
@@ -49,21 +49,21 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       setSelectedFaceUpCardIndex(null);
     }
   };
-  
+
   const handlePlayFaceUpCard = () => {
     if (selectedFaceUpCardIndex !== null) {
       onPlayCard(-(selectedFaceUpCardIndex + 1));
       setSelectedFaceUpCardIndex(null);
     }
   };
-  
+
   const handlePlayFaceDownCard = () => {
     if (selectedFaceDownCardIndex !== null) {
       onPlayCard(-(selectedFaceDownCardIndex + 1000));
       setSelectedFaceDownCardIndex(null);
     }
   };
-  
+
   const getSuitSymbol = (suit: string) => {
     switch (suit) {
       case 'hearts': return '♥';
@@ -73,7 +73,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       default: return '';
     }
   };
-  
+
   return (
     <div className={`w-full max-w-3xl ${hasNoCardsLeft ? 'bg-green-100 p-4 rounded-lg border border-green-300' : ''}`}>
       {hasNoCardsLeft && (
@@ -81,13 +81,13 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
           Player has no cards left!
         </div>
       )}
-      
+
       <div className="flex justify-center gap-1 mb-6">
         <div className="flex flex-col items-center">
-          <div className="text-xs text-gray-500 mb-1">Face Down</div>
+          <div className="text-xs text-gray-100 mb-1">Face Down</div>
           <div className="flex gap-2 relative">
             {player.faceDownCards.map((_, index) => (
-              <div 
+              <div
                 key={index}
                 onClick={() => handleSelectFaceDownCard(index)}
                 className={`w-14 h-20 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
@@ -98,16 +98,16 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
             {/* Removed the card count indicator */}
           </div>
         </div>
-        
+
         <div className="flex flex-col items-center ml-6">
           <div className="text-xs text-gray-500 mb-1">Face Up</div>
           <div className="flex gap-2 relative">
             {player.faceUpCards.map((card, index) => (
-              <div 
+              <div
                 key={`fu-${index}`}
                 onClick={() => handleSelectFaceUpCard(index)}
-                className={`w-14 h-20 bg-white rounded-lg shadow-sm border transition-all 
-                  ${selectedFaceUpCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : 'border-gray-200'} 
+                className={`w-14 h-20 bg-white rounded-lg shadow-sm border transition-all
+                  ${selectedFaceUpCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : 'border-gray-200'}
                   ${isHandEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
                   flex items-center justify-center`}
               >
@@ -123,7 +123,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
           </div>
         </div>
       </div>
-      
+
       {isHandEmpty && isActive && selectedFaceUpCardIndex !== null && (
         <div className="flex justify-center mb-4">
           <Button
@@ -135,7 +135,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
           </Button>
         </div>
       )}
-      
+
       {isHandEmpty && isFaceUpEmpty && isActive && selectedFaceDownCardIndex !== null && (
         <div className="flex justify-center mb-4">
           <Button
@@ -147,7 +147,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
           </Button>
         </div>
       )}
-      
+
       <PlayerHand
         cards={player.hand}
         isActive={isActive}
