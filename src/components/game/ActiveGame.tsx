@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import useGame from '@/hooks/useGame';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 interface ActiveGameProps {
   players: Player[];
@@ -65,7 +66,7 @@ const ActiveGame = ({
     pickupPile();
   };
 
-  // Handle game refresh
+  // Handle game refresh with loading state
   const handleRefreshGame = () => {
     toast.info("Refreshing game state...");
     refreshGameState();
@@ -102,13 +103,14 @@ const ActiveGame = ({
           onPlayCard={playCard}
         />
         
-        {/* Update refresh button to use custom refresh function */}
         <div className="mt-4">
           <Button 
             variant="outline" 
             onClick={handleRefreshGame}
-            className="text-xs"
+            className="text-xs flex items-center gap-1"
+            disabled={isLoading}
           >
+            {isLoading && <Loader2 className="h-3 w-3 animate-spin" />}
             Game stuck? Click to refresh
           </Button>
         </div>
