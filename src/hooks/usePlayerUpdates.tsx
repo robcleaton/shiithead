@@ -10,7 +10,7 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
   const handlePlayerUpdate = useCallback(async (payload: any, gameId: string) => {
     if (!gameId) return;
     
-    console.log('Player update received for game:', gameId, payload);
+    console.log('Player update received for game:', gameId, 'Type:', payload.eventType);
     
     try {
       const { data: playersData, error } = await supabase
@@ -20,6 +20,7 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         
       if (error) {
         console.error('Error fetching players data after update:', error);
+        toast.error('Failed to sync player data. Please refresh.');
         return;
       }
         
@@ -36,13 +37,24 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           gameId: p.game_id
         }));
         
-        console.log('Updated players after DB change:', mappedPlayers);
+        // Log important player state for debugging
+        const playerInfo = mappedPlayers.map(p => ({
+          id: p.id,
+          name: p.name,
+          handCount: p.hand.length,
+          faceUpCount: p.faceUpCards.length,
+          faceDownCount: p.faceDownCards.length,
+          isReady: p.isReady
+        }));
+        console.log('Updated players after DB change:', playerInfo);
+        
         dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
       } else {
         console.warn('No players data returned for game:', gameId);
       }
     } catch (error) {
       console.error('Error processing players update:', error);
+      toast.error('Error updating player data. Please refresh.');
     }
   }, [dispatch]);
 

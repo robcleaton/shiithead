@@ -6,6 +6,7 @@ import { GameState, GameAction } from '@/types/game';
 import { Dispatch } from 'react';
 import { isAIPlayer } from '@/context/game/actions/gamePlay';
 import { handleAIPlayerTurn } from '@/context/game/actions/gamePlayActions';
+import { toast } from 'sonner';
 
 export const useGameUpdates = (
   dispatch: Dispatch<GameAction>,
@@ -23,6 +24,7 @@ export const useGameUpdates = (
         
       if (error) {
         console.error('Error fetching game data after update:', error);
+        toast.error('Failed to sync game state. Please refresh the page.');
         return;
       }
       
@@ -31,6 +33,7 @@ export const useGameUpdates = (
         const deckCards = jsonToCardValues(gameData.deck);
         
         console.log(`Game update: deck count from DB = ${deckCards.length}`);
+        console.log(`Game turn update: Current player changing from ${prevCurrentPlayerId} to ${gameData.current_player_id}`);
         
         const updatedGameState = {
           gameStarted: gameData.started,
@@ -51,22 +54,32 @@ export const useGameUpdates = (
             p => p.id === gameData.current_player_id
           );
           
-          if (currentPlayer && isAIPlayer(currentPlayer.id)) {
-            setTimeout(() => {
-              if (gameStateRef.current) {
-                handleAIPlayerTurn(dispatch, {
-                  ...gameStateRef.current,
-                  currentPlayerId: gameData.current_player_id,
-                  deck: deckCards,
-                  pile: jsonToCardValues(gameData.pile)
-                });
-              }
-            }, 1000);
+          if (currentPlayer) {
+            console.log(`Turn changed to player: ${currentPlayer.name} (${currentPlayer.id})`);
+            
+            if (isAIPlayer(currentPlayer.id)) {
+              console.log(`AI player ${currentPlayer.name} will take their turn`);
+              setTimeout(() => {
+                if (gameStateRef.current) {
+                  handleAIPlayerTurn(dispatch, {
+                    ...gameStateRef.current,
+                    currentPlayerId: gameData.current_player_id,
+                    deck: deckCards,
+                    pile: jsonToCardValues(gameData.pile)
+                  });
+                }
+              }, 1000);
+            }
+          } else {
+            console.warn(`Current player with ID ${gameData.current_player_id} not found in player list`);
           }
         }
+      } else {
+        console.warn(`No game data returned for game ID: ${gameId}`);
       }
     } catch (error) {
       console.error('Error processing game update:', error);
+      toast.error('Error updating game state. Please refresh the page.');
     }
   }, [dispatch, gameStateRef]);
 

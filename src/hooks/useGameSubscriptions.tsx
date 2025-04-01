@@ -21,19 +21,48 @@ export const useGameSubscriptions = (
   // Setup initial data fetch
   useEffect(() => {
     if (gameId) {
-      console.log('Setting up game subscriptions for game ID:', gameId);
+      console.log('Setting up game subscriptions for game ID:', gameId, 'Player ID:', playerId);
       dispatch({ type: 'SET_LOADING', isLoading: true });
       
       // Initial fetch of all players
       fetchPlayers(gameId).then(players => {
-        console.log('Initial players fetch completed:', players);
+        console.log('Initial players fetch completed:', players?.length || 0, 'players');
         dispatch({ type: 'SET_LOADING', isLoading: false });
       }).catch(error => {
         console.error('Error in initial players fetch:', error);
         dispatch({ type: 'SET_LOADING', isLoading: false });
       });
+
+      // Add an initial fetch of the game state directly to ensure we have the latest state
+      const fetchInitialGameState = async () => {
+        try {
+          const { data: gameData, error } = await supabase
+            .from('games')
+            .select('*')
+            .eq('id', gameId)
+            .maybeSingle();
+            
+          if (error) {
+            console.error('Error fetching initial game state:', error);
+            return;
+          }
+          
+          if (gameData) {
+            console.log('Initial game state fetch:', {
+              currentPlayer: gameData.current_player_id,
+              started: gameData.started,
+              setup: gameData.setup_phase,
+              ended: gameData.ended
+            });
+          }
+        } catch (err) {
+          console.error('Error in fetchInitialGameState:', err);
+        }
+      };
+      
+      fetchInitialGameState();
     }
-  }, [gameId, dispatch, fetchPlayers]);
+  }, [gameId, dispatch, fetchPlayers, playerId]);
 
   // Setup game updates channel
   useSupabaseChannel(
@@ -42,7 +71,10 @@ export const useGameSubscriptions = (
       table: 'games',
       filter: `id=eq.${gameId}`
     },
-    (payload) => handleGameUpdate(payload, gameId || ''),
+    (payload) => {
+      console.log('Game update received:', payload.eventType);
+      handleGameUpdate(payload, gameId || '');
+    },
     !!gameId
   );
 
@@ -55,7 +87,8 @@ export const useGameSubscriptions = (
       event: '*'  // Listen for all events (INSERT, UPDATE, DELETE)
     },
     (payload) => {
-      console.log('Player channel event received:', payload);
+      console.log('Player update received:', payload.eventType, 'for player:', 
+        payload.new?.id || payload.old?.id);
       handlePlayerUpdate(payload, gameId || '');
     },
     !!gameId

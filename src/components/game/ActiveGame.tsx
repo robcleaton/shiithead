@@ -7,6 +7,7 @@ import { CardValue } from '@/types/game';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import useGame from '@/hooks/useGame';
+import { useEffect } from 'react';
 
 interface ActiveGameProps {
   players: Player[];
@@ -37,8 +38,20 @@ const ActiveGame = ({
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const player = players.find(p => p.id === playerId);
 
+  // Log important state information for debugging
+  useEffect(() => {
+    console.log(`ActiveGame rendered - Current player: ${currentPlayerId} (${currentPlayer?.name || 'Unknown'})`);
+    console.log(`Current player is self: ${currentPlayerId === playerId}`);
+  }, [currentPlayerId, currentPlayer, playerId]);
+
   if (!player) {
-    return <div>Error: Player not found</div>;
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <h2 className="text-xl font-bold mb-4">Error: Player not found</h2>
+        <p className="mb-4">There was a problem loading your player data.</p>
+        <Button onClick={() => window.location.reload()}>Refresh Game</Button>
+      </div>
+    );
   }
 
   // Determine if a 3 is on top of the pile
@@ -81,6 +94,17 @@ const ActiveGame = ({
           isActive={currentPlayerId === playerId}
           onPlayCard={playCard}
         />
+        
+        {/* Add a refresh button for stuck games */}
+        <div className="mt-4">
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.reload()}
+            className="text-xs"
+          >
+            Game stuck? Click to refresh
+          </Button>
+        </div>
       </div>
     </div>
   );

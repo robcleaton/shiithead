@@ -1,4 +1,3 @@
-
 import { Json } from '@/integrations/supabase/types';
 import { CardValue, Suit, Rank } from '@/types/game';
 
@@ -14,9 +13,16 @@ export const generateId = () => {
     const word1 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
     const word2 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
     const word3 = ukSwearWords[Math.floor(Math.random() * ukSwearWords.length)];
-    return `${word1}-${word2}-${word3}`;
+    
+    const timestamp = Date.now().toString(36).substring(4, 8);
+    const gameId = `${word1}-${word2}-${word3}-${timestamp}`;
+    
+    console.log(`Generated game ID: ${gameId}`);
+    return gameId;
   }
-  return Math.random().toString(36).substring(2, 9);
+  const playerId = 'p-' + Math.random().toString(36).substring(2, 9);
+  console.log(`Generated player ID: ${playerId}`);
+  return playerId;
 };
 
 export const createDeck = (): CardValue[] => {
