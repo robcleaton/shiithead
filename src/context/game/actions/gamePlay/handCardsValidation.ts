@@ -29,7 +29,7 @@ export const validatePlayAgainstPile = (cards: CardValue[], pile: CardValue[]): 
   
   // Special case for multiple cards of the same rank
   if (cards.length > 1) {
-    const validationResult = validateMultipleCardsPlay(cards[0], effectiveTopCard);
+    const validationResult = validateMultipleCardsPlay(cards, effectiveTopCard);
     if (!validationResult.valid) {
       toast.error(validationResult.errorMessage);
       return false;
