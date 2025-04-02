@@ -42,17 +42,9 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
 
   return (
     <Card className="w-full">
-      <CardHeader className="space-y-4">
-        <motion.div 
-          className="shithead-logo mx-auto"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        />
-        <div>
-          <CardTitle>Join Game</CardTitle>
-          <CardDescription>Enter the game code shared by the host</CardDescription>
-        </div>
+      <CardHeader>
+        <CardTitle>Join Game</CardTitle>
+        <CardDescription>Enter the game code shared by the host</CardDescription>
       </CardHeader>
       
       <form onSubmit={handleSubmit}>
