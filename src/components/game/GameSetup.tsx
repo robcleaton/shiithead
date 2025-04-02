@@ -40,7 +40,7 @@ const GameSetup = ({
     <div className="container mx-auto px-4 py-10 min-h-screen">
       <div className="flex flex-col gap-8 items-center">
         <div className="text-center mb-4">
-          <h2 className="text-xl font-semibold mb-2 TuskerGrotesk">Setup Your Cards</h2>
+          <h2 className="text-xl font-semibold mb-2 font-tusker">Setup Your Cards</h2>
           <p className="text-shithead-foreground/80">
             Select 3 cards from your hand to place face-up on your 3 face-down cards
           </p>
