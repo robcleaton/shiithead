@@ -22,7 +22,7 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
         transition={{ duration: 0.5 }}
       >
         <Link to="/">
-          <img src={logo} alt="Home" width="auto" />
+          <img src={logo} alt="Home" width="280px" />
         </Link>
       </motion.div>
 
