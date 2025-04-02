@@ -6,12 +6,9 @@ import { useState, useEffect } from 'react';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
 import useGame from '@/hooks/useGame';
 import CursorTracker from '@/components/CursorTracker';
-import SiteHeader from '@/components/SiteHeader';
-import Rules from '@/components/Rules';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
-  const [showRules, setShowRules] = useState(false);
   const { gameId } = useParams();
   const location = useLocation();
   const { joinGame, state } = useGame();
@@ -25,10 +22,6 @@ const Index = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="container mx-auto px-6 py-6">
-        <SiteHeader onOpenRules={() => setShowRules(true)} />
-      </div>
-
       <div className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center py-12">
         <div className="max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
@@ -43,7 +36,7 @@ const Index = () => {
           ) : (
             <>
               <motion.h1
-                className="text-5xl md:text-6xl mb-8"
+                className="text-5xl md:text-6xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
@@ -79,7 +72,6 @@ const Index = () => {
         </motion.div>
       </footer>
 
-      <Rules open={showRules} onOpenChange={setShowRules} />
       <CursorTracker label="Let's play" showOnlyUserCursor={true} />
     </div>
   );

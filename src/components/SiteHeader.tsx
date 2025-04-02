@@ -8,31 +8,20 @@ import Rules from "@/components/Rules";
 
 interface SiteHeaderProps {
   showRulesButton?: boolean;
-  onOpenRules?: () => void;
 }
 
-const SiteHeader = ({ showRulesButton = true, onOpenRules }: SiteHeaderProps) => {
+const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
   const [showRules, setShowRules] = useState(false);
-
-  const handleOpenRules = () => {
-    if (onOpenRules) {
-      onOpenRules();
-    } else {
-      setShowRules(true);
-    }
-  };
 
   return (
     <div className="flex justify-between items-center">
       <motion.div
-        className="shithead-logo"
+        className="shithead-logo text-2xl font-bold text-karma-primary"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Link to="/">
-          <span className="sr-only">Shithead</span>
-        </Link>
+        <Link to="/">Shithead</Link>
       </motion.div>
 
       <motion.div
@@ -45,7 +34,7 @@ const SiteHeader = ({ showRulesButton = true, onOpenRules }: SiteHeaderProps) =>
             variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={handleOpenRules}
+            onClick={() => setShowRules(true)}
           >
             <BookOpen size={16} />
             Rules
@@ -53,8 +42,7 @@ const SiteHeader = ({ showRulesButton = true, onOpenRules }: SiteHeaderProps) =>
         )}
       </motion.div>
 
-      {/* Only render Rules component if we're not using external handler */}
-      {!onOpenRules && <Rules open={showRules} onOpenChange={setShowRules} />}
+      <Rules open={showRules} onOpenChange={setShowRules} />
     </div>
   );
 };
