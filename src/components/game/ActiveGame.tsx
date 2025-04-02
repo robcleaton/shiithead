@@ -20,7 +20,7 @@ interface ActiveGameProps {
   drawCard: () => void;
   playCard: (cardIndex: number | number[]) => void;
   resetGame: () => void;
-  onOpenRules: () => void;
+  onOpenRules?: () => void;  // Make this optional
   isLoading?: boolean;
 }
 
@@ -33,7 +33,6 @@ const ActiveGame = ({
   drawCard,
   playCard,
   resetGame,
-  onOpenRules,
   isLoading = false
 }: ActiveGameProps) => {
   const { pickupPile, refreshGameState } = useGame();

@@ -8,7 +8,6 @@ import { GameProvider } from "./context/GameContext";
 import Index from "./pages/Index";
 import Game from "./pages/Game";
 import NotFound from "./pages/NotFound";
-import SiteHeader from "./components/SiteHeader";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient({
@@ -21,13 +20,8 @@ const queryClient = new QueryClient({
 });
 
 const AppRoutes = () => {
-  const location = useLocation();
-
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="container mx-auto px-6 py-6">
-        <SiteHeader />
-      </header>
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />

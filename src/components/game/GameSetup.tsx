@@ -11,7 +11,7 @@ interface GameSetupProps {
   completeSetup: () => void;
   selectFaceUpCard: (cardIndex: number | number[]) => void;
   selectMultipleFaceUpCards: (cardIndices: number[]) => void;
-  onOpenRules: () => void;
+  onOpenRules?: () => void; // Make this optional
 }
 
 const GameSetup = ({
@@ -20,8 +20,7 @@ const GameSetup = ({
   isHost,
   completeSetup,
   selectFaceUpCard,
-  selectMultipleFaceUpCards,
-  onOpenRules
+  selectMultipleFaceUpCards
 }: GameSetupProps) => {
   console.log('Rendering setup phase UI with player:', player);
   console.log('Player hand:', player.hand);

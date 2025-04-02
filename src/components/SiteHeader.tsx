@@ -8,10 +8,19 @@ import Rules from "@/components/Rules";
 
 interface SiteHeaderProps {
   showRulesButton?: boolean;
+  onOpenRules?: () => void;
 }
 
-const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
+const SiteHeader = ({ showRulesButton = true, onOpenRules }: SiteHeaderProps) => {
   const [showRules, setShowRules] = useState(false);
+
+  const handleOpenRules = () => {
+    if (onOpenRules) {
+      onOpenRules();
+    } else {
+      setShowRules(true);
+    }
+  };
 
   return (
     <div className="flex justify-between items-center">
@@ -36,7 +45,7 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
             variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={() => setShowRules(true)}
+            onClick={handleOpenRules}
           >
             <BookOpen size={16} />
             Rules
@@ -44,7 +53,8 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
         )}
       </motion.div>
 
-      <Rules open={showRules} onOpenChange={setShowRules} />
+      {/* Only render Rules component if we're not using external handler */}
+      {!onOpenRules && <Rules open={showRules} onOpenChange={setShowRules} />}
     </div>
   );
 };

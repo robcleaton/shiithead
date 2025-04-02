@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import useGame from '@/hooks/useGame';
 import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
+import SiteHeader from '@/components/SiteHeader';
 
 // Import our components
 import LoadingGame from '@/components/game/LoadingGame';
@@ -33,6 +34,10 @@ const Game = () => {
 
   return (
     <div className="min-h-screen">
+      <div className="container mx-auto px-6 py-6">
+        <SiteHeader showRulesButton={state.gameStarted || state.setupPhase} onOpenRules={() => setRulesOpen(true)} />
+      </div>
+      
       {state.isLoading && <LoadingGame />}
       
       {!state.isLoading && !state.gameStarted && !state.setupPhase && <Lobby />}
@@ -75,7 +80,6 @@ const Game = () => {
         </>
       )}
       
-      {/* Add cursor tracker only for lobby, with hideUserCursor */}
       {state.gameId && !state.gameStarted && !state.setupPhase && <CursorTracker hideUserCursor={true} />}
     </div>
   );
