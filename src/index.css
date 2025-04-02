@@ -186,9 +186,9 @@ body {
   src: url('../fonts/TuskerGrotesk-9800Super.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
+  font-display: swap; /* Prevent flickering */
 }
 h1, h2 {
-  font-family: 'TuskerGrotesk', sans-serif;
   text-transform: uppercase;
   color: #FEFFF1;
 }
