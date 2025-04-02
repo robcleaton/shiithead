@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 interface JoinGameFormProps {
   joinGame: (gameId: string, playerName: string) => void;
@@ -41,9 +42,17 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Join Game</CardTitle>
-        <CardDescription>Enter the game code shared by the host</CardDescription>
+      <CardHeader className="space-y-4">
+        <motion.div 
+          className="shithead-logo mx-auto"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div>
+          <CardTitle>Join Game</CardTitle>
+          <CardDescription>Enter the game code shared by the host</CardDescription>
+        </div>
       </CardHeader>
       
       <form onSubmit={handleSubmit}>
