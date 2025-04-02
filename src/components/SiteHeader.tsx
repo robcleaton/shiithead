@@ -16,12 +16,14 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
   return (
     <div className="flex justify-between items-center">
       <motion.div
-        className="shithead-logo text-2xl font-bold text-karma-primary"
+        className="shithead-logo"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Link to="/">Shithead</Link>
+        <Link to="/">
+          <span className="sr-only">Shithead</span>
+        </Link>
       </motion.div>
 
       <motion.div
