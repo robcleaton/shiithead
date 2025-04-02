@@ -25,7 +25,7 @@ const GameSetup = ({
 }: GameSetupProps) => {
   console.log('Rendering setup phase UI with player:', player);
   console.log('Player hand:', player.hand);
-  
+
   const getSuitSymbol = (suit: string) => {
     switch (suit) {
       case 'hearts': return '♥';
@@ -35,18 +35,18 @@ const GameSetup = ({
       default: return '';
     }
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
       <div className="flex flex-col gap-8 items-center">
         <div className="text-center mb-4">
-          <h2 className="text-xl font-semibold mb-2">Setup Your Cards</h2>
+          <h2 className="text-xl font-semibold mb-2 TuskerGrotesk">Setup Your Cards</h2>
           <p className="text-shithead-foreground/80">
             Select 3 cards from your hand to place face-up on your 3 face-down cards
           </p>
           <div className="mt-4 flex justify-center gap-1 flex-wrap">
             {players.map(p => (
-              <div key={p.id} className={`px-3 py-1 rounded-full text-xs font-medium ${p.isReady ? 'bg-green-500/20 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+              <div key={p.id} className={`px-3 py-1 rounded-full text-xs font-medium ${p.isReady ? 'bg-green-200/20 text-green-100' : 'bg-gray-200 text-gray-600'}`}>
                 {p.name} {p.isReady ? '✓' : '...'}
               </div>
             ))}
@@ -57,7 +57,7 @@ const GameSetup = ({
         <div className="flex justify-center gap-4">
           {player.faceDownCards && player.faceDownCards.length > 0 ? (
             player.faceDownCards.map((_, index) => (
-              <div 
+              <div
                 key={index}
                 className="w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
               />
@@ -73,7 +73,7 @@ const GameSetup = ({
         <div className="flex justify-center gap-4 mt-2">
           {player.faceUpCards && player.faceUpCards.length > 0 ? (
             player.faceUpCards.map((card, index) => (
-              <div 
+              <div
                 key={`${card.suit}-${card.rank}-${index}`}
                 className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center border border-gray-200"
               >
@@ -87,7 +87,7 @@ const GameSetup = ({
             ))
           ) : (
             Array(3 - (player.faceUpCards ? player.faceUpCards.length : 0)).fill(0).map((_, i) => (
-              <div 
+              <div
                 key={`empty-${i}`}
                 className="w-14 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
               >
@@ -117,9 +117,9 @@ const GameSetup = ({
 
         {player.isReady && (
           <div className="mt-4 flex flex-col items-center">
-            <p className="text-center text-green-600 mb-2">You've selected all your face-up cards</p>
+            <p className="text-center text-green-100 mb-2">You've selected all your face-up cards</p>
             {isHost && (
-              <Button 
+              <Button
                 onClick={completeSetup}
                 className="bg-shithead-primary hover:bg-shithead-primary/90"
                 disabled={!players.every(p => p.isReady)}

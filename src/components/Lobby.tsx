@@ -101,12 +101,12 @@ const Lobby = () => {
               >
                 <div className="space-y-4">
                   <LobbyHeader gameId={state.gameId} />
-                  
+
                   {isDevelopment && state.isHost && (
                     <TestPlayerForm addTestPlayer={addTestPlayer} />
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <h3 className="font-semibold flex items-center gap-2">
                     <Users className="w-4 h-4" />
@@ -117,10 +117,10 @@ const Lobby = () => {
                       Invite at least one player to join the game
                     </div>
                   )}
-                  
+
                   <PlayerList players={state.players} currentPlayerId={state.playerId} />
                 </div>
-                
+
                 {state.isHost && (
                   <Button
                     onClick={handleStartGame}
@@ -130,7 +130,7 @@ const Lobby = () => {
                     Start Game
                   </Button>
                 )}
-                
+
                 {!state.isHost && (
                   <p className="text-center text-sm text-shithead-foreground/70">
                     Waiting for the host to start the game...
@@ -139,11 +139,6 @@ const Lobby = () => {
               </motion.div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-xs text-shithead-foreground/60">
-              Play the classic Shithead card game with friends online
-            </p>
-          </CardFooter>
         </Card>
       </motion.div>
       {state.gameId && <CursorTracker hideUserCursor={true} />}
