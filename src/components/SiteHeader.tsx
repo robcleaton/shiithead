@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import Rules from "@/components/Rules";
-import logo from "../assets/logo-cream.svg"; // Adjust the path if needed
+import logo from "/assets/logo-cream.svg"; // Adjust the path if needed
 
 interface SiteHeaderProps {
   showRulesButton?: boolean;
