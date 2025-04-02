@@ -32,7 +32,7 @@ const CreateGameForm = ({ createGame }: CreateGameFormProps) => {
           autoFocus
         />
       </div>
-      <Button onClick={handleCreateGame} className="w-full bg-karma-primary hover:bg-karma-primary/90">
+      <Button onClick={handleCreateGame} className="w-full bg-shithead-primary hover:bg-shithead-primary/90">
         Create New Game
       </Button>
     </div>

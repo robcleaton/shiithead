@@ -36,7 +36,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
               {Array.from({ length: Math.min(3, opponent.hand.length) }).map((_, i) => (
                 <div
                   key={`hand-${i}`}
-                  className="w-8 h-12 bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
+                  className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                 ></div>
               ))}
             </div>
@@ -75,7 +75,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
               {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
                 <div
                   key={`face-down-${i}`}
-                  className="w-8 h-12 bg-karma-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
+                  className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                 ></div>
               ))}
             </div>

@@ -90,9 +90,9 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
               <div
                 key={index}
                 onClick={() => handleSelectFaceDownCard(index)}
-                className={`w-14 h-20 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
+                className={`w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
                   ${isHandEmpty && isFaceUpEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
-                  ${selectedFaceDownCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : ''}`}
+                  ${selectedFaceDownCardIndex === index ? 'ring-4 ring-shithead-primary scale-105' : ''}`}
               />
             ))}
             {/* Removed the card count indicator */}
@@ -107,7 +107,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
                 key={`fu-${index}`}
                 onClick={() => handleSelectFaceUpCard(index)}
                 className={`w-14 h-20 bg-white rounded-lg shadow-sm border transition-all
-                  ${selectedFaceUpCardIndex === index ? 'ring-4 ring-karma-primary scale-105' : 'border-gray-200'}
+                  ${selectedFaceUpCardIndex === index ? 'ring-4 ring-shithead-primary scale-105' : 'border-gray-200'}
                   ${isHandEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
                   flex items-center justify-center`}
               >
@@ -128,7 +128,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
         <div className="flex justify-center mb-4">
           <Button
             onClick={handlePlayFaceUpCard}
-            className="bg-karma-primary hover:bg-karma-primary/90"
+            className="bg-shithead-primary hover:bg-shithead-primary/90"
           >
             <Play className="w-4 h-4 mr-2" />
             Play Face Up Card
@@ -140,7 +140,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
         <div className="flex justify-center mb-4">
           <Button
             onClick={handlePlayFaceDownCard}
-            className="bg-karma-primary hover:bg-karma-primary/90"
+            className="bg-shithead-primary hover:bg-shithead-primary/90"
           >
             <Play className="w-4 h-4 mr-2" />
             Play Face Down Card

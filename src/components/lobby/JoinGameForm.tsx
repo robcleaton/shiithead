@@ -75,7 +75,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
         <CardFooter>
           <Button 
             type="submit" 
-            className="w-full bg-karma-primary hover:bg-karma-primary/90" 
+            className="w-full bg-shithead-primary hover:bg-shithead-primary/90" 
             disabled={isSubmitting || !gameId.trim() || !playerName.trim()}
           >
             {isSubmitting ? 'Joining...' : 'Join Game'}

@@ -90,7 +90,7 @@
   }
 
   body {
-    @apply bg-karma-background text-karma-foreground;
+    @apply bg-shithead-background text-shithead-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -119,7 +119,7 @@
   }
 
   .card-back {
-    @apply bg-karma-card-back bg-card-texture;
+    @apply bg-shithead-card-back bg-card-texture;
     transform: rotateY(180deg);
   }
 

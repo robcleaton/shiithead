@@ -23,7 +23,7 @@ const getSuitSymbol = (suit: string) => {
 };
 
 const getSuitColor = (suit: string) => {
-  return suit === 'hearts' || suit === 'diamonds' ? 'text-karma-card-red' : 'text-karma-card-black';
+  return suit === 'hearts' || suit === 'diamonds' ? 'text-shithead-card-red' : 'text-shithead-card-black';
 };
 
 const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected = false, onSelect }: CardProps) => {
@@ -40,7 +40,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
   if (!card) {
     return (
       <div 
-        className="playing-card bg-karma-card-back bg-card-texture"
+        className="playing-card bg-shithead-card-back bg-card-texture"
       />
     );
   }
@@ -63,12 +63,12 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
   return (
     <div
       className={`playing-card relative ${isPlayable ? 'cursor-pointer hover:scale-105' : ''} 
-                  ${isSelected ? 'ring-4 ring-karma-primary shadow-lg scale-105 z-10' : ''} 
+                  ${isSelected ? 'ring-4 ring-shithead-primary shadow-lg scale-105 z-10' : ''} 
                   transition-all duration-200`}
       onClick={handleClick}
     >
       {isSelected && (
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-karma-primary rounded-full flex items-center justify-center z-10">
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-shithead-primary rounded-full flex items-center justify-center z-10">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
@@ -91,7 +91,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
           {suitSymbol}
         </div>
       </div>
-      <div className="card-back absolute inset-0 bg-karma-card-back bg-card-texture rounded-lg border border-gray-700 shadow-sm">
+      <div className="card-back absolute inset-0 bg-shithead-card-back bg-card-texture rounded-lg border border-gray-700 shadow-sm">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-gray-700/90 flex items-center justify-center border border-white/20">
             <span className="text-white text-xl font-semibold">K</span>

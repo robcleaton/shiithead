@@ -51,7 +51,7 @@ const Index = () => {
                 className="flex justify-center"
               >
                 <Link to="/game">
-                  <Button size="lg" className="bg-karma-primary hover:bg-karma-primary/90 text-white px-8 py-6 text-lg">
+                  <Button size="lg" className="bg-shithead-primary hover:bg-shithead-primary/90 text-white px-8 py-6 text-lg">
                     Start Playing
                   </Button>
                 </Link>
@@ -63,7 +63,7 @@ const Index = () => {
 
       <footer className="container mx-auto px-6 py-8">
         <motion.div
-          className="text-center text-sm text-karma-foreground/60"
+          className="text-center text-sm text-shithead-foreground/60"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 1 }}

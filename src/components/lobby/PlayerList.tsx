@@ -55,7 +55,7 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Avatar className="h-8 w-8 bg-karma-primary text-white">
+            <Avatar className="h-8 w-8 bg-shithead-primary text-white">
               <AvatarFallback>{player.name.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="font-medium">{player.name}</span>
@@ -65,7 +65,7 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
               </span>
             )}
             {player.isHost && (
-              <span className="ml-auto text-xs bg-karma-secondary px-2 py-0.5 rounded-full">Host</span>
+              <span className="ml-auto text-xs bg-shithead-secondary px-2 py-0.5 rounded-full">Host</span>
             )}
           </motion.li>
         ))

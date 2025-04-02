@@ -75,7 +75,7 @@ const Lobby = () => {
       <motion.div variants={item} className="w-full max-w-md">
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-karma-primary">Shithead Card Game</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-shithead-primary">Shithead Card Game</CardTitle>
             <CardDescription className="text-center">Create or join a game to get started</CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,7 +124,7 @@ const Lobby = () => {
                 {state.isHost && (
                   <Button
                     onClick={handleStartGame}
-                    className="w-full bg-karma-accent hover:bg-karma-accent/90 text-white"
+                    className="w-full bg-shithead-accent hover:bg-shithead-accent/90 text-white"
                     disabled={state.players.length < 2}
                   >
                     Start Game
@@ -132,7 +132,7 @@ const Lobby = () => {
                 )}
                 
                 {!state.isHost && (
-                  <p className="text-center text-sm text-karma-foreground/70">
+                  <p className="text-center text-sm text-shithead-foreground/70">
                     Waiting for the host to start the game...
                   </p>
                 )}
@@ -140,7 +140,7 @@ const Lobby = () => {
             )}
           </CardContent>
           <CardFooter className="flex justify-center">
-            <p className="text-xs text-karma-foreground/60">
+            <p className="text-xs text-shithead-foreground/60">
               Play the classic Shithead card game with friends online
             </p>
           </CardFooter>

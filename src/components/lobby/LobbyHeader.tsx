@@ -15,10 +15,10 @@ const LobbyHeader = ({ gameId }: LobbyHeaderProps) => {
   };
 
   return (
-    <div className="bg-karma-secondary/50 p-4 rounded-lg">
-      <p className="text-sm text-karma-foreground/70 mb-2">Game Code (Share with your mates)</p>
+    <div className="bg-shithead-secondary/50 p-4 rounded-lg">
+      <p className="text-sm text-shithead-foreground/70 mb-2">Game Code (Share with your mates)</p>
       <div className="font-mono text-lg bg-white/60 rounded px-3 py-2 flex items-center justify-between">
-        <span className="truncate font-medium text-karma-primary">{gameId}</span>
+        <span className="truncate font-medium text-shithead-primary">{gameId}</span>
         <Button 
           variant="ghost" 
           size="sm" 

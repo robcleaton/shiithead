@@ -83,9 +83,9 @@ const PlayerHand = ({
   
   return (
     <div className="relative">
-      <div className={`p-4 rounded-xl ${isActive ? 'bg-karma-primary/10 border border-karma-primary/30' : 'bg-transparent'} transition-all duration-300`}>
+      <div className={`p-4 rounded-xl ${isActive ? 'bg-shithead-primary/10 border border-shithead-primary/30' : 'bg-transparent'} transition-all duration-300`}>
         <div className="mb-3 text-center">
-          <span className={`text-sm font-medium px-3 py-1 rounded-full ${isActive ? 'bg-karma-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
+          <span className={`text-sm font-medium px-3 py-1 rounded-full ${isActive ? 'bg-shithead-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
             {isSetupPhase ? 'Select Cards' : (isActive ? 'Your Turn' : 'Waiting...')}
           </span>
         </div>
@@ -127,7 +127,7 @@ const PlayerHand = ({
           <div className="mt-6 flex justify-center">
             <Button
               onClick={handlePlaySelected}
-              className="bg-karma-primary hover:bg-karma-primary/90"
+              className="bg-shithead-primary hover:bg-shithead-primary/90"
             >
               {isSetupPhase ? (
                 <>

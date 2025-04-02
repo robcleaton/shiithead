@@ -38,7 +38,7 @@ const GameTable: React.FC<GameTableProps> = ({
   }, [deckCount]);
   
   return (
-    <div className="w-full max-w-2xl p-6 bg-karma-muted/30 backdrop-blur-sm rounded-xl border border-karma-border shadow-sm relative">
+    <div className="w-full max-w-2xl p-6 bg-shithead-muted/30 backdrop-blur-sm rounded-xl border border-shithead-border shadow-sm relative">
       <CurrentPlayerBadge currentPlayer={currentPlayer} />
       
       {/* Game area */}

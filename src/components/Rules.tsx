@@ -23,36 +23,36 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl glass-card">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-karma-primary">Shithead Rules</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-shithead-primary">Shithead Rules</DialogTitle>
           <DialogDescription>
-            Learn how to play the Karma card game (also known as Shithead)
+            Learn how to play the shithead card game (also known as Shithead)
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[70vh] pr-4">
-          <div className="space-y-4 text-karma-foreground">
+          <div className="space-y-4 text-shithead-foreground">
             {/* Objective Section */}
             <Collapsible
               open={expandedSection === "objective"}
               onOpenChange={() => toggleSection("objective")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
+              className="rounded-lg border border-shithead-border bg-shithead-muted/30"
             >
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Objective</h3>
+                <h3 className="text-lg font-semibold text-shithead-primary">Objective</h3>
                 {expandedSection === "objective" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
                 <p>Be the first player to get rid of all your cards to win the game! The last player with cards is the "Shithead" and loses the game.</p>
               </CollapsibleContent>
             </Collapsible>
-            
+
             {/* Setup Section */}
             <Collapsible
               open={expandedSection === "setup"}
               onOpenChange={() => toggleSection("setup")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
+              className="rounded-lg border border-shithead-border bg-shithead-muted/30"
             >
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Setup</h3>
+                <h3 className="text-lg font-semibold text-shithead-primary">Setup</h3>
                 {expandedSection === "setup" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
@@ -68,15 +68,15 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 </ul>
               </CollapsibleContent>
             </Collapsible>
-            
+
             {/* Gameplay Section */}
             <Collapsible
               open={expandedSection === "gameplay"}
               onOpenChange={() => toggleSection("gameplay")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
+              className="rounded-lg border border-shithead-border bg-shithead-muted/30"
             >
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Gameplay</h3>
+                <h3 className="text-lg font-semibold text-shithead-primary">Gameplay</h3>
                 {expandedSection === "gameplay" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
@@ -93,15 +93,15 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 </ul>
               </CollapsibleContent>
             </Collapsible>
-            
+
             {/* Special Cards Section */}
             <Collapsible
               open={expandedSection === "specialCards"}
               onOpenChange={() => toggleSection("specialCards")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
+              className="rounded-lg border border-shithead-border bg-shithead-muted/30"
             >
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Special Cards</h3>
+                <h3 className="text-lg font-semibold text-shithead-primary">Special Cards</h3>
                 {expandedSection === "specialCards" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
@@ -116,15 +116,15 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 </ul>
               </CollapsibleContent>
             </Collapsible>
-            
+
             {/* Winning Section */}
             <Collapsible
               open={expandedSection === "winning"}
               onOpenChange={() => toggleSection("winning")}
-              className="rounded-lg border border-karma-border bg-karma-muted/30"
+              className="rounded-lg border border-shithead-border bg-shithead-muted/30"
             >
               <CollapsibleTrigger className="flex w-full items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-karma-primary">Winning the Game</h3>
+                <h3 className="text-lg font-semibold text-shithead-primary">Winning the Game</h3>
                 {expandedSection === "winning" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">

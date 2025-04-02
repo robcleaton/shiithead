@@ -41,7 +41,7 @@ const GameSetup = ({
       <div className="flex flex-col gap-8 items-center">
         <div className="text-center mb-4">
           <h2 className="text-xl font-semibold mb-2">Setup Your Cards</h2>
-          <p className="text-karma-foreground/80">
+          <p className="text-shithead-foreground/80">
             Select 3 cards from your hand to place face-up on your 3 face-down cards
           </p>
           <div className="mt-4 flex justify-center gap-1 flex-wrap">
@@ -59,7 +59,7 @@ const GameSetup = ({
             player.faceDownCards.map((_, index) => (
               <div 
                 key={index}
-                className="w-14 h-20 bg-karma-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
+                className="w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
               />
             ))
           ) : (
@@ -121,7 +121,7 @@ const GameSetup = ({
             {isHost && (
               <Button 
                 onClick={completeSetup}
-                className="bg-karma-primary hover:bg-karma-primary/90"
+                className="bg-shithead-primary hover:bg-shithead-primary/90"
                 disabled={!players.every(p => p.isReady)}
               >
                 <Check className="w-4 h-4 mr-2" />

@@ -66,7 +66,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-                karma: {
+                shithead: {
                     background: '#f8f9fa',
                     foreground: '#1a1a1a',
                     primary: '#8B5CF6',

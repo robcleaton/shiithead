@@ -36,13 +36,13 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
   
   return (
     <div className="flex flex-col items-center">
-      <div className="text-xs bg-karma-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
+      <div className="text-xs bg-shithead-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
         {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
       </div>
       
       <div className="relative">
         {isTenOnTop && (
-          <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-karma-foreground/70 text-center">
+          <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-shithead-foreground/70 text-center">
             <span className="font-medium text-orange-500 flex items-center justify-center">
               <Flame className="h-3 w-3 mr-1" /> Burned
             </span>
@@ -85,7 +85,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
             
             {sameRankCount > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
-                <span className="text-xs bg-karma-primary text-white rounded-full px-2 py-0.5 font-medium border border-karma-border/20">
+                <span className="text-xs bg-shithead-primary text-white rounded-full px-2 py-0.5 font-medium border border-shithead-border/20">
                   {sameRankCount}
                 </span>
               </div>
