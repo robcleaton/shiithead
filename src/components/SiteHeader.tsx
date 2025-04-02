@@ -17,13 +17,12 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
   return (
     <div className="flex justify-between items-center">
       <motion.div
-        className="shithead-logo"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
         <Link to="/">
-          <img src={logo} alt="Home" width="150" />
+          <img src={logo} alt="Home" width="auto" />
         </Link>
       </motion.div>
 
