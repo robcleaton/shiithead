@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import Rules from "@/components/Rules";
+import logo from "../assets/logo-cream.svg"; // Adjust the path if needed
 
 interface SiteHeaderProps {
   showRulesButton?: boolean;
@@ -16,12 +17,14 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
   return (
     <div className="flex justify-between items-center">
       <motion.div
-        className="shithead-logo text-2xl font-bold text-karma-primary"
+        className="shithead-logo"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Link to="/">Shithead</Link>
+        <Link to="/">
+          <img src={logo} alt="Home" width="150" />
+        </Link>
       </motion.div>
 
       <motion.div
