@@ -19,6 +19,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				tusker: ['TuskerGrotesk', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -191,15 +194,3 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-
-
-module.exports = {
-  theme: {
-    extend: {
-      fontFamily: {
-        tusker: ['TuskerGrotesk', 'sans-serif'], // Add your font
-      },
-    },
-  },
-  plugins: [],
-};
