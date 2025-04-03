@@ -75,7 +75,7 @@ const Lobby = () => {
       <motion.div variants={item} className="w-full max-w-md">
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-shithead-primary">Shithead Card Game</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-shithead-primary font-tusker">Shithead Card Game</CardTitle>
             <CardDescription className="text-center">Create or join a game to get started</CardDescription>
           </CardHeader>
           <CardContent>
