@@ -4,7 +4,6 @@ import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
 import PlayerArea from './PlayerArea';
 import { CardValue } from '@/types/game';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import useGame from '@/hooks/useGame';
 import { useEffect } from 'react';
@@ -59,7 +58,6 @@ const ActiveGame = ({
   // Determine if a 3 is on top of the pile
   const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
   const isThreeOnTop = topCard?.rank === '3';
-  const mustPickUpPileOrPlayThree = isThreeOnTop;
 
   // Function to handle picking up the pile
   const handlePickUpPile = () => {
@@ -93,7 +91,7 @@ const ActiveGame = ({
           onPickupPile={handlePickUpPile}
           currentPlayer={currentPlayer?.name || 'Unknown'}
           isCurrentPlayer={currentPlayerId === playerId}
-          mustPickUpPileOrPlayThree={mustPickUpPileOrPlayThree}
+          mustPickUpPileOrPlayThree={isThreeOnTop}
           isLoading={isLoading}
         />
 

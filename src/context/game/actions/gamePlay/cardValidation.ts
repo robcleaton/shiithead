@@ -17,6 +17,17 @@ export const validateSingleCardPlay = (
   if (topCard.rank === '2') {
     return { valid: true };
   }
+  // Special 3 rule: must play a 3 or pick up the pile
+  else if (topCard.rank === '3') {
+    if (cardRank === '3') {
+      return { valid: true };
+    } else {
+      return { 
+        valid: false, 
+        errorMessage: "After a 3 is played, you must play another 3 or pick up the pile!"
+      };
+    }
+  }
   // Special 7 rule: must play a card below 7 or special cards 2, 3, 8, or another 7
   else if (topCard.rank === '7') {
     if (['2', '3', '7', '8'].includes(cardRank) || rankValues[cardRank] < rankValues['7' as Rank]) {
@@ -40,6 +51,10 @@ export const validateSingleCardPlay = (
   }
   // 10 can be played on any card (it's a burn card)
   else if (cardToPlay.rank === '10') {
+    return { valid: true };
+  }
+  // 3 can be played on any card
+  else if (cardToPlay.rank === '3') {
     return { valid: true };
   }
   // Regular card play validation
@@ -80,6 +95,17 @@ export const validateMultipleCardsPlay = (
   // Can always play on a 2
   if (topCard.rank === '2') {
     return { valid: true };
+  }
+  // Special 3 rule: must play a 3 or pick up the pile
+  else if (topCard.rank === '3') {
+    if (firstCard.rank === '3') {
+      return { valid: true };
+    } else {
+      return {
+        valid: false,
+        errorMessage: "After a 3 is played, you must play another 3 or pick up the pile!"
+      };
+    }
   }
   // Special 7 rule: must play a card below 7 or special cards 2, 3, 8, or another 7
   else if (topCard.rank === '7') {
