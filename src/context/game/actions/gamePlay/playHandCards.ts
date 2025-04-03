@@ -80,6 +80,19 @@ export const playHandCards = async (
     }
   });
   
+  // Update player's hand in the database
+  const { error: playerError } = await supabase
+    .from('players')
+    .update({ 
+      hand: finalHand,
+      face_up_cards: updatedFaceUpCards,
+      face_down_cards: updatedFaceDownCards
+    })
+    .eq('id', player.id)
+    .eq('game_id', state.gameId);
+    
+  if (playerError) throw playerError;
+  
   // First add cards to the pile then process burn conditions
   const newPile = [...state.pile, ...cardsToPlay];
   
@@ -126,4 +139,3 @@ export const playHandCards = async (
     }
   }
 };
-

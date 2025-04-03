@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue, Player } from '@/types/game';
@@ -228,4 +227,3 @@ export const validateCardPlay = (
   
   return { isValid: true, cardToPlay, updatedCards };
 };
-
