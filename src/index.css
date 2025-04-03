@@ -177,25 +177,12 @@
   }
 }
 
-html {
-  background: black;
-}
-
 body {
   background: #F8331E;
-  @apply border border-red-500 sm:border-blue-500[-40px] md:border-green-500[-40px] lg:border-yellow-500[-40px] xl:border-purple-500[-40px];
 }
-
-.pointer-events-none .text-base {
-  font-size: 3vw;
-  font-family: 'TuskerGrotesk';
-  text-transform: uppercase;
-  line-height: inherit;
-  padding: 0.2vw 2vw;
-  border-radius: 2.5vw;
-  letter-spacing: 0.19vw;
+body {
+  @apply border border-8 border-red-500 sm:border-blue-500 md:border-green-500 lg:border-yellow-500 xl:border-purple-500;
 }
-
 
 @font-face {
   font-family: 'TuskerGrotesk';
