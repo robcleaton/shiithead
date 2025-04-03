@@ -184,7 +184,9 @@ body {
   background: #F8331E;
 }
 body {
-  @apply border border-8 border-black sm:border-blue-500 sm:border-[12px] md:border-green-500 md:border-[20px] lg:border-yellow-500 lg:border-[28px] xl:border-purple-500 xl:border-[32px];
+  @apply border border-[16px] border-black sm:border-blue-500 sm:border-[20px] md:border-green-500 md:border-[24px] lg:border-yellow-500 lg:border-[28px] xl:border-purple-500 xl:border-[32px]
+  rounded-lg
+  sm:rounded-xl md:rounded-2xl lg:rounded-3xl xl:rounded-[40px];
 }
 
 
