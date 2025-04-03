@@ -42,7 +42,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          {isWinner ? "You Win!" : "You lose Shithead"}
+          {isWinner ? "You win Shithead!" : "You lose Shithead"}
         </motion.h1>
         
         <motion.div
