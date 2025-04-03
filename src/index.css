@@ -181,7 +181,7 @@ body {
   background: #F8331E;
 }
 body {
-  @apply border border-8 border-red-500 sm:border-blue-500 md:border-green-500 lg:border-yellow-500 xl:border-purple-500;
+  @apply border border-8 border-red-500 sm:border-blue-500 sm:border-8 md:border-green-500 md:border-8 lg:border-yellow-500 lg:border-8 xl:border-purple-500 xl:border-8;
 }
 
 @font-face {
