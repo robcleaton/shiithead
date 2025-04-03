@@ -25,6 +25,8 @@ const GameSetup = ({
 }: GameSetupProps) => {
   console.log('Rendering setup phase UI with player:', player);
   console.log('Player hand:', player.hand);
+  console.log('Player face up cards:', player.faceUpCards);
+  console.log('Player is ready:', player.isReady);
 
   const getSuitSymbol = (suit: string) => {
     switch (suit) {
@@ -35,6 +37,9 @@ const GameSetup = ({
       default: return '';
     }
   };
+
+  // Calculate remaining selections needed
+  const remainingSelectionsNeeded = 3 - (player.faceUpCards?.length || 0);
 
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
@@ -97,16 +102,25 @@ const GameSetup = ({
           )}
         </div>
 
+        {/* Display remaining selections needed if not ready */}
+        {!player.isReady && remainingSelectionsNeeded > 0 && (
+          <div className="my-2 text-center">
+            <span className="bg-shithead-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+              Select {remainingSelectionsNeeded} more card{remainingSelectionsNeeded !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+
         {/* Player Hand */}
-        <div className="w-full max-w-3xl mt-8">
+        <div className="w-full max-w-3xl mt-4">
           {player.hand && player.hand.length > 0 ? (
             <PlayerHand
               cards={player.hand}
-              isActive={true}
+              isActive={true} // Always active during setup phase
               onPlayCard={(index) => selectFaceUpCard(index)}
               onSelectMultipleCards={(indices) => selectMultipleFaceUpCards(indices)}
               isSetupPhase={true}
-              maxSelections={3 - (player.faceUpCards?.length || 0)}
+              maxSelections={remainingSelectionsNeeded}
             />
           ) : (
             <div className="text-center p-4 text-gray-500">

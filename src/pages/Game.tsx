@@ -26,10 +26,21 @@ const Game = () => {
       console.log('Current player hand:', currentPlayer.hand);
       console.log('Face down cards:', currentPlayer.faceDownCards);
       console.log('Face up cards:', currentPlayer.faceUpCards);
+      console.log('Player is ready:', currentPlayer.isReady);
     }
   }, [state]);
 
   const player = state.players.find(p => p.id === state.playerId);
+
+  // Add debug info for setup phase
+  useEffect(() => {
+    if (state.setupPhase && player) {
+      console.log('DEBUG - Setup phase active');
+      console.log('Player ready state:', player.isReady);
+      console.log('Player face up cards:', player.faceUpCards);
+      console.log('Player hand:', player.hand);
+    }
+  }, [state.setupPhase, player]);
 
   return (
     <div className="min-h-screen">

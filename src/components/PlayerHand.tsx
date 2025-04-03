@@ -110,8 +110,8 @@ const PlayerHand = ({
                     <Card 
                       card={card} 
                       index={index} 
-                      isPlayable={isActive}
-                      onPlay={isSetupPhase || !isActive ? undefined : () => handleSelectCard(index)}
+                      isPlayable={isActive || isSetupPhase}
+                      onPlay={(isSetupPhase || isActive) ? () => handleSelectCard(index) : undefined}
                       onSelect={() => handleSelectCard(index)}
                       delay={index}
                       isSelected={selectedIndices.includes(index)}
@@ -123,7 +123,7 @@ const PlayerHand = ({
           </div>
         </div>
         
-        {isActive && selectedIndices.length > 0 && areSelectionsValid() && (
+        {(isActive || isSetupPhase) && selectedIndices.length > 0 && areSelectionsValid() && (
           <div className="mt-6 flex justify-center">
             <Button
               onClick={handlePlaySelected}
