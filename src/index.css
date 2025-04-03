@@ -177,9 +177,25 @@
   }
 }
 
+html {
+  background: black;
+}
+
 body {
   background: #F8331E;
+  @apply border border-red-500 sm:border-blue-500 md:border-green-500 lg:border-yellow-500 xl:border-purple-500 border-8;
 }
+
+.pointer-events-none .text-base {
+  font-size: 3vw;
+  font-family: 'TuskerGrotesk';
+  text-transform: uppercase;
+  line-height: inherit;
+  padding: 0.2vw 2vw;
+  border-radius: 2.5vw;
+  letter-spacing: 0.19vw;
+}
+
 
 @font-face {
   font-family: 'TuskerGrotesk';
