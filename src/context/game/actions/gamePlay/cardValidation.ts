@@ -143,3 +143,4 @@ export const validateMultipleCardsPlay = (
     errorMessage: "When playing multiple cards of the same rank, they must be higher ranked than the top card or be special cards."
   };
 };
+

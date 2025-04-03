@@ -18,6 +18,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
   const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
   const isEightOnTop = topCard?.rank === '8';
+  const isSevenOnTop = topCard?.rank === '7';
   
   // Find the first non-8 card below the top card
   const findCardBelowEight = (): CardValue | null => {
@@ -57,6 +58,14 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
           </div>
         )}
         
+        {isSevenOnTop && (
+          <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-blue-500 text-center whitespace-nowrap">
+            <span className="font-medium flex items-center justify-center">
+              Play a 7 or a lower card!
+            </span>
+          </div>
+        )}
+        
         {topCard ? (
           <div className="relative">
             {sameRankCount > 1 && (
@@ -83,6 +92,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
             <div className={cn(
               isTenOnTop ? 'ring-2 ring-orange-500' : '',
               isThreeOnTop ? 'ring-2 ring-red-500' : '',
+              isSevenOnTop ? 'ring-2 ring-blue-500' : '',
               isEightOnTop ? 'opacity-70' : ''
             )}>
               <Card 
