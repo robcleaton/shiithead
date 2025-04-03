@@ -183,7 +183,11 @@ html {
 
 body {
   background: #F8331E;
-  @apply border border-red-500 sm:border-blue-500 md:border-green-500 lg:border-yellow-500 xl:border-purple-500 border-8;
+  @apply border border-red-500 border-4
+         sm:border-blue-500 sm:border-8
+         md:border-green-500 md:border-12
+         lg:border-yellow-500 lg:border-16
+         xl:border-purple-500 xl:border-20;
 }
 
 .pointer-events-none .text-base {
