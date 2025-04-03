@@ -90,6 +90,11 @@ export const validateMultipleCardsPlay = (
     };
   }
   
+  // Special case for multiple 7s - they can be played on any card
+  if (firstCard.rank === '7') {
+    return { valid: true };
+  }
+  
   // Special card rules still apply for the first card
   
   // Can always play on a 2

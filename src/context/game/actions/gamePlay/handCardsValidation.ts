@@ -27,6 +27,11 @@ export const validatePlayAgainstPile = (cards: CardValue[], pile: CardValue[]): 
   // If all the cards are 8s, any card can be played
   if (!effectiveTopCard) return true;
   
+  // Special case for multiples of 7s - they can be played on any card
+  if (cards.length > 1 && cards[0].rank === '7' && validateSameRank(cards)) {
+    return true;
+  }
+  
   // Special case for multiple cards of the same rank
   if (cards.length > 1) {
     const validationResult = validateMultipleCardsPlay(cards, effectiveTopCard);
