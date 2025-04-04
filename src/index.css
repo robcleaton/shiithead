@@ -216,11 +216,11 @@ h1, h2 {
 }
 
 footer.creds {
-  background: black;
   width: 100%;
   color: white;
   position: absolute;
   bottom: 0;
+  left: 0;
 }
 .warface {
   background: url(https://warface.co.uk/assets/images/warface-logo-white.svg) no-repeat;

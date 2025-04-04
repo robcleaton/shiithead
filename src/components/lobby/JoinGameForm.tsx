@@ -47,7 +47,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
       </CardHeader>
 
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="text-left space-y-4">
           <div className="space-y-2">
             <Label htmlFor="gameId">Game Code</Label>
             <Input
@@ -60,7 +60,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="text-left space-y-2">
             <Label htmlFor="playerName">Your Name</Label>
             <Input
               id="playerName"

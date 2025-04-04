@@ -20,7 +20,7 @@ const Game = () => {
     console.log('Setup phase:', state.setupPhase);
     console.log('Players in game:', state.players);
     console.log('Current game state:', state);
-    
+
     const currentPlayer = state.players.find(p => p.id === state.playerId);
     if (currentPlayer) {
       console.log('Current player hand:', currentPlayer.hand);
@@ -43,15 +43,15 @@ const Game = () => {
   }, [state.setupPhase, player]);
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       {state.isLoading && <LoadingGame />}
-      
+
       {!state.isLoading && !state.gameStarted && !state.setupPhase && <Lobby />}
-      
+
       {!state.isLoading && state.gameOver && (
         <GameOver players={state.players} resetGame={resetGame} />
       )}
-      
+
       {!state.isLoading && state.setupPhase && player && (
         <>
           <GameSetup
@@ -66,7 +66,7 @@ const Game = () => {
           <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
         </>
       )}
-      
+
       {!state.isLoading && state.gameStarted && !state.setupPhase && !state.gameOver && (
         <>
           <ActiveGame
@@ -85,7 +85,7 @@ const Game = () => {
           <CursorTracker hideUserCursor={true} />
         </>
       )}
-      
+
       {/* Add cursor tracker only for lobby, with hideUserCursor */}
       {state.gameId && !state.gameStarted && !state.setupPhase && <CursorTracker hideUserCursor={true} />}
     </div>
