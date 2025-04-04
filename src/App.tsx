@@ -24,7 +24,7 @@ const AppRoutes = () => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
       <header className="container mx-auto px-6 py-6">
         <SiteHeader />
       </header>
