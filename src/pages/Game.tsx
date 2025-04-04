@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import useGame from '@/hooks/useGame';
 import Rules from '@/components/Rules';
 import Lobby from '@/components/Lobby';
@@ -10,10 +10,13 @@ import GameSetup from '@/components/game/GameSetup';
 import GameOver from '@/components/game/GameOver';
 import ActiveGame from '@/components/game/ActiveGame';
 import CursorTracker from '@/components/CursorTracker';
+import { toast } from 'sonner';
 
 const Game = () => {
-  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
+  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards, refreshGameState } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [connectionIssue, setConnectionIssue] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     console.log('Game component rendered. Game started:', state.gameStarted);
@@ -42,9 +45,54 @@ const Game = () => {
     }
   }, [state.setupPhase, player]);
 
+  // Auto-recovery mechanism for when game state appears inconsistent
+  useEffect(() => {
+    let recoveryTimer: NodeJS.Timeout;
+    
+    if (state.gameId && state.gameStarted && !state.isLoading && state.players.length > 0) {
+      // If there's no current player assigned but the game has started
+      if (!state.currentPlayerId && !state.gameOver && !state.setupPhase) {
+        console.log('Detected missing current player in active game. Attempting recovery...');
+        setConnectionIssue(true);
+        
+        recoveryTimer = setTimeout(() => {
+          refreshGameState();
+          setRetryCount(prev => prev + 1);
+          
+          // After 3 retries, suggest manual refresh
+          if (retryCount >= 2) {
+            toast.error('Having trouble syncing the game state. Try refreshing the page.');
+            setConnectionIssue(false);
+          }
+        }, 3000);
+      } else {
+        setConnectionIssue(false);
+        setRetryCount(0);
+      }
+    }
+    
+    return () => {
+      clearTimeout(recoveryTimer);
+    };
+  }, [state.gameId, state.gameStarted, state.currentPlayerId, state.gameOver, 
+      state.setupPhase, state.players, state.isLoading, refreshGameState, retryCount]);
+
+  // Handle manual refresh when needed
+  const handleRefreshGame = useCallback(() => {
+    toast.info('Refreshing game state...');
+    refreshGameState();
+    setRetryCount(0);
+  }, [refreshGameState]);
+
   return (
     <div className="">
       {state.isLoading && <LoadingGame />}
+
+      {connectionIssue && !state.isLoading && (
+        <div className="fixed top-4 right-4 bg-amber-100 border border-amber-400 text-amber-800 px-4 py-2 rounded shadow-md z-50 animate-pulse">
+          Syncing game state...
+        </div>
+      )}
 
       {!state.isLoading && !state.gameStarted && !state.setupPhase && <Lobby />}
 
@@ -80,6 +128,7 @@ const Game = () => {
             resetGame={resetGame}
             onOpenRules={() => setRulesOpen(true)}
             isLoading={state.isLoading}
+            refreshGame={handleRefreshGame}
           />
           <Rules open={rulesOpen} onOpenChange={setRulesOpen} />
           <CursorTracker hideUserCursor={true} />

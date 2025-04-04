@@ -1,110 +1,131 @@
-
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
-type ChannelEvent = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
-
-interface ChannelConfig {
-  table: string;
-  schema?: string;
-  filter?: string;
-  event?: ChannelEvent;
-}
-
+// Enhanced hook with reconnection handling and status callback
 export const useSupabaseChannel = (
-  channelName: string,
-  config: ChannelConfig,
-  onUpdate: (payload: any) => void,
-  enabled: boolean = true
+  channelName: string, 
+  subscription: {
+    table: string;
+    filter?: string;
+    event?: string;
+  },
+  callback: (payload: any) => void,
+  enabled = true,
+  statusCallback?: (status: string) => void
 ) => {
-  const channelRef = useRef<any>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const setupChannel = useCallback(() => {
-    if (!enabled) return;
-
-    try {
-      console.log(`Setting up ${channelName} channel subscription`);
-      
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-      }
-
-      // Type assertion to any to bypass TypeScript's type checking for Supabase's API
-      // This is necessary because the Supabase API accepts this string at runtime
-      // but TypeScript's type definitions don't match the runtime behavior
-      const channel = supabase
-        .channel(channelName)
-        .on(
-          'postgres_changes' as any, 
-          {
-            event: config.event || '*',
-            schema: config.schema || 'public',
-            table: config.table,
-            filter: config.filter
-          }, 
-          (payload) => {
-            console.log(`${channelName} update received:`, payload);
-            onUpdate(payload);
-          }
-        )
-        .subscribe((status: any) => {
-          console.log(`${channelName} channel subscription status:`, status);
-          
-          // Type assertion here to bypass TypeScript's type checking
-          // Supabase runtime API returns string literals that don't match TypeScript types
-          if (status === 'SUBSCRIPTION_ERROR') {
-            console.error(`${channelName} subscription error. Will attempt to reconnect.`);
-            
-            if (reconnectTimeoutRef.current) {
-              clearTimeout(reconnectTimeoutRef.current);
-            }
-            
-            reconnectTimeoutRef.current = setTimeout(() => {
-              console.log(`Attempting to reconnect ${channelName} subscription...`);
-              setupChannel();
-            }, 5000);
-          }
-        });
-      
-      channelRef.current = channel;
-    } catch (error) {
-      console.error(`Error setting up ${channelName} channel:`, error);
-      
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      
-      reconnectTimeoutRef.current = setTimeout(() => {
-        console.log(`Attempting to reconnect ${channelName} subscription after error...`);
-        setupChannel();
-      }, 5000);
-    }
-  }, [channelName, config, onUpdate, enabled]);
+  // Keep track of the channel for cleanup
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  
+  // Track reconnection attempts
+  const reconnectAttemptRef = useRef(0);
+  const maxReconnectAttempts = 5;
+  const reconnectDelayMs = 2000;
 
   useEffect(() => {
-    setupChannel();
+    if (!enabled) return;
     
-    return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-      
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
+    const setupChannel = () => {
+      try {
+        // Create channel with the event and filter
+        const channel = supabase.channel(channelName);
+        
+        // Add the subscription
+        if (subscription.event === '*') {
+          // Subscribe to all events
+          channel
+            .on('postgres_changes', { 
+              event: 'INSERT', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter
+            }, callback)
+            .on('postgres_changes', { 
+              event: 'UPDATE', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter  
+            }, callback)
+            .on('postgres_changes', { 
+              event: 'DELETE', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter
+            }, callback);
+        } else {
+          // Subscribe to specific event
+          channel.on('postgres_changes', { 
+            event: (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE', 
+            schema: 'public', 
+            table: subscription.table,
+            filter: subscription.filter  
+          }, callback);
+        }
+        
+        // Add channel status handlers
+        channel
+          .on('system', { event: 'health' }, () => {
+            console.log(`Health check on channel ${channelName}`);
+          })
+          .on('subscription', { event: 'ready' }, () => {
+            console.log(`Subscription ready on channel ${channelName}`);
+            reconnectAttemptRef.current = 0; // Reset reconnection counter on successful connection
+            if (statusCallback) statusCallback('SUBSCRIBED');
+          })
+          .on('subscription', { event: 'error' }, (err) => {
+            console.error(`Subscription error on channel ${channelName}:`, err);
+            if (statusCallback) statusCallback('CHANNEL_ERROR');
+            
+            // Try to reconnect if we haven't exceeded the limit
+            if (reconnectAttemptRef.current < maxReconnectAttempts) {
+              reconnectAttemptRef.current++;
+              console.log(`Attempting to reconnect (${reconnectAttemptRef.current}/${maxReconnectAttempts})...`);
+              
+              // Cleanup and attempt reconnect after delay
+              setTimeout(() => {
+                if (channelRef.current) {
+                  supabase.removeChannel(channelRef.current);
+                }
+                setupChannel();
+              }, reconnectDelayMs);
+            }
+          });
+        
+        // Subscribe to the channel
+        const subscription = channel.subscribe((status) => {
+          console.log(`Channel ${channelName} status:`, status);
+          if (statusCallback) statusCallback(status);
+          
+          if (status === 'CLOSED' && reconnectAttemptRef.current < maxReconnectAttempts) {
+            reconnectAttemptRef.current++;
+            console.log(`Connection closed. Attempting to reconnect (${reconnectAttemptRef.current}/${maxReconnectAttempts})...`);
+            
+            setTimeout(() => {
+              if (channelRef.current) {
+                supabase.removeChannel(channelRef.current);
+              }
+              setupChannel();
+            }, reconnectDelayMs);
+          }
+        });
+        
+        // Store the channel
+        channelRef.current = channel;
+      } catch (error) {
+        console.error(`Error setting up channel ${channelName}:`, error);
+        if (statusCallback) statusCallback('SETUP_ERROR');
       }
     };
-  }, [setupChannel]);
-
-  return {
-    removeChannel: () => {
+    
+    // Initial setup
+    setupChannel();
+    
+    // Cleanup function
+    return () => {
       if (channelRef.current) {
+        console.log(`Cleaning up channel ${channelName}`);
         supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
       }
-    }
-  };
+    };
+  }, [channelName, subscription, callback, enabled, statusCallback]);
 };
