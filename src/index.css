@@ -185,7 +185,7 @@ body {
   height: 100vh;
 }
 body {
-  @apply border border-[16px] border-black rounded-[34px]
+  @apply border border-[8px] border-black rounded-[34px]
     sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
     md:border-green-500 md:border-[24px] md:rounded-[44px]
     lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
@@ -223,5 +223,7 @@ footer.creds {
   bottom: 0;
 }
 .warface {
-  background: url('https://warface.co.uk/assets/images/warface-logo-white.svg');
+  background: url(https://warface.co.uk/assets/images/warface-logo-white.svg) no-repeat;
+  width: 48px;
+  height: 34px;
 }
