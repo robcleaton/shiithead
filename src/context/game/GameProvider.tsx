@@ -1,4 +1,3 @@
-
 import { createContext, ReactNode, useEffect, useRef, useState } from 'react';
 import useGameContext from '@/hooks/useGameContext';
 import { GameState, Player, CardValue } from '@/types/game';
@@ -51,8 +50,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     // Setup connection monitoring
     const checkConnection = async () => {
       try {
-        // Instead of querying a non-existent "_health_check" table, 
-        // use a simple RPC call or query an existing table with a limit
+        // Use a simple query to check connection instead of a non-existent _health_check table
         const { error } = await supabase
           .from('games')
           .select('id')

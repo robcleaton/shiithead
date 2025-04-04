@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -79,16 +80,19 @@ export const useSupabaseChannel = (
         }
         
         // Add channel status handlers
+        // Note: We're using proper channel status event handlers here
+        // based on the Supabase channel API
         channel
-          .on('presence', { event: 'sync' }, () => {
+          // Using broadcast events for health checks instead of presence
+          .on('broadcast', { event: 'sync' }, () => {
             console.log(`Health check on channel ${channelName}`);
           })
-          .on('presence', { event: 'join' }, () => {
+          .on('broadcast', { event: 'join' }, () => {
             console.log(`Subscription ready on channel ${channelName}`);
             reconnectAttemptRef.current = 0; // Reset reconnection counter on successful connection
             if (statusCallback) statusCallback('SUBSCRIBED');
           })
-          .on('presence', { event: 'leave' }, (err) => {
+          .on('broadcast', { event: 'leave' }, (err) => {
             console.error(`Subscription error on channel ${channelName}:`, err);
             if (statusCallback) statusCallback('CHANNEL_ERROR');
             
