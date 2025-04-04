@@ -34,45 +34,61 @@ export const useSupabaseChannel = (
         if (subscription.event === '*') {
           // Subscribe to all events
           channel
-            .on('postgres_changes', { 
-              event: 'INSERT', 
-              schema: 'public', 
-              table: subscription.table,
-              filter: subscription.filter
-            }, callback)
-            .on('postgres_changes', { 
-              event: 'UPDATE', 
+            .on(
+              'postgres_changes', 
+              { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: subscription.table,
+                filter: subscription.filter 
+              }, 
+              callback
+            )
+            .on(
+              'postgres_changes', 
+              { 
+                event: 'UPDATE', 
+                schema: 'public', 
+                table: subscription.table,
+                filter: subscription.filter  
+              }, 
+              callback
+            )
+            .on(
+              'postgres_changes', 
+              { 
+                event: 'DELETE', 
+                schema: 'public', 
+                table: subscription.table,
+                filter: subscription.filter
+              }, 
+              callback
+            );
+        } else {
+          // Subscribe to specific event
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE', 
               schema: 'public', 
               table: subscription.table,
               filter: subscription.filter  
-            }, callback)
-            .on('postgres_changes', { 
-              event: 'DELETE', 
-              schema: 'public', 
-              table: subscription.table,
-              filter: subscription.filter
-            }, callback);
-        } else {
-          // Subscribe to specific event
-          channel.on('postgres_changes', { 
-            event: (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE', 
-            schema: 'public', 
-            table: subscription.table,
-            filter: subscription.filter  
-          }, callback);
+            }, 
+            callback
+          );
         }
         
         // Add channel status handlers
         channel
-          .on('system', { event: 'health' }, () => {
+          .on('presence', { event: 'sync' }, () => {
             console.log(`Health check on channel ${channelName}`);
           })
-          .on('system', { event: 'ready' }, () => {
+          .on('presence', { event: 'join' }, () => {
             console.log(`Subscription ready on channel ${channelName}`);
             reconnectAttemptRef.current = 0; // Reset reconnection counter on successful connection
             if (statusCallback) statusCallback('SUBSCRIBED');
           })
-          .on('system', { event: 'error' }, (err) => {
+          .on('presence', { event: 'leave' }, (err) => {
             console.error(`Subscription error on channel ${channelName}:`, err);
             if (statusCallback) statusCallback('CHANNEL_ERROR');
             
