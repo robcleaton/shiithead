@@ -42,7 +42,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="font-tusker">Join Game</CardTitle>
+        <CardTitle className="font-tusker uppercase">Join Game</CardTitle>
         <CardDescription>Enter the game code shared by the host</CardDescription>
       </CardHeader>
 
