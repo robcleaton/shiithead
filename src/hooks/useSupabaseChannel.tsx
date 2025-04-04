@@ -27,7 +27,7 @@ export const useSupabaseChannel = (
     
     const setupChannel = () => {
       try {
-        // Create channel with the event and filter
+        // Create channel
         const channel = supabase.channel(channelName);
         
         // Add the subscription
@@ -67,12 +67,12 @@ export const useSupabaseChannel = (
           .on('system', { event: 'health' }, () => {
             console.log(`Health check on channel ${channelName}`);
           })
-          .on('subscription', { event: 'ready' }, () => {
+          .on('system', { event: 'ready' }, () => {
             console.log(`Subscription ready on channel ${channelName}`);
             reconnectAttemptRef.current = 0; // Reset reconnection counter on successful connection
             if (statusCallback) statusCallback('SUBSCRIBED');
           })
-          .on('subscription', { event: 'error' }, (err) => {
+          .on('system', { event: 'error' }, (err) => {
             console.error(`Subscription error on channel ${channelName}:`, err);
             if (statusCallback) statusCallback('CHANNEL_ERROR');
             
@@ -92,7 +92,7 @@ export const useSupabaseChannel = (
           });
         
         // Subscribe to the channel
-        const subscription = channel.subscribe((status) => {
+        channel.subscribe((status) => {
           console.log(`Channel ${channelName} status:`, status);
           if (statusCallback) statusCallback(status);
           

@@ -51,9 +51,15 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     // Setup connection monitoring
     const checkConnection = async () => {
       try {
-        const { error } = await supabase.from('_health_check').select('*').limit(1);
+        // Instead of querying a non-existent "_health_check" table, 
+        // use a simple RPC call or query an existing table with a limit
+        const { error } = await supabase
+          .from('games')
+          .select('id')
+          .limit(1)
+          .single();
         
-        if (error) {
+        if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows returned" which is ok
           console.error('Supabase connection check failed:', error);
           if (!hasConnectionIssue) {
             setHasConnectionIssue(true);
