@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -31,15 +32,15 @@ export const useSupabaseChannel = (
         const channel = supabase.channel(channelName);
         
         // Setup system event handlers for the channel status first
-        channel
-          .on('system', { event: 'connected' }, () => {
-            console.log(`Connected to channel ${channelName}`);
-            if (statusCallback) statusCallback('CONNECTED');
-          })
-          .on('system', { event: 'disconnected' }, () => {
-            console.log(`Disconnected from channel ${channelName}`);
-            if (statusCallback) statusCallback('DISCONNECTED');
-          });
+        channel.on('system', { event: 'connected' }, () => {
+          console.log(`Connected to channel ${channelName}`);
+          if (statusCallback) statusCallback('CONNECTED');
+        });
+
+        channel.on('system', { event: 'disconnected' }, () => {
+          console.log(`Disconnected from channel ${channelName}`);
+          if (statusCallback) statusCallback('DISCONNECTED');
+        });
 
         // Add each postgres_changes subscription as separate non-chained calls
         if (subscription.event === '*') {
