@@ -96,11 +96,13 @@ export const useSupabaseChannel = (
           const eventType = subscription.event || 'UPDATE';
           console.log(`Setting up ${eventType} listener for ${subscription.table}`);
           
-          // Fix: Correctly typed channel subscription
+          // Fixed: Proper typing for postgres_changes events
+          const validEventType = (eventType as 'INSERT' | 'UPDATE' | 'DELETE');
+          
           channel.on(
             'postgres_changes',
             {
-              event: eventType as 'INSERT' | 'UPDATE' | 'DELETE',
+              event: validEventType,
               schema: 'public',
               table: subscription.table,
               filter: subscription.filter
