@@ -30,10 +30,11 @@ export const useSupabaseChannel = (
         // Create channel
         const channel = supabase.channel(channelName);
         
-        // Add the subscription - Fixed the type error here
+        // Add the subscription for postgres_changes events
         if (subscription.event === '*') {
           // Subscribe to all events
-          channel.on('postgres_changes', 
+          channel.on(
+            'postgres_changes', 
             { 
               event: 'INSERT', 
               schema: 'public', 
@@ -42,7 +43,8 @@ export const useSupabaseChannel = (
             }, 
             callback
           )
-          .on('postgres_changes', 
+          .on(
+            'postgres_changes', 
             { 
               event: 'UPDATE', 
               schema: 'public', 
@@ -51,7 +53,8 @@ export const useSupabaseChannel = (
             }, 
             callback
           )
-          .on('postgres_changes', 
+          .on(
+            'postgres_changes', 
             { 
               event: 'DELETE', 
               schema: 'public', 
@@ -62,7 +65,8 @@ export const useSupabaseChannel = (
           );
         } else {
           // Subscribe to specific event
-          channel.on('postgres_changes', 
+          channel.on(
+            'postgres_changes', 
             { 
               event: (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE', 
               schema: 'public', 
@@ -73,32 +77,22 @@ export const useSupabaseChannel = (
           );
         }
         
-        // Add channel status handlers using broadcast events
-        channel.on('broadcast', { event: 'sync' }, () => {
-          console.log(`Health check on channel ${channelName}`);
-        })
-        .on('broadcast', { event: 'join' }, () => {
-          console.log(`Subscription ready on channel ${channelName}`);
-          reconnectAttemptRef.current = 0; // Reset reconnection counter on successful connection
-          if (statusCallback) statusCallback('SUBSCRIBED');
-        })
-        .on('broadcast', { event: 'leave' }, (err) => {
-          console.error(`Subscription error on channel ${channelName}:`, err);
-          if (statusCallback) statusCallback('CHANNEL_ERROR');
-          
-          // Try to reconnect if we haven't exceeded the limit
-          if (reconnectAttemptRef.current < maxReconnectAttempts) {
-            reconnectAttemptRef.current++;
-            console.log(`Attempting to reconnect (${reconnectAttemptRef.current}/${maxReconnectAttempts})...`);
-            
-            // Cleanup and attempt reconnect after delay
-            setTimeout(() => {
-              if (channelRef.current) {
-                supabase.removeChannel(channelRef.current);
-              }
-              setupChannel();
-            }, reconnectDelayMs);
-          }
+        // Add channel status handlers
+        channel.on('system', { event: 'connected' }, () => {
+          console.log(`Connected to channel ${channelName}`);
+          if (statusCallback) statusCallback('CONNECTED');
+        });
+        
+        channel.on('system', { event: 'disconnected' }, () => {
+          console.log(`Disconnected from channel ${channelName}`);
+          if (statusCallback) statusCallback('DISCONNECTED');
+        });
+        
+        // Health check using custom broadcast events
+        channel.send({
+          type: 'broadcast',
+          event: 'sync',
+          payload: { status: 'syncing' }
         });
         
         // Subscribe to the channel
@@ -106,7 +100,11 @@ export const useSupabaseChannel = (
           console.log(`Channel ${channelName} status:`, status);
           if (statusCallback) statusCallback(status);
           
-          if (status === 'CLOSED' && reconnectAttemptRef.current < maxReconnectAttempts) {
+          if (status === 'SUBSCRIBED') {
+            console.log(`Subscription ready on channel ${channelName}`);
+            reconnectAttemptRef.current = 0; // Reset reconnection counter on successful connection
+            if (statusCallback) statusCallback('SUBSCRIBED');
+          } else if (status === 'CLOSED' && reconnectAttemptRef.current < maxReconnectAttempts) {
             reconnectAttemptRef.current++;
             console.log(`Connection closed. Attempting to reconnect (${reconnectAttemptRef.current}/${maxReconnectAttempts})...`);
             
@@ -116,6 +114,9 @@ export const useSupabaseChannel = (
               }
               setupChannel();
             }, reconnectDelayMs);
+          } else if (status === 'CHANNEL_ERROR') {
+            console.error(`Error on channel ${channelName}`);
+            if (statusCallback) statusCallback('CHANNEL_ERROR');
           }
         });
         
