@@ -96,7 +96,7 @@ export const useSupabaseChannel = (
           const eventType = subscription.event || 'UPDATE';
           console.log(`Setting up ${eventType} listener for ${subscription.table}`);
           
-          // Correctly typed channel subscription
+          // Correctly typed channel subscription - using the proper parameter order for postgres_changes
           channel.on(
             'postgres_changes',
             {
