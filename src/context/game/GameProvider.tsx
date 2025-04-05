@@ -16,6 +16,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const stuckGameCheckerRef = useRef<NodeJS.Timeout | null>(null);
   const lastRefreshRef = useRef<number>(0);
   const [hasConnectionIssue, setHasConnectionIssue] = useState(false);
+  const connectionCheckCountRef = useRef(0);
+  const lastToastTimeRef = useRef<number>(0);
+  const toastDebounceMs = 10000; // 10 seconds between connection toasts
   
   // Set up a watcher for AI player turns
   useEffect(() => {
@@ -43,12 +46,12 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     gameContext.state.gameOver
   ]);
 
-  // Check Supabase connection status
+  // Check Supabase connection status with debounced toasts
   useEffect(() => {
     const { state } = gameContext;
     if (!state.gameId) return;
 
-    // Setup connection monitoring
+    // Setup connection monitoring with progressive intervals
     const checkConnection = async () => {
       try {
         // Use a simple query to check connection
@@ -58,27 +61,46 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
           .limit(1)
           .single();
         
+        const now = Date.now();
+        
         if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows returned" which is ok
           console.error('Supabase connection check failed:', error);
+          connectionCheckCountRef.current++;
+          
           if (!hasConnectionIssue) {
             setHasConnectionIssue(true);
-            toast.error('Connection issues detected. Trying to reconnect...', {
-              id: 'connection-error',
-              duration: 5000,
-            });
+            
+            // Only show toast if we haven't shown one recently
+            if (now - lastToastTimeRef.current > toastDebounceMs) {
+              toast.error('Connection issues detected. Trying to reconnect...', {
+                id: 'connection-error',
+                duration: 5000,
+              });
+              lastToastTimeRef.current = now;
+            }
           }
-        } else if (hasConnectionIssue) {
-          setHasConnectionIssue(false);
-          toast.success('Connection restored!', {
-            id: 'connection-restored',
-            duration: 3000,
-          });
+        } else {
+          connectionCheckCountRef.current = 0;
           
-          // Refresh game data when connection is restored
-          gameContext.refreshGameState();
+          if (hasConnectionIssue) {
+            setHasConnectionIssue(false);
+            
+            // Only show reconnection toast if we had previously shown a disconnection toast
+            if (now - lastToastTimeRef.current < 60000) { // Only if disconnection was recent
+              toast.success('Connection restored!', {
+                id: 'connection-restored',
+                duration: 3000,
+              });
+              lastToastTimeRef.current = now;
+            }
+            
+            // Refresh game data when connection is restored
+            gameContext.refreshGameState();
+          }
         }
       } catch (error) {
         console.error('Error checking connection:', error);
+        connectionCheckCountRef.current++;
         setHasConnectionIssue(true);
       }
     };
@@ -86,8 +108,15 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     // Initial check
     checkConnection();
     
-    // Periodic check
-    const connectionChecker = setInterval(checkConnection, 30000);
+    // Periodic check with progressive intervals based on failure count
+    const connectionChecker = setInterval(() => {
+      // Increase check interval when we have multiple consecutive failures
+      if (connectionCheckCountRef.current > 3) {
+        // Only check every 30s if we have several failures
+        if (connectionCheckCountRef.current % 3 !== 0) return;
+      }
+      checkConnection();
+    }, 10000); // Base interval is 10s
     
     return () => {
       clearInterval(connectionChecker);
@@ -145,8 +174,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
                     (!gameData.setup_phase && state.setupPhase)) {
                   console.log(`Game state mismatch detected! DB says it's player ${gameData.current_player_id}'s turn, but local state says ${state.currentPlayerId}`);
                   
-                  // Auto refresh game state when mismatch detected
-                  toast.info('Refreshing game state...', { duration: 2000 });
+                  // Auto refresh game state when mismatch detected, without a toast
                   refreshGameState();
                 }
               }
@@ -196,8 +224,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     <GameContext.Provider value={gameContext}>
       {children}
       {hasConnectionIssue && (
-        <div className="fixed bottom-4 left-4 bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded shadow-lg z-50 animate-pulse">
-          Connection issues detected... Attempting to reconnect
+        <div className="fixed bottom-4 left-4 bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded shadow-lg z-50">
+          <div className="flex items-center">
+            <div className="animate-pulse w-2 h-2 bg-red-600 rounded-full mr-2"></div>
+            <span>Connection issue - attempting to reconnect</span>
+          </div>
         </div>
       )}
     </GameContext.Provider>

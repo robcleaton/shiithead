@@ -17,6 +17,8 @@ const Game = () => {
   const [rulesOpen, setRulesOpen] = useState(false);
   const [connectionIssue, setConnectionIssue] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const lastToastTimeRef = useRef<number>(0);
+  const toastDebounceMs = 8000; // 8 seconds between recovery toasts
 
   useEffect(() => {
     console.log('Game component rendered. Game started:', state.gameStarted);
@@ -59,10 +61,15 @@ const Game = () => {
           refreshGameState();
           setRetryCount(prev => prev + 1);
           
-          // After 3 retries, suggest manual refresh
+          // After 3 retries, suggest manual refresh but less aggressively
           if (retryCount >= 2) {
-            toast.error('Having trouble syncing the game state. Try refreshing the page.');
-            setConnectionIssue(false);
+            const now = Date.now();
+            if (now - lastToastTimeRef.current > toastDebounceMs) {
+              toast.error('Game state sync issue. Try refreshing the page if problem persists.', {
+                id: 'recovery-failed'
+              });
+              lastToastTimeRef.current = now;
+            }
           }
         }, 3000);
       } else {
@@ -79,7 +86,11 @@ const Game = () => {
 
   // Handle manual refresh when needed
   const handleRefreshGame = useCallback(() => {
-    toast.info('Refreshing game state...');
+    const now = Date.now();
+    if (now - lastToastTimeRef.current > toastDebounceMs) {
+      toast.info('Refreshing game state...', { id: 'manual-refresh' });
+      lastToastTimeRef.current = now;
+    }
     refreshGameState();
     setRetryCount(0);
   }, [refreshGameState]);
@@ -89,8 +100,11 @@ const Game = () => {
       {state.isLoading && <LoadingGame />}
 
       {connectionIssue && !state.isLoading && (
-        <div className="fixed top-4 right-4 bg-amber-100 border border-amber-400 text-amber-800 px-4 py-2 rounded shadow-md z-50 animate-pulse">
-          Syncing game state...
+        <div className="fixed top-4 right-4 bg-amber-100 border border-amber-400 text-amber-800 px-4 py-2 rounded shadow-md z-50">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-amber-500 rounded-full mr-2 animate-pulse"></div>
+            <span>Syncing game state...</span>
+          </div>
         </div>
       )}
 

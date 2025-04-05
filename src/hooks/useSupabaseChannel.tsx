@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeChannel, RealtimeChannelSendResponse, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 // Enhanced hook with reconnection handling and status callback
 export const useSupabaseChannel = (
@@ -22,6 +22,7 @@ export const useSupabaseChannel = (
   const reconnectAttemptRef = useRef(0);
   const maxReconnectAttempts = 5;
   const reconnectDelayMs = 2000;
+  const backoffFactor = 1.5; // Exponential backoff factor
 
   useEffect(() => {
     if (!enabled) return;
@@ -47,8 +48,22 @@ export const useSupabaseChannel = (
           // Listen for INSERT events
           console.log(`Setting up INSERT listener for ${subscription.table}`);
           
-          channel.on(
-            'postgres_changes', 
+          // Use type assertion to handle the postgres_changes method
+          const typedChannel = channel as unknown as {
+            on(
+              event: 'postgres_changes',
+              eventConfig: { 
+                event: 'INSERT' | 'UPDATE' | 'DELETE',
+                schema: string,
+                table: string,
+                filter?: string 
+              },
+              callback: (payload: any) => void
+            ): any;
+          };
+          
+          typedChannel.on(
+            'postgres_changes',
             { 
               event: 'INSERT', 
               schema: 'public', 
@@ -62,10 +77,8 @@ export const useSupabaseChannel = (
           );
           
           // Listen for UPDATE events
-          console.log(`Setting up UPDATE listener for ${subscription.table}`);
-          
-          channel.on(
-            'postgres_changes', 
+          typedChannel.on(
+            'postgres_changes',
             { 
               event: 'UPDATE', 
               schema: 'public', 
@@ -79,10 +92,8 @@ export const useSupabaseChannel = (
           );
           
           // Listen for DELETE events
-          console.log(`Setting up DELETE listener for ${subscription.table}`);
-          
-          channel.on(
-            'postgres_changes', 
+          typedChannel.on(
+            'postgres_changes',
             { 
               event: 'DELETE', 
               schema: 'public', 
@@ -102,21 +113,21 @@ export const useSupabaseChannel = (
           // Define the event type properly for TypeScript
           const validEventType = eventType as 'INSERT' | 'UPDATE' | 'DELETE';
           
-          // For Supabase v2.49.1, we need to use this specific type for the channel.on method
-          const pgChannel = channel as {
+          // Use type assertion to handle the postgres_changes method
+          const typedChannel = channel as unknown as {
             on(
-              type: 'postgres_changes',
-              filter: {
-                event: 'INSERT' | 'UPDATE' | 'DELETE';
-                schema: string;
-                table: string;
-                filter?: string;
+              event: 'postgres_changes',
+              eventConfig: { 
+                event: 'INSERT' | 'UPDATE' | 'DELETE',
+                schema: string,
+                table: string,
+                filter?: string 
               },
               callback: (payload: any) => void
             ): any;
           };
           
-          pgChannel.on(
+          typedChannel.on(
             'postgres_changes',
             {
               event: validEventType,
@@ -149,17 +160,38 @@ export const useSupabaseChannel = (
             if (statusCallback) statusCallback('SUBSCRIBED');
           } else if (status === 'CLOSED' && reconnectAttemptRef.current < maxReconnectAttempts) {
             reconnectAttemptRef.current++;
-            console.log(`Connection closed. Attempting to reconnect (${reconnectAttemptRef.current}/${maxReconnectAttempts})...`);
+            
+            // Calculate backoff with jitter to avoid thundering herd
+            const baseDelay = reconnectDelayMs * Math.pow(backoffFactor, reconnectAttemptRef.current - 1);
+            const jitter = Math.random() * 0.5 + 0.75; // Jitter between 0.75 and 1.25
+            const delay = Math.floor(baseDelay * jitter);
+            
+            console.log(`Connection closed. Attempting to reconnect (${reconnectAttemptRef.current}/${maxReconnectAttempts}) in ${delay}ms...`);
             
             setTimeout(() => {
               if (channelRef.current) {
                 supabase.removeChannel(channelRef.current);
+                channelRef.current = null;
               }
               setupChannel();
-            }, reconnectDelayMs);
+            }, delay);
           } else if (status === 'CHANNEL_ERROR') {
             console.error(`Error on channel ${channelName}`);
             if (statusCallback) statusCallback('CHANNEL_ERROR');
+            
+            // Attempt reconnect after an error, with backoff
+            if (reconnectAttemptRef.current < maxReconnectAttempts) {
+              const delay = reconnectDelayMs * Math.pow(backoffFactor, reconnectAttemptRef.current);
+              reconnectAttemptRef.current++;
+              
+              setTimeout(() => {
+                if (channelRef.current) {
+                  supabase.removeChannel(channelRef.current);
+                  channelRef.current = null;
+                }
+                setupChannel();
+              }, delay);
+            }
           }
         });
         
