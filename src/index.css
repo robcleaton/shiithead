@@ -183,8 +183,9 @@ html {
 body {
   height: 100vh;
   background: #F8331E;
+  border-radius: 40px;
 }
-body {
+root, body {
   @apply border border-[8px] border-black rounded-[34px]
     sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
     md:border-green-500 md:border-[24px] md:rounded-[44px]
@@ -193,6 +194,7 @@ body {
 }
 #root {
   background: #F8331E;
+  height: 100%;
 }
 
 
