@@ -42,7 +42,8 @@ export const useSupabaseChannel = (
             if (statusCallback) statusCallback('DISCONNECTED');
           });
 
-        // Instead of chaining, add each postgres_changes subscription separately
+        // Add each postgres_changes subscription as separate calls
+        // (not chained to the system events)
         if (subscription.event === '*') {
           // Subscribe to all events (INSERT, UPDATE, DELETE)
           channel.on(
