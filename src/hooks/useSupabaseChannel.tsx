@@ -93,14 +93,14 @@ export const useSupabaseChannel = (
           );
         } else {
           // Handle specific event type
-          const eventType = (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE';
+          const eventType = subscription.event || 'UPDATE';
           console.log(`Setting up ${eventType} listener for ${subscription.table}`);
           
-          // Fix for TypeScript error - ensure correct parameter order and types
+          // Correctly typed channel subscription
           channel.on(
             'postgres_changes',
             {
-              event: eventType,
+              event: eventType as 'INSERT' | 'UPDATE' | 'DELETE',
               schema: 'public',
               table: subscription.table,
               filter: subscription.filter
