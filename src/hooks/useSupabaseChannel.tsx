@@ -45,8 +45,7 @@ export const useSupabaseChannel = (
         if (subscription.event === '*') {
           // Listen for INSERT events
           console.log(`Setting up INSERT listener for ${subscription.table}`);
-          channel.on(
-            'postgres_changes', 
+          channel.onPostgresChanges(
             { 
               event: 'INSERT', 
               schema: 'public', 
@@ -61,8 +60,7 @@ export const useSupabaseChannel = (
           
           // Listen for UPDATE events
           console.log(`Setting up UPDATE listener for ${subscription.table}`);
-          channel.on(
-            'postgres_changes', 
+          channel.onPostgresChanges(
             { 
               event: 'UPDATE', 
               schema: 'public', 
@@ -77,8 +75,7 @@ export const useSupabaseChannel = (
           
           // Listen for DELETE events
           console.log(`Setting up DELETE listener for ${subscription.table}`);
-          channel.on(
-            'postgres_changes', 
+          channel.onPostgresChanges(
             { 
               event: 'DELETE', 
               schema: 'public', 
@@ -98,9 +95,8 @@ export const useSupabaseChannel = (
           // Define the event type properly for TypeScript
           const validEventType = eventType as 'INSERT' | 'UPDATE' | 'DELETE';
           
-          // Use the correct channel.on() syntax for postgres_changes
-          channel.on(
-            'postgres_changes',
+          // Use the correct channel.onPostgresChanges() syntax
+          channel.onPostgresChanges(
             {
               event: validEventType,
               schema: 'public',
