@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -33,36 +34,37 @@ export const useSupabaseChannel = (
         // Add the subscription for postgres_changes events
         if (subscription.event === '*') {
           // Subscribe to all events
-          channel.on(
-            'postgres_changes', 
-            { 
-              event: 'INSERT', 
-              schema: 'public', 
-              table: subscription.table,
-              filter: subscription.filter 
-            }, 
-            callback
-          )
-          .on(
-            'postgres_changes', 
-            { 
-              event: 'UPDATE', 
-              schema: 'public', 
-              table: subscription.table,
-              filter: subscription.filter  
-            }, 
-            callback
-          )
-          .on(
-            'postgres_changes', 
-            { 
-              event: 'DELETE', 
-              schema: 'public', 
-              table: subscription.table,
-              filter: subscription.filter
-            }, 
-            callback
-          );
+          channel
+            .on(
+              'postgres_changes', 
+              { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: subscription.table,
+                filter: subscription.filter 
+              }, 
+              callback
+            )
+            .on(
+              'postgres_changes', 
+              { 
+                event: 'UPDATE', 
+                schema: 'public', 
+                table: subscription.table,
+                filter: subscription.filter  
+              }, 
+              callback
+            )
+            .on(
+              'postgres_changes', 
+              { 
+                event: 'DELETE', 
+                schema: 'public', 
+                table: subscription.table,
+                filter: subscription.filter
+              }, 
+              callback
+            );
         } else {
           // Subscribe to specific event
           channel.on(
@@ -77,18 +79,18 @@ export const useSupabaseChannel = (
           );
         }
         
-        // Add channel status handlers
-        channel.on('system', { event: 'connected' }, () => {
-          console.log(`Connected to channel ${channelName}`);
-          if (statusCallback) statusCallback('CONNECTED');
-        });
+        // Setup system event handlers for the channel status
+        channel
+          .on('system', { event: 'connected' }, () => {
+            console.log(`Connected to channel ${channelName}`);
+            if (statusCallback) statusCallback('CONNECTED');
+          })
+          .on('system', { event: 'disconnected' }, () => {
+            console.log(`Disconnected from channel ${channelName}`);
+            if (statusCallback) statusCallback('DISCONNECTED');
+          });
         
-        channel.on('system', { event: 'disconnected' }, () => {
-          console.log(`Disconnected from channel ${channelName}`);
-          if (statusCallback) statusCallback('DISCONNECTED');
-        });
-        
-        // Health check using custom broadcast events
+        // Send a broadcast message for health check
         channel.send({
           type: 'broadcast',
           event: 'sync',
