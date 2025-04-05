@@ -18,12 +18,12 @@ interface GameTableProps {
   isLoading?: boolean;
 }
 
-const GameTable: React.FC<GameTableProps> = ({ 
-  pile, 
-  deckCount, 
-  onDrawCard, 
+const GameTable: React.FC<GameTableProps> = ({
+  pile,
+  deckCount,
+  onDrawCard,
   onPickupPile,
-  currentPlayer, 
+  currentPlayer,
   isCurrentPlayer,
   mustPickUpPileOrPlayThree,
   isLoading = false
@@ -32,15 +32,15 @@ const GameTable: React.FC<GameTableProps> = ({
   const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
   const isEightOnTop = topCard?.rank === '8';
-  
+
   useEffect(() => {
     console.log(`GameTable received deckCount: ${deckCount}`);
   }, [deckCount]);
-  
+
   return (
-    <div className="w-full max-w-2xl p-6 bg-shithead-muted/30 backdrop-blur-sm rounded-xl border border-shithead-border shadow-sm relative">
+    <div className="w-full max-w-2xl p-6 bg-shithead-muted/30 rounded-xl border relative">
       <CurrentPlayerBadge currentPlayer={currentPlayer} />
-      
+
       {/* Game area */}
       <div className="flex justify-center mb-6">
         {/* Card counts display */}
@@ -51,7 +51,7 @@ const GameTable: React.FC<GameTableProps> = ({
           </div>
         </div>
       </div>
-      
+
       <PickUpPileButton
         isCurrentPlayer={isCurrentPlayer}
         pileHasCards={pile.length > 0}
@@ -59,7 +59,7 @@ const GameTable: React.FC<GameTableProps> = ({
         onPickupPile={onPickupPile}
         isLoading={isLoading}
       />
-      
+
       <GameStatusMessages
         isThreeOnTop={isThreeOnTop}
         isTenOnTop={isTenOnTop}

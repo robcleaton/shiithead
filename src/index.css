@@ -221,6 +221,7 @@ footer.creds {
   position: absolute;
   bottom: 0;
   left: 0;
+  display: flex;
 }
 .warface {
   background: url(https://warface.co.uk/assets/images/warface-logo-white.svg) no-repeat;

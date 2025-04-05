@@ -74,8 +74,8 @@ const ActiveGame = ({
   console.log(`Current deck count in ActiveGame: ${deck.length}, type: ${typeof deck.length}`);
 
   return (
-    <div className="container mx-auto px-4 py-10 min-h-screen">
-      <div className="flex flex-col gap-8 items-center">
+    <div className="container mx-auto px-4 min-h-screen">
+      <div className="flex flex-col gap-4 items-center">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {players
             .filter(p => p.id !== playerId)
@@ -84,9 +84,9 @@ const ActiveGame = ({
             ))}
         </div>
 
-        <GameTable 
-          pile={pile} 
-          deckCount={deck.length} 
+        <GameTable
+          pile={pile}
+          deckCount={deck.length}
           onDrawCard={drawCard}
           onPickupPile={handlePickUpPile}
           currentPlayer={currentPlayer?.name || 'Unknown'}
@@ -95,15 +95,15 @@ const ActiveGame = ({
           isLoading={isLoading}
         />
 
-        <PlayerArea 
-          player={player} 
+        <PlayerArea
+          player={player}
           isActive={currentPlayerId === playerId}
           onPlayCard={playCard}
         />
-        
+
         <div className="mt-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleRefreshGame}
             className="text-xs flex items-center gap-1"
             disabled={isLoading}
