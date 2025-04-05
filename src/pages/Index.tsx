@@ -61,10 +61,6 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 flex-1 flex flex-col items-center justify-center py-12">
-        <h3>Test container</h3>
-      </div>
-
       <footer className="container mx-auto px-6 py-8">
         <motion.div
           className="text-center text-sm text-shithead-foreground/60"

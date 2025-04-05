@@ -181,20 +181,15 @@ html {
   background: black;
 }
 body {
-  height: 100vh;
   background: #F8331E;
-  border-radius: 40px;
+  height: 100vh;
 }
-root, body {
+body {
   @apply border border-[8px] border-black rounded-[34px]
     sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
     md:border-green-500 md:border-[24px] md:rounded-[44px]
     lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
     xl:border-purple-500 xl:border-[32px] xl:rounded-[60px];
-}
-#root {
-  background: #F8331E;
-  height: 100%;
 }
 
 
@@ -226,7 +221,6 @@ footer.creds {
   position: absolute;
   bottom: 0;
   left: 0;
-  display: flex;
 }
 .warface {
   background: url(https://warface.co.uk/assets/images/warface-logo-white.svg) no-repeat;
