@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimeChannelSendResponse, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
@@ -45,7 +46,8 @@ export const useSupabaseChannel = (
         if (subscription.event === '*') {
           // Listen for INSERT events
           console.log(`Setting up INSERT listener for ${subscription.table}`);
-          channel.onPostgresChanges(
+          channel.on(
+            'postgres_changes', 
             { 
               event: 'INSERT', 
               schema: 'public', 
@@ -60,7 +62,8 @@ export const useSupabaseChannel = (
           
           // Listen for UPDATE events
           console.log(`Setting up UPDATE listener for ${subscription.table}`);
-          channel.onPostgresChanges(
+          channel.on(
+            'postgres_changes', 
             { 
               event: 'UPDATE', 
               schema: 'public', 
@@ -75,7 +78,8 @@ export const useSupabaseChannel = (
           
           // Listen for DELETE events
           console.log(`Setting up DELETE listener for ${subscription.table}`);
-          channel.onPostgresChanges(
+          channel.on(
+            'postgres_changes', 
             { 
               event: 'DELETE', 
               schema: 'public', 
@@ -95,8 +99,9 @@ export const useSupabaseChannel = (
           // Define the event type properly for TypeScript
           const validEventType = eventType as 'INSERT' | 'UPDATE' | 'DELETE';
           
-          // Use the correct channel.onPostgresChanges() syntax
-          channel.onPostgresChanges(
+          // Use the correct channel.on() syntax for postgres_changes
+          channel.on(
+            'postgres_changes',
             {
               event: validEventType,
               schema: 'public',
