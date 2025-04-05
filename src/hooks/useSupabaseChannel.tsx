@@ -78,11 +78,9 @@ export const useSupabaseChannel = (
           );
         }
         
-        // Add channel status handlers
-        // Note: We're using proper channel status event handlers here
-        // based on the Supabase channel API
+        // Add channel status handlers using broadcast events
+        // This was previously causing errors - changing to use 'broadcast' instead
         channel
-          // Using broadcast events for health checks instead of presence
           .on('broadcast', { event: 'sync' }, () => {
             console.log(`Health check on channel ${channelName}`);
           })
