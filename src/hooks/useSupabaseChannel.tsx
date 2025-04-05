@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimeChannelSendResponse, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
@@ -46,54 +45,51 @@ export const useSupabaseChannel = (
         if (subscription.event === '*') {
           // Listen for INSERT events
           console.log(`Setting up INSERT listener for ${subscription.table}`);
-          channel
-            .on(
-              'postgres_changes', 
-              { 
-                event: 'INSERT', 
-                schema: 'public', 
-                table: subscription.table,
-                filter: subscription.filter 
-              }, 
-              (payload) => {
-                console.log(`INSERT event on ${subscription.table}:`, payload);
-                callback(payload);
-              }
-            );
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: 'INSERT', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter 
+            }, 
+            (payload) => {
+              console.log(`INSERT event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
+          );
           
           // Listen for UPDATE events
           console.log(`Setting up UPDATE listener for ${subscription.table}`);
-          channel
-            .on(
-              'postgres_changes', 
-              { 
-                event: 'UPDATE', 
-                schema: 'public', 
-                table: subscription.table,
-                filter: subscription.filter
-              }, 
-              (payload) => {
-                console.log(`UPDATE event on ${subscription.table}:`, payload);
-                callback(payload);
-              }
-            );
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: 'UPDATE', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter
+            }, 
+            (payload) => {
+              console.log(`UPDATE event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
+          );
           
           // Listen for DELETE events
           console.log(`Setting up DELETE listener for ${subscription.table}`);
-          channel
-            .on(
-              'postgres_changes', 
-              { 
-                event: 'DELETE', 
-                schema: 'public', 
-                table: subscription.table,
-                filter: subscription.filter
-              }, 
-              (payload) => {
-                console.log(`DELETE event on ${subscription.table}:`, payload);
-                callback(payload);
-              }
-            );
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: 'DELETE', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter
+            }, 
+            (payload) => {
+              console.log(`DELETE event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
+          );
         } else {
           // Handle specific event type
           const eventType = subscription.event || 'UPDATE';
@@ -103,20 +99,19 @@ export const useSupabaseChannel = (
           const validEventType = eventType as 'INSERT' | 'UPDATE' | 'DELETE';
           
           // Use the correct channel.on() syntax for postgres_changes
-          channel
-            .on(
-              'postgres_changes',
-              {
-                event: validEventType,
-                schema: 'public',
-                table: subscription.table,
-                filter: subscription.filter
-              },
-              (payload) => {
-                console.log(`${eventType} event on ${subscription.table}:`, payload);
-                callback(payload);
-              }
-            );
+          channel.on(
+            'postgres_changes',
+            {
+              event: validEventType,
+              schema: 'public',
+              table: subscription.table,
+              filter: subscription.filter
+            },
+            (payload) => {
+              console.log(`${eventType} event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
+          );
         }
         
         // Send a broadcast message for health check
