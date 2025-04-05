@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -42,8 +41,7 @@ export const useSupabaseChannel = (
             if (statusCallback) statusCallback('DISCONNECTED');
           });
 
-        // Add each postgres_changes subscription as separate calls
-        // (not chained to the system events)
+        // Add each postgres_changes subscription as separate non-chained calls
         if (subscription.event === '*') {
           // Subscribe to all events (INSERT, UPDATE, DELETE)
           channel.on(
@@ -56,7 +54,7 @@ export const useSupabaseChannel = (
             }, 
             callback
           );
-            
+          
           channel.on(
             'postgres_changes', 
             { 
@@ -67,7 +65,7 @@ export const useSupabaseChannel = (
             }, 
             callback
           );
-            
+          
           channel.on(
             'postgres_changes', 
             { 
