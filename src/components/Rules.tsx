@@ -117,58 +117,75 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 {expandedSection === "specialCards" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-16">
+                <div className="space-y-6">
+                  {/* Fixed each card item layout */}
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-12 h-auto">
                       <Card card={specialCards.ace} index={0} isPlayable={false} />
                     </div>
-                    <p><strong>Ace:</strong> Highest ranking card in the game.</p>
+                    <div className="flex-1 pt-2">
+                      <p><strong>Ace:</strong> Highest ranking card in the game.</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-16">
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-12 h-auto">
                       <Card card={specialCards.two} index={0} isPlayable={false} />
                     </div>
-                    <p><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</p>
+                    <div className="flex-1 pt-2">
+                      <p><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-16">
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-12 h-auto">
                       <Card card={specialCards.three} index={0} isPlayable={false} />
                     </div>
-                    <p><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</p>
+                    <div className="flex-1 pt-2">
+                      <p><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-16">
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-12 h-auto">
                       <Card card={specialCards.seven} index={0} isPlayable={false} />
                     </div>
-                    <p><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</p>
+                    <div className="flex-1 pt-2">
+                      <p><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-16">
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-12 h-auto">
                       <Card card={specialCards.eight} index={0} isPlayable={false} />
                     </div>
-                    <p><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</p>
+                    <div className="flex-1 pt-2">
+                      <p><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-16">
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-12 h-auto">
                       <Card card={specialCards.ten} index={0} isPlayable={false} />
                     </div>
-                    <p><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</p>
+                    <div className="flex-1 pt-2">
+                      <p><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-16 flex space-x-[-30px]">
-                      {['hearts', 'diamonds', 'clubs', 'spades'].map((suit, i) => (
-                        <div key={suit} className="w-16" style={{ transform: `translateX(${i * 8}px)`, zIndex: i }}>
-                          <Card card={{ suit: suit as any, rank: 'Q' }} index={0} isPlayable={false} />
-                        </div>
-                      ))}
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0 w-40 h-auto">
+                      <div className="flex relative">
+                        {['hearts', 'diamonds', 'clubs', 'spades'].map((suit, i) => (
+                          <div key={suit} className="w-12 h-auto" style={{ position: 'absolute', left: `${i * 8}px`, zIndex: i }}>
+                            <Card card={{ suit: suit as any, rank: 'Q' }} index={0} isPlayable={false} />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <p><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</p>
+                    <div className="flex-1 pt-2 ml-8">
+                      <p><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</p>
+                    </div>
                   </div>
                 </div>
               </CollapsibleContent>
