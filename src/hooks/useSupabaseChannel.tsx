@@ -102,8 +102,21 @@ export const useSupabaseChannel = (
           // Define the event type properly for TypeScript
           const validEventType = eventType as 'INSERT' | 'UPDATE' | 'DELETE';
           
-          // Use the correct signature for the .on() method for postgres_changes
-          channel.on(
+          // For Supabase v2.49.1, we need to use this specific type for the channel.on method
+          const pgChannel = channel as {
+            on(
+              type: 'postgres_changes',
+              filter: {
+                event: 'INSERT' | 'UPDATE' | 'DELETE';
+                schema: string;
+                table: string;
+                filter?: string;
+              },
+              callback: (payload: any) => void
+            ): any;
+          };
+          
+          pgChannel.on(
             'postgres_changes',
             {
               event: validEventType,
