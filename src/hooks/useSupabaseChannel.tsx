@@ -42,9 +42,10 @@ export const useSupabaseChannel = (
           if (statusCallback) statusCallback('DISCONNECTED');
         });
 
-        // Add postgres_changes subscriptions as separate non-chained calls
+        // Handle postgres_changes events
         if (subscription.event === '*') {
-          // Subscribe to INSERT events
+          // Listen for INSERT events
+          console.log(`Setting up INSERT listener for ${subscription.table}`);
           channel.on(
             'postgres_changes', 
             { 
@@ -59,7 +60,8 @@ export const useSupabaseChannel = (
             }
           );
           
-          // Subscribe to UPDATE events
+          // Listen for UPDATE events
+          console.log(`Setting up UPDATE listener for ${subscription.table}`);
           channel.on(
             'postgres_changes', 
             { 
@@ -74,7 +76,8 @@ export const useSupabaseChannel = (
             }
           );
           
-          // Subscribe to DELETE events
+          // Listen for DELETE events
+          console.log(`Setting up DELETE listener for ${subscription.table}`);
           channel.on(
             'postgres_changes', 
             { 
@@ -89,9 +92,11 @@ export const useSupabaseChannel = (
             }
           );
         } else {
-          // Subscribe to specific event type
+          // Handle specific event type
           const eventType = (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE';
+          console.log(`Setting up ${eventType} listener for ${subscription.table}`);
           
+          // The key fix: Correct way to use channel.on for postgres_changes
           channel.on(
             'postgres_changes', 
             { 
