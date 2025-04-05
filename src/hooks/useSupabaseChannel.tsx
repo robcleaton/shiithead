@@ -31,7 +31,7 @@ export const useSupabaseChannel = (
         // Create channel
         const channel = supabase.channel(channelName);
         
-        // Setup system event handlers for the channel status first
+        // Setup system event handlers first
         channel.on('system', { event: 'connected' }, () => {
           console.log(`Connected to channel ${channelName}`);
           if (statusCallback) statusCallback('CONNECTED');
@@ -42,7 +42,7 @@ export const useSupabaseChannel = (
           if (statusCallback) statusCallback('DISCONNECTED');
         });
 
-        // Add postgres_changes subscriptions as separate calls (not chained)
+        // Add postgres_changes subscriptions as separate non-chained calls
         if (subscription.event === '*') {
           // Subscribe to INSERT events
           channel.on(
@@ -66,7 +66,7 @@ export const useSupabaseChannel = (
               event: 'UPDATE', 
               schema: 'public', 
               table: subscription.table,
-              filter: subscription.filter  
+              filter: subscription.filter
             }, 
             (payload) => {
               console.log(`UPDATE event on ${subscription.table}:`, payload);
@@ -89,17 +89,19 @@ export const useSupabaseChannel = (
             }
           );
         } else {
-          // Subscribe to specific event
+          // Subscribe to specific event type
+          const eventType = (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE';
+          
           channel.on(
             'postgres_changes', 
             { 
-              event: (subscription.event || 'UPDATE') as 'INSERT' | 'UPDATE' | 'DELETE', 
+              event: eventType,
               schema: 'public', 
               table: subscription.table,
-              filter: subscription.filter  
+              filter: subscription.filter
             }, 
             (payload) => {
-              console.log(`${subscription.event || 'UPDATE'} event on ${subscription.table}:`, payload);
+              console.log(`${eventType} event on ${subscription.table}:`, payload);
               callback(payload);
             }
           );
