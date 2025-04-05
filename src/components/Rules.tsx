@@ -2,10 +2,12 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card as UICard, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import Card from "@/components/Card";
+import { CardValue } from "@/types/game";
 
 interface RulesProps {
   open: boolean;
@@ -17,6 +19,16 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  // Sample cards for display in the rules
+  const specialCards: Record<string, CardValue> = {
+    ace: { suit: "spades", rank: "A" },
+    two: { suit: "hearts", rank: "2" },
+    three: { suit: "diamonds", rank: "3" },
+    seven: { suit: "clubs", rank: "7" },
+    eight: { suit: "spades", rank: "8" },
+    ten: { suit: "hearts", rank: "10" },
   };
 
   return (
@@ -105,15 +117,60 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 {expandedSection === "specialCards" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
-                <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>A:</strong> Highest ranking card in the game.</li>
-                  <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</li>
-                  <li><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</li>
-                  <li><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</li>
-                  <li><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</li>
-                  <li><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</li>
-                  <li><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</li>
-                </ul>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-16">
+                      <Card card={specialCards.ace} index={0} isPlayable={false} />
+                    </div>
+                    <p><strong>Ace:</strong> Highest ranking card in the game.</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-16">
+                      <Card card={specialCards.two} index={0} isPlayable={false} />
+                    </div>
+                    <p><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-16">
+                      <Card card={specialCards.three} index={0} isPlayable={false} />
+                    </div>
+                    <p><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-16">
+                      <Card card={specialCards.seven} index={0} isPlayable={false} />
+                    </div>
+                    <p><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-16">
+                      <Card card={specialCards.eight} index={0} isPlayable={false} />
+                    </div>
+                    <p><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0 w-16">
+                      <Card card={specialCards.ten} index={0} isPlayable={false} />
+                    </div>
+                    <p><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</p>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-16 flex space-x-[-30px]">
+                      {['hearts', 'diamonds', 'clubs', 'spades'].map((suit, i) => (
+                        <div key={suit} className="w-16" style={{ transform: `translateX(${i * 8}px)`, zIndex: i }}>
+                          <Card card={{ suit: suit as any, rank: 'Q' }} index={0} isPlayable={false} />
+                        </div>
+                      ))}
+                    </div>
+                    <p><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</p>
+                  </div>
+                </div>
               </CollapsibleContent>
             </Collapsible>
 
