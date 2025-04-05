@@ -31,9 +31,20 @@ export const useSupabaseChannel = (
         // Create channel
         const channel = supabase.channel(channelName);
         
+        // Setup system event handlers for the channel status first
+        channel
+          .on('system', { event: 'connected' }, () => {
+            console.log(`Connected to channel ${channelName}`);
+            if (statusCallback) statusCallback('CONNECTED');
+          })
+          .on('system', { event: 'disconnected' }, () => {
+            console.log(`Disconnected from channel ${channelName}`);
+            if (statusCallback) statusCallback('DISCONNECTED');
+          });
+          
         // Add the subscription for postgres_changes events
         if (subscription.event === '*') {
-          // Subscribe to all events
+          // Subscribe to all events (INSERT, UPDATE, DELETE)
           channel
             .on(
               'postgres_changes', 
@@ -78,17 +89,6 @@ export const useSupabaseChannel = (
             callback
           );
         }
-        
-        // Setup system event handlers for the channel status
-        channel
-          .on('system', { event: 'connected' }, () => {
-            console.log(`Connected to channel ${channelName}`);
-            if (statusCallback) statusCallback('CONNECTED');
-          })
-          .on('system', { event: 'disconnected' }, () => {
-            console.log(`Disconnected from channel ${channelName}`);
-            if (statusCallback) statusCallback('DISCONNECTED');
-          });
         
         // Send a broadcast message for health check
         channel.send({
