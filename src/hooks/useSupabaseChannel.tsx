@@ -41,41 +41,42 @@ export const useSupabaseChannel = (
             console.log(`Disconnected from channel ${channelName}`);
             if (statusCallback) statusCallback('DISCONNECTED');
           });
-          
-        // Add the subscription for postgres_changes events
+
+        // Instead of chaining, add each postgres_changes subscription separately
         if (subscription.event === '*') {
           // Subscribe to all events (INSERT, UPDATE, DELETE)
-          channel
-            .on(
-              'postgres_changes', 
-              { 
-                event: 'INSERT', 
-                schema: 'public', 
-                table: subscription.table,
-                filter: subscription.filter 
-              }, 
-              callback
-            )
-            .on(
-              'postgres_changes', 
-              { 
-                event: 'UPDATE', 
-                schema: 'public', 
-                table: subscription.table,
-                filter: subscription.filter  
-              }, 
-              callback
-            )
-            .on(
-              'postgres_changes', 
-              { 
-                event: 'DELETE', 
-                schema: 'public', 
-                table: subscription.table,
-                filter: subscription.filter
-              }, 
-              callback
-            );
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: 'INSERT', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter 
+            }, 
+            callback
+          );
+            
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: 'UPDATE', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter  
+            }, 
+            callback
+          );
+            
+          channel.on(
+            'postgres_changes', 
+            { 
+              event: 'DELETE', 
+              schema: 'public', 
+              table: subscription.table,
+              filter: subscription.filter
+            }, 
+            callback
+          );
         } else {
           // Subscribe to specific event
           channel.on(
