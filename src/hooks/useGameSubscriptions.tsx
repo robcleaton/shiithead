@@ -21,8 +21,6 @@ export const useGameSubscriptions = (
   const [subscriptionStatus, setSubscriptionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttempts = 5;
-  const lastToastTimeRef = useRef<number>(0);
-  const toastDebounceMs = 10000; // Only show a toast every 10 seconds
   
   // Setup initial data fetch
   useEffect(() => {
@@ -40,16 +38,7 @@ export const useGameSubscriptions = (
         console.error('Error in initial players fetch:', error);
         dispatch({ type: 'SET_LOADING', isLoading: false });
         setSubscriptionStatus('error');
-        
-        // Show toast only if we haven't shown one recently
-        const now = Date.now();
-        if (now - lastToastTimeRef.current > toastDebounceMs) {
-          toast.error('Error fetching game data. Retrying...', {
-            id: 'connection-error',
-            duration: 3000
-          });
-          lastToastTimeRef.current = now;
-        }
+        toast.error('Error fetching game data. Retrying...');
         
         // Retry logic for initial fetch
         const retryTimeout = setTimeout(() => {
@@ -57,10 +46,7 @@ export const useGameSubscriptions = (
             reconnectAttemptsRef.current++;
             fetchPlayers(gameId);
           } else {
-            toast.error('Failed to connect to game. Please refresh the page.', {
-              id: 'connection-failed',
-              duration: 5000
-            });
+            toast.error('Failed to connect to game. Please refresh the page.');
           }
         }, 3000);
         
@@ -106,20 +92,10 @@ export const useGameSubscriptions = (
       setSubscriptionStatus('connected');
       reconnectAttemptsRef.current = 0;
     } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-      const wasConnected = subscriptionStatus === 'connected';
       setSubscriptionStatus('error');
       
       if (reconnectAttemptsRef.current < maxReconnectAttempts && gameId) {
-        // Only show toast if we were previously connected and haven't shown one recently
-        const now = Date.now();
-        if (wasConnected && now - lastToastTimeRef.current > toastDebounceMs) {
-          toast.error(`Lost connection to game. Reconnecting...`, {
-            id: 'reconnecting',
-            duration: 3000
-          });
-          lastToastTimeRef.current = now;
-        }
-        
+        toast.error(`Lost connection to game. Attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts} to reconnect...`);
         reconnectAttemptsRef.current++;
         
         // Force a refresh of game data when reconnecting
@@ -128,7 +104,7 @@ export const useGameSubscriptions = (
         }, 2000);
       }
     }
-  }, [fetchPlayers, gameId, subscriptionStatus]);
+  }, [fetchPlayers, gameId]);
 
   // Setup game updates channel
   useSupabaseChannel(
@@ -162,7 +138,7 @@ export const useGameSubscriptions = (
     monitorChannelStatus
   );
 
-  // Regular health check and data refresh for long-running games with less frequent toasts
+  // Regular health check and data refresh for long-running games
   useEffect(() => {
     if (!gameId) return;
     
