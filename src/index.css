@@ -184,15 +184,17 @@ body {
   height: 100vh;
   background: #F8331E;
 }
-body {
+/* body {
   @apply border border-[8px] border-black rounded-[34px]
     sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
     md:border-green-500 md:border-[24px] md:rounded-[44px]
     lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
     xl:border-purple-500 xl:border-[32px] xl:rounded-[60px];
-}
+} */
 #root {
   background: #F8331E;
+  height: 100%;
+  border: 30px solid purple;
 }
 
 
