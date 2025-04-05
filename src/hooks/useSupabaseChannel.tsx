@@ -42,9 +42,9 @@ export const useSupabaseChannel = (
           if (statusCallback) statusCallback('DISCONNECTED');
         });
 
-        // Add each postgres_changes subscription as separate non-chained calls
+        // Add postgres_changes subscriptions as separate calls (not chained)
         if (subscription.event === '*') {
-          // Subscribe to all events (INSERT, UPDATE, DELETE)
+          // Subscribe to INSERT events
           channel.on(
             'postgres_changes', 
             { 
@@ -53,9 +53,13 @@ export const useSupabaseChannel = (
               table: subscription.table,
               filter: subscription.filter 
             }, 
-            callback
+            (payload) => {
+              console.log(`INSERT event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
           );
           
+          // Subscribe to UPDATE events
           channel.on(
             'postgres_changes', 
             { 
@@ -64,9 +68,13 @@ export const useSupabaseChannel = (
               table: subscription.table,
               filter: subscription.filter  
             }, 
-            callback
+            (payload) => {
+              console.log(`UPDATE event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
           );
           
+          // Subscribe to DELETE events
           channel.on(
             'postgres_changes', 
             { 
@@ -75,7 +83,10 @@ export const useSupabaseChannel = (
               table: subscription.table,
               filter: subscription.filter
             }, 
-            callback
+            (payload) => {
+              console.log(`DELETE event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
           );
         } else {
           // Subscribe to specific event
@@ -87,7 +98,10 @@ export const useSupabaseChannel = (
               table: subscription.table,
               filter: subscription.filter  
             }, 
-            callback
+            (payload) => {
+              console.log(`${subscription.event || 'UPDATE'} event on ${subscription.table}:`, payload);
+              callback(payload);
+            }
           );
         }
         
