@@ -197,7 +197,6 @@ body {
 }
 #root {
     background: aquamarine;
-    border: 0px;
     @apply rounded-[12px]
       sm:rounded-[20px]
       md:rounded-[20px]
@@ -205,9 +204,6 @@ body {
       xl:rounded-[28px];
 }
 
-header {
-
-}
 .pointer-events-none .text-base {
   font-size: 3vw;
   font-family: 'TuskerGrotesk';
