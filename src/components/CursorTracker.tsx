@@ -130,13 +130,13 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
       {!showOnlyUserCursor && Object.values(cursors).map((cursor) => (
         <motion.div
           key={cursor.playerId}
-          className="pointer-events-none fixed top-0 left-0 z-50"
+          className="pointer-events-none fixed top-0 left-0 z-50 hidden md:block"
           initial={{ x: cursor.x, y: cursor.y }}
           animate={{ x: cursor.x, y: cursor.y }}
           transition={{ type: 'spring', damping: 15 }}
           style={{ color: cursor.color }}
         >
-          <div className="relative .hidden md:block">
+          <div className="relative">
             <MousePointer className="h-6 w-6 filter drop-shadow-md" />
             <div
               className="absolute left-4 top-1 px-2 py-1 text-base font-medium rounded-md shadow-md whitespace-nowrap"
@@ -151,7 +151,7 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
       {/* Render user's own cursor only if not hidden */}
       {userCursor && !hideUserCursor && (
         <motion.div
-          className="pointer-events-none fixed top-0 left-0 z-50"
+          className="pointer-events-none fixed top-0 left-0 z-50 hidden md:block"
           initial={{ x: userCursor.x, y: userCursor.y }}
           animate={{ x: userCursor.x, y: userCursor.y }}
           transition={{ type: 'spring', damping: 15 }}
