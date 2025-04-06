@@ -25,7 +25,7 @@ const AppRoutes = () => {
 
   return (
     <div className="flex flex-col">
-      <header className="container mx-auto px-6 py-6">
+      <header className="container mx-auto px-6 py-6 fixed top-0 left-0">
         <SiteHeader />
       </header>
       <main className="flex-1">
