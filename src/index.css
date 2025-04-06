@@ -197,7 +197,7 @@ body {
 }
 #root {
     background: aquamarine;
-    @apply border rounded-[34px]
+    @apply rounded-[16px]
       sm:rounded-[20px]
       md:rounded-[20px]
       lg:rounded-[24px]
