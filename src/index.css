@@ -195,6 +195,9 @@ body {
     lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
     xl:border-purple-500 xl:border-[32px] xl:rounded-[60px];
 }
+#root {
+    background: aquamarine;
+}
 
 
 .pointer-events-none .text-base {
