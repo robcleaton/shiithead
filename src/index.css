@@ -4,6 +4,10 @@
 
 @layer base {
   :root {
+    --shithead-red: #F8331E;
+    --shithead-black: #1E1E1E;
+    --shithead-cream: #FEFFF1;
+
     --background: 0 0% 98%;
     --foreground: 222.2 84% 4.9%;
 
@@ -181,7 +185,7 @@ html {
   background: black;
 }
 body {
-  background: #F8331E;
+  /* background: #F8331E; */
   height: 100vh;
 }
 body {
