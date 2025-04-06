@@ -197,8 +197,12 @@ body {
 }
 #root {
     background: aquamarine;
+    @apply border border-[8px] rounded-[34px]
+      sm:rounded-[40px]
+      md:rounded-[44px]
+      lg:rounded-[52px]
+      xl:rounded-[60px];
 }
-
 
 .pointer-events-none .text-base {
   font-size: 3vw;

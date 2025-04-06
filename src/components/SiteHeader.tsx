@@ -24,7 +24,7 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
         <Link to="/">
           <img src={logo}
             alt="Home"
-            className="w-full max-w-[180px] sm:max-w-[100px] md:max-w-[280px] lg:max-w-[320px] xl:max-w-[400px]" />
+            className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[280px] lg:max-w-[320px] xl:max-w-[400px]" />
         </Link>
       </motion.div>
 
