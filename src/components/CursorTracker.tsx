@@ -130,7 +130,7 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
       {!showOnlyUserCursor && Object.values(cursors).map((cursor) => (
         <motion.div
           key={cursor.playerId}
-          className="pointer-events-none fixed top-0 left-0 z-50"
+          className="pointer-events-none fixed top-0 left-0 z-50 hidden md:block"
           initial={{ x: cursor.x, y: cursor.y }}
           animate={{ x: cursor.x, y: cursor.y }}
           transition={{ type: 'spring', damping: 15 }}

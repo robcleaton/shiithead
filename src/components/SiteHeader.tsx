@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 import { useState } from "react";
 import Rules from "@/components/Rules";
-import logo from "/assets/logo-cream.svg"; // Adjust the path if needed
+import mobilelogo from "/assets/logo-cream.svg"; // Adjust the path if needed
+import desktoplogo from "/assets/logo-black.svg"; // Adjust the path if needed
 
 interface SiteHeaderProps {
   showRulesButton?: boolean;
@@ -22,9 +23,19 @@ const SiteHeader = ({ showRulesButton = true }: SiteHeaderProps) => {
         transition={{ duration: 0.5 }}
       >
         <Link to="/">
-          <img src={logo}
+        {/* Mobile Logo */}
+          <img
+            src={mobileLogo}
             alt="Home"
-            className="w-full max-w-[180px] sm:max-w-[200px] md:max-w-[280px] lg:max-w-[320px] xl:max-w-[400px]" />
+            className="block md:hidden w-[180px]"
+          />
+
+          {/* Desktop Logo */}
+          <img
+            src={desktopLogo}
+            alt="Home"
+            className="hidden md:block w-[280px] lg:w-[320px] xl:w-[400px]"
+          />
         </Link>
       </motion.div>
 
