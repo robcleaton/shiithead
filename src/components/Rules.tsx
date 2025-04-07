@@ -125,64 +125,74 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
               <CollapsibleContent className="px-4 pb-4">
                 <ul className="space-y-6">
                   {/* Ace */}
-                  <li className="flex items-center gap-4">
-                    <div className="min-w-16 w-16 h-24">
+                  <li className="grid grid-cols-[80px_1fr] gap-4 items-center">
+                    <div className="w-20 h-28">
                       <Card card={specialCards.ace} index={0} />
                     </div>
-                    <span><strong>A:</strong> Highest ranking card in the game.</span>
+                    <div>
+                      <span><strong>A:</strong> Highest ranking card in the game.</span>
+                    </div>
                   </li>
                   
                   {/* Two */}
-                  <li className="flex items-center gap-4">
-                    <div className="min-w-16 w-16 h-24">
+                  <li className="grid grid-cols-[80px_1fr] gap-4 items-center">
+                    <div className="w-20 h-28">
                       <Card card={specialCards.two} index={1} />
                     </div>
-                    <span><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</span>
+                    <div>
+                      <span><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</span>
+                    </div>
                   </li>
                   
                   {/* Three */}
-                  <li className="flex items-center gap-4">
-                    <div className="min-w-16 w-16 h-24">
+                  <li className="grid grid-cols-[80px_1fr] gap-4 items-center">
+                    <div className="w-20 h-28">
                       <Card card={specialCards.three} index={2} />
                     </div>
-                    <span><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</span>
+                    <div>
+                      <span><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</span>
+                    </div>
                   </li>
                   
                   {/* Seven */}
-                  <li className="flex items-center gap-4">
-                    <div className="min-w-16 w-16 h-24">
+                  <li className="grid grid-cols-[80px_1fr] gap-4 items-center">
+                    <div className="w-20 h-28">
                       <Card card={specialCards.seven} index={3} />
                     </div>
-                    <span><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</span>
+                    <div>
+                      <span><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</span>
+                    </div>
                   </li>
                   
                   {/* Eight */}
-                  <li className="flex items-center gap-4">
-                    <div className="min-w-16 w-16 h-24">
+                  <li className="grid grid-cols-[80px_1fr] gap-4 items-center">
+                    <div className="w-20 h-28">
                       <Card card={specialCards.eight} index={4} />
                     </div>
-                    <span><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</span>
+                    <div>
+                      <span><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</span>
+                    </div>
                   </li>
                   
                   {/* Ten */}
-                  <li className="flex items-center gap-4">
-                    <div className="min-w-16 w-16 h-24">
+                  <li className="grid grid-cols-[80px_1fr] gap-4 items-center">
+                    <div className="w-20 h-28">
                       <Card card={specialCards.ten} index={5} />
                     </div>
-                    <span><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</span>
+                    <div>
+                      <span><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</span>
+                    </div>
                   </li>
                   
                   {/* Four of a kind */}
                   <li className="space-y-2">
-                    <div className="flex flex-wrap gap-2 items-center">
-                      <span className="w-full"><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</span>
-                      <div className="flex gap-1 mt-2">
-                        {fourOfAKind.map((card, idx) => (
-                          <div className="w-12 h-18" key={`four-${idx}`}>
-                            <Card card={card} index={idx + 10} />
-                          </div>
-                        ))}
-                      </div>
+                    <div><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</div>
+                    <div className="grid grid-cols-4 gap-1 mt-2 max-w-xs">
+                      {fourOfAKind.map((card, idx) => (
+                        <div className="w-16 h-24" key={`four-${idx}`}>
+                          <Card card={card} index={idx + 10} />
+                        </div>
+                      ))}
                     </div>
                   </li>
                 </ul>
