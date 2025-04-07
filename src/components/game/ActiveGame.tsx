@@ -76,8 +76,7 @@ const ActiveGame = ({
   return (
     <div className="container mx-auto px-4 min-h-screen">
       <div className="flex flex-col gap-4 items-center">
-      
-        // Players hands
+
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {players
             .filter(p => p.id !== playerId)

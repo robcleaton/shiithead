@@ -23,8 +23,8 @@ const Index = () => {
   return (
     // Join game module
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-      <div className="mx-auto p-3 max-w-md w-full">
-        <div className="max-w-4xl w-full text-center">
+      <div className="p-3 w-full">
+        <div className="mx-auto max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -37,7 +37,7 @@ const Index = () => {
           ) : (
             <>
               <motion.h1
-                className="text-2xl md:text-6xl p-4 font-tusker"
+                className="text-4xl md:text-6xl p-4 font-tusker"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
