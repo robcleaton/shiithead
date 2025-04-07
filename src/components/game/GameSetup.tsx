@@ -58,48 +58,54 @@ const GameSetup = ({
           </div>
         </div>
 
-        {/* Face Down Cards */}
-        <div className="flex justify-center gap-4">
-          {player.faceDownCards && player.faceDownCards.length > 0 ? (
-            player.faceDownCards.map((_, index) => (
-              <div
-                key={index}
-                className="w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
-              />
-            ))
-          ) : (
-            <div className="text-center p-4 text-gray-200">
-              No face-down cards available
-            </div>
-          )}
-        </div>
-
-        {/* Face Up Cards */}
-        <div className="flex justify-center gap-4 mt-2">
-          {player.faceUpCards && player.faceUpCards.length > 0 ? (
-            player.faceUpCards.map((card, index) => (
-              <div
-                key={`${card.suit}-${card.rank}-${index}`}
-                className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center border border-gray-200"
-              >
-                <div className={`text-2xl ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                  {card.rank}
-                  <span className="text-xl">
-                    {getSuitSymbol(card.suit)}
-                  </span>
-                </div>
+        {/* Card layout container with relative positioning */}
+        <div className="relative w-full flex justify-center">
+          {/* Face Down Cards - positioned at the bottom layer */}
+          <div className="flex justify-center gap-4 z-0">
+            {player.faceDownCards && player.faceDownCards.length > 0 ? (
+              player.faceDownCards.map((_, index) => (
+                <div
+                  key={index}
+                  className="w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20"
+                />
+              ))
+            ) : (
+              <div className="text-center p-4 text-gray-200">
+                No face-down cards available
               </div>
-            ))
-          ) : (
-            Array(3 - (player.faceUpCards ? player.faceUpCards.length : 0)).fill(0).map((_, i) => (
+            )}
+          </div>
+          
+          {/* Face Up Cards - positioned with negative margin to overlay */}
+          <div className="flex justify-center gap-4 absolute top-0 left-0 right-0 mt-3 z-10">
+            {player.faceUpCards && player.faceUpCards.length > 0 ? (
+              player.faceUpCards.map((card, index) => (
+                <div
+                  key={`${card.suit}-${card.rank}-${index}`}
+                  className="w-14 h-20 bg-white rounded-lg shadow flex items-center justify-center border border-gray-200"
+                >
+                  <div className={`text-2xl ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                    {card.rank}
+                    <span className="text-xl">
+                      {getSuitSymbol(card.suit)}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <></>
+            )}
+            
+            {/* Empty placeholders for remaining cards */}
+            {remainingSelectionsNeeded > 0 && Array(remainingSelectionsNeeded).fill(0).map((_, i) => (
               <div
                 key={`empty-${i}`}
-                className="w-14 h-20 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
+                className="w-14 h-20 bg-gray-100/70 backdrop-blur-sm rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
               >
                 <span className="text-gray-400 text-xs">Select</span>
               </div>
-            ))
-          )}
+            ))}
+          </div>
         </div>
 
         {/* Display remaining selections needed if not ready */}
