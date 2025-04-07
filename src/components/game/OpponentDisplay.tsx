@@ -47,41 +47,40 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
         </div>
 
         <div>
-          <div className="text-xs text-gray-500 mb-1">Face Up</div>
+          <div className="text-xs text-gray-500 mb-1">Face Down/Up</div>
           <div className="flex items-center">
-            <div className="flex -space-x-2 relative">
-              {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
-                <div
-                  key={`face-up-${i}`}
-                  className="w-8 h-12 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
-                >
-                  <div className={`text-xs ${opponent.faceUpCards[i].suit === 'hearts' || opponent.faceUpCards[i].suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                    {opponent.faceUpCards[i].rank}
-                    <span>{getSuitSymbol(opponent.faceUpCards[i].suit)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {opponent.faceUpCards.length === 0 && (
-              <span className="text-xs text-gray-500">No cards</span>
-            )}
-          </div>
-        </div>
+            {/* Card layout with relative positioning */}
+            <div className="relative">
+              {/* Face down cards - bottom layer */}
+              <div className="flex -space-x-2 relative z-0">
+                {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
+                  <div
+                    key={`face-down-${i}`}
+                    className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
+                  ></div>
+                ))}
+                {opponent.faceDownCards.length === 0 && (
+                  <span className="text-xs text-gray-500">No cards</span>
+                )}
+              </div>
 
-        <div>
-          <div className="text-xs text-gray-500 mb-1">Face Down</div>
-          <div className="flex items-center">
-            <div className="flex -space-x-2 relative">
-              {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
-                <div
-                  key={`face-down-${i}`}
-                  className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
-                ></div>
-              ))}
+              {/* Face up cards - top layer, with margin */}
+              {opponent.faceUpCards.length > 0 && (
+                <div className="flex -space-x-2 absolute top-0 left-0 mt-1 z-10">
+                  {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
+                    <div
+                      key={`face-up-${i}`}
+                      className="w-8 h-12 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
+                    >
+                      <div className={`text-xs ${opponent.faceUpCards[i].suit === 'hearts' || opponent.faceUpCards[i].suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                        {opponent.faceUpCards[i].rank}
+                        <span>{getSuitSymbol(opponent.faceUpCards[i].suit)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            {opponent.faceDownCards.length === 0 && (
-              <span className="text-xs text-gray-500">No cards</span>
-            )}
           </div>
         </div>
       </div>
