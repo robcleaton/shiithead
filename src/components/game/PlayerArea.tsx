@@ -82,45 +82,40 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
         </div>
       )}
 
-      <div className="flex justify-center gap-1 mb-6">
-        <div className="flex flex-col items-center">
-          <div className="text-xs text-gray-100 mb-1">Face Down</div>
-          <div className="flex gap-2 relative">
-            {player.faceDownCards.map((_, index) => (
-              <div
-                key={index}
-                onClick={() => handleSelectFaceDownCard(index)}
-                className={`w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
-                  ${isHandEmpty && isFaceUpEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
-                  ${selectedFaceDownCardIndex === index ? 'ring-4 ring-shithead-primary scale-105' : ''}`}
-              />
-            ))}
-            {/* Removed the card count indicator */}
-          </div>
+      {/* Card layout container with relative positioning */}
+      <div className="relative w-full flex justify-center mb-6">
+        {/* Face Down Cards - positioned at the bottom layer */}
+        <div className="flex justify-center gap-4 z-0">
+          {player.faceDownCards.map((_, index) => (
+            <div
+              key={index}
+              onClick={() => handleSelectFaceDownCard(index)}
+              className={`w-14 h-20 bg-shithead-card-back bg-card-texture rounded-lg shadow-md border border-gray-800/20
+                ${isHandEmpty && isFaceUpEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
+                ${selectedFaceDownCardIndex === index ? 'ring-4 ring-shithead-primary scale-105' : ''}`}
+            />
+          ))}
         </div>
-
-        <div className="flex flex-col items-center ml-6">
-          <div className="text-xs text-gray-100 mb-1">Face Up</div>
-          <div className="flex gap-2 relative">
-            {player.faceUpCards.map((card, index) => (
-              <div
-                key={`fu-${index}`}
-                onClick={() => handleSelectFaceUpCard(index)}
-                className={`w-14 h-20 bg-white rounded-lg shadow-sm border transition-all
-                  ${selectedFaceUpCardIndex === index ? 'ring-4 ring-shithead-primary scale-105' : 'border-gray-200'}
-                  ${isHandEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
-                  flex items-center justify-center`}
-              >
-                <div className={`text-lg ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                  {card.rank}
-                  <span className="text-lg">
-                    {getSuitSymbol(card.suit)}
-                  </span>
-                </div>
+        
+        {/* Face Up Cards - positioned with negative margin to overlay */}
+        <div className="flex justify-center gap-4 absolute top-0 left-0 right-0 mt-3 z-10">
+          {player.faceUpCards.map((card, index) => (
+            <div
+              key={`fu-${index}`}
+              onClick={() => handleSelectFaceUpCard(index)}
+              className={`w-14 h-20 bg-white rounded-lg shadow-sm border transition-all
+                ${selectedFaceUpCardIndex === index ? 'ring-4 ring-shithead-primary scale-105' : 'border-gray-200'}
+                ${isHandEmpty && isActive ? 'cursor-pointer hover:scale-105' : ''}
+                flex items-center justify-center`}
+            >
+              <div className={`text-lg ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                {card.rank}
+                <span className="text-lg">
+                  {getSuitSymbol(card.suit)}
+                </span>
               </div>
-            ))}
-            {/* Removed the card count indicator */}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
