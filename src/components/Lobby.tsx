@@ -72,7 +72,7 @@ const Lobby = () => {
       initial="hidden"
       animate="show"
     >
-      <motion.div variants={item} className="w-full max-w-md">
+      <motion.div variants={item} className="p-3 max-w-md">
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-shithead-primary font-tusker uppercase">Shithead Card Game</CardTitle>
