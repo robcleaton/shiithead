@@ -47,7 +47,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
         </div>
 
         <div>
-          <div className="text-xs text-gray-100 mb-1">Face Up</div>
+          <div className="text-xs text-gray-500 mb-1">Face Up</div>
           <div className="flex items-center">
             <div className="flex -space-x-2 relative">
               {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
@@ -69,7 +69,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
         </div>
 
         <div>
-          <div className="text-xs text-gray-100 mb-1">Face Down</div>
+          <div className="text-xs text-gray-500 mb-1">Face Down</div>
           <div className="flex items-center">
             <div className="flex -space-x-2 relative">
               {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (

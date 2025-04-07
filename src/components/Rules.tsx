@@ -1,16 +1,34 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import Card from "@/components/Card";
+import { CardValue } from "@/types/game";
 
 interface RulesProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+// Sample cards for the special card rules section
+const specialCards: { [key: string]: CardValue } = {
+  ace: { suit: 'hearts', rank: 'A' },
+  two: { suit: 'clubs', rank: '2' },
+  three: { suit: 'diamonds', rank: '3' },
+  seven: { suit: 'spades', rank: '7' },
+  eight: { suit: 'hearts', rank: '8' },
+  ten: { suit: 'clubs', rank: '10' },
+};
+
+// Sample cards for four of a kind example
+const fourOfAKind: CardValue[] = [
+  { suit: 'hearts', rank: 'J' },
+  { suit: 'diamonds', rank: 'J' },
+  { suit: 'clubs', rank: 'J' },
+  { suit: 'spades', rank: 'J' }
+];
 
 const Rules = ({ open, onOpenChange }: RulesProps) => {
   const [expandedSection, setExpandedSection] = useState<string | null>("objective");
@@ -105,14 +123,68 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
                 {expandedSection === "specialCards" ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4">
-                <ul className="list-disc pl-5 space-y-2">
-                  <li><strong>A:</strong> Highest ranking card in the game.</li>
-                  <li><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</li>
-                  <li><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</li>
-                  <li><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</li>
-                  <li><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</li>
-                  <li><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</li>
-                  <li><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</li>
+                <ul className="space-y-6">
+                  {/* Ace */}
+                  <li className="flex items-center gap-4">
+                    <div className="min-w-16 w-16 h-24">
+                      <Card card={specialCards.ace} index={0} />
+                    </div>
+                    <span><strong>A:</strong> Highest ranking card in the game.</span>
+                  </li>
+                  
+                  {/* Two */}
+                  <li className="flex items-center gap-4">
+                    <div className="min-w-16 w-16 h-24">
+                      <Card card={specialCards.two} index={1} />
+                    </div>
+                    <span><strong>2:</strong> Can be placed on any card regardless of rank. The player that lays it has another go and can place any card on top. Additionally, any card can be played on a 2.</span>
+                  </li>
+                  
+                  {/* Three */}
+                  <li className="flex items-center gap-4">
+                    <div className="min-w-16 w-16 h-24">
+                      <Card card={specialCards.three} index={2} />
+                    </div>
+                    <span><strong>3:</strong> Can be placed on any card regardless of rank. Once a player lays a 3, the next player must pick up the entire discard pile unless they also have a 3. All 3s played in sequence are removed from the game.</span>
+                  </li>
+                  
+                  {/* Seven */}
+                  <li className="flex items-center gap-4">
+                    <div className="min-w-16 w-16 h-24">
+                      <Card card={specialCards.seven} index={3} />
+                    </div>
+                    <span><strong>7:</strong> After a 7 is played, the next player must play a card of rank 7 or lower.</span>
+                  </li>
+                  
+                  {/* Eight */}
+                  <li className="flex items-center gap-4">
+                    <div className="min-w-16 w-16 h-24">
+                      <Card card={specialCards.eight} index={4} />
+                    </div>
+                    <span><strong>8:</strong> An invisible card - play continues as if it wasn't played (next player must match the card beneath the 8).</span>
+                  </li>
+                  
+                  {/* Ten */}
+                  <li className="flex items-center gap-4">
+                    <div className="min-w-16 w-16 h-24">
+                      <Card card={specialCards.ten} index={5} />
+                    </div>
+                    <span><strong>10:</strong> Burns the pile. The entire discard pile is removed from the game, and the player gets another turn.</span>
+                  </li>
+                  
+                  {/* Four of a kind */}
+                  <li className="space-y-2">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <span className="w-full"><strong>Four of a kind:</strong> Playing 4 cards of the same rank burns the pile (just like a 10).</span>
+                      <div className="flex gap-1 mt-2">
+                        {fourOfAKind.map((card, idx) => (
+                          <div className="w-12 h-18" key={`four-${idx}`}>
+                            <Card card={card} index={idx + 10} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </li>
                 </ul>
               </CollapsibleContent>
             </Collapsible>
