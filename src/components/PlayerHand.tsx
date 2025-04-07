@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
@@ -29,7 +28,6 @@ const PlayerHand = ({
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const isMobile = useIsMobile();
   
-  // Reset selected indices when cards or isActive changes
   useEffect(() => {
     setSelectedIndices([]);
   }, [cards, isActive]);
