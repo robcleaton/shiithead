@@ -4,7 +4,8 @@ import Card from './Card';
 import { CardValue } from '@/context/GameContext';
 import { Button } from '@/components/ui/button';
 import { Check, Play } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PlayerHandProps {
   cards: CardValue[];
@@ -26,6 +27,7 @@ const PlayerHand = ({
   maxSelections = 3 
 }: PlayerHandProps) => {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+  const isMobile = useIsMobile();
   
   // Reset selected indices when cards or isActive changes
   useEffect(() => {
@@ -91,7 +93,7 @@ const PlayerHand = ({
           </span>
         </div>
         
-        <ScrollArea className="w-full h-48 pb-4">
+        <ScrollArea className="w-full h-48 pb-4" type="scroll">
           <div className="relative flex items-center justify-center">
             <div className="relative flex justify-center w-max min-w-full px-6">
               {!cardArray || cardArray.length === 0 ? (
@@ -124,6 +126,7 @@ const PlayerHand = ({
               )}
             </div>
           </div>
+          <ScrollBar orientation="horizontal" className="mt-2" />
         </ScrollArea>
         
         {(isActive || isSetupPhase) && selectedIndices.length > 0 && areSelectionsValid() && (
@@ -144,6 +147,12 @@ const PlayerHand = ({
                 </>
               )}
             </Button>
+          </div>
+        )}
+        
+        {isMobile && cardArray.length > 4 && (
+          <div className="text-center text-xs text-gray-500 mt-2">
+            Swipe to view more cards
           </div>
         )}
       </div>
