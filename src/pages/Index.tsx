@@ -21,8 +21,9 @@ const Index = () => {
   }, [gameId, location]);
 
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto max-w-md p-3 py-12">
+    // Join game module
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="mx-auto p-3 max-w-md w-full">
         <div className="max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
             <motion.div
