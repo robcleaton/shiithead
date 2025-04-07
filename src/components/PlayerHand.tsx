@@ -4,6 +4,7 @@ import Card from './Card';
 import { CardValue } from '@/context/GameContext';
 import { Button } from '@/components/ui/button';
 import { Check, Play } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PlayerHandProps {
   cards: CardValue[];
@@ -90,38 +91,40 @@ const PlayerHand = ({
           </span>
         </div>
         
-        <div className="flex items-center justify-center">
-          <div className="relative flex justify-center h-44 w-full">
-            {!cardArray || cardArray.length === 0 ? (
-              <div className="text-center p-4 text-gray-500">
-                No cards available
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                {cardArray.map((card, index) => (
-                  <div 
-                    key={`${card.suit}-${card.rank}-${index}`} 
-                    className="relative mx-1"
-                    style={{ 
-                      zIndex: index,
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    <Card 
-                      card={card} 
-                      index={index} 
-                      isPlayable={isActive || isSetupPhase}
-                      onPlay={(isSetupPhase || isActive) ? () => handleSelectCard(index) : undefined}
-                      onSelect={() => handleSelectCard(index)}
-                      delay={index}
-                      isSelected={selectedIndices.includes(index)}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+        <ScrollArea className="w-full h-48 pb-4">
+          <div className="relative flex items-center justify-center">
+            <div className="relative flex justify-center w-max min-w-full px-6">
+              {!cardArray || cardArray.length === 0 ? (
+                <div className="text-center p-4 text-gray-500">
+                  No cards available
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  {cardArray.map((card, index) => (
+                    <div 
+                      key={`${card.suit}-${card.rank}-${index}`} 
+                      className="relative mx-1"
+                      style={{ 
+                        zIndex: index,
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      <Card 
+                        card={card} 
+                        index={index} 
+                        isPlayable={isActive || isSetupPhase}
+                        onPlay={(isSetupPhase || isActive) ? () => handleSelectCard(index) : undefined}
+                        onSelect={() => handleSelectCard(index)}
+                        delay={index}
+                        isSelected={selectedIndices.includes(index)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </ScrollArea>
         
         {(isActive || isSetupPhase) && selectedIndices.length > 0 && areSelectionsValid() && (
           <div className="mt-6 flex justify-center">
