@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -41,7 +40,7 @@ const Rules = ({ open, onOpenChange }: RulesProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl glass-card">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-shithead-primary">Shithead Rules</DialogTitle>
+          <DialogTitle className="text-2xl font-bold font-tusker text-shithead-primary">Shithead Rules</DialogTitle>
           <DialogDescription>
             Learn how to play the shithead card game (also known as Shithead)
           </DialogDescription>
