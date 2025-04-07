@@ -22,7 +22,7 @@ const Index = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="max-w-md p-3 py-12">
+      <div className="mx-auto max-w-md p-3 py-12">
         <div className="max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
             <motion.div
