@@ -23,7 +23,6 @@ const DeckDisplay: React.FC<DeckDisplayProps> = ({ deckCount }) => {
                 style={{ 
                   top: `${-index * 0.7}px`, 
                   left: `${-index * 0.7}px`, 
-                  transform: `rotate(${(index - 2) * 0.7}deg)`,
                   zIndex: 5 - index,
                   transform: `scale(1.25) rotate(${(index - 2) * 0.7}deg)`,
                 }}
