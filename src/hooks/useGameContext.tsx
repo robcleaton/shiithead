@@ -21,7 +21,8 @@ import {
   selectFaceUpCard,
   selectMultipleFaceUpCards,
   addTestPlayer,
-  invitePlayer
+  invitePlayer,
+  removePlayer
 } from '@/context/game/actions/playerActions';
 
 import { useGameSubscriptions } from './useGameSubscriptions';
@@ -133,6 +134,7 @@ const useGameContext = () => {
     resetGame: () => resetGame(dispatch, state),
     addTestPlayer: (playerName: string) => addTestPlayer(dispatch, state, playerName),
     invitePlayer: (email: string) => invitePlayer(dispatch, state, email),
+    removePlayer: (playerId: string) => removePlayer(dispatch, state, playerId),
     triggerAITurn: () => handleAIPlayerTurn(dispatch, state),
     refreshGameState: refreshGameState
   };

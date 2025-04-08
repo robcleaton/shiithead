@@ -47,4 +47,5 @@ export type GameAction =
   | { type: 'END_GAME'; winnerId: string }
   | { type: 'RESET_GAME' }
   | { type: 'INVITE_PLAYER'; email: string }
-  | { type: 'ADD_TEST_PLAYER'; playerName: string };
+  | { type: 'ADD_TEST_PLAYER'; playerName: string }
+  | { type: 'REMOVE_PLAYER'; playerId: string };

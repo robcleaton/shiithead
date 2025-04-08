@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
@@ -172,7 +171,6 @@ export const addTestPlayer = async (
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Added AI player: ${playerName}`);
     
-    // Automatically select cards for AI player after a short delay
     setTimeout(() => {
       autoSelectAIPlayerCards(dispatch, state, testPlayerId);
     }, 1500);
@@ -210,13 +208,51 @@ export const invitePlayer = async (
   }
 };
 
+export const removePlayer = async (
+  dispatch: Dispatch<GameAction>,
+  state: GameState,
+  playerId: string
+) => {
+  if (!state.gameId || state.gameStarted || !state.isHost) {
+    toast.error("Only the host can remove players before the game starts");
+    return;
+  }
+  
+  try {
+    dispatch({ type: 'SET_LOADING', isLoading: true });
+    
+    const playerToRemove = state.players.find(p => p.id === playerId);
+    if (!playerToRemove) {
+      toast.error("Player not found");
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
+    }
+    
+    const { error } = await supabase
+      .from('players')
+      .delete()
+      .eq('id', playerId)
+      .eq('game_id', state.gameId);
+      
+    if (error) throw error;
+    
+    dispatch({ type: 'REMOVE_PLAYER', playerId });
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+    toast.success(`Removed ${playerToRemove.name} from the game`);
+    
+  } catch (error) {
+    console.error('Error removing player:', error);
+    toast.error('Failed to remove player');
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+  }
+};
+
 const autoSelectAIPlayerCards = async (
   dispatch: Dispatch<GameAction>,
   state: GameState,
   aiPlayerId: string
 ) => {
   try {
-    // Fetch the latest player data
     const { data: playerData, error: playerFetchError } = await supabase
       .from('players')
       .select('*')
@@ -229,7 +265,6 @@ const autoSelectAIPlayerCards = async (
       return;
     }
     
-    // Parse the hand from JSON
     const hand = playerData.hand as CardValue[];
     
     if (!hand || hand.length === 0) {
@@ -237,27 +272,20 @@ const autoSelectAIPlayerCards = async (
       return;
     }
     
-    console.log('AI player selecting cards from hand:', hand);
-    
-    // More strategic AI selection: use highest cards for face-up
-    // This creates a ranking of cards (2 is lowest, A is highest)
     const rankOrder: Record<string, number> = {
       '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
       'J': 11, 'Q': 12, 'K': 13, 'A': 14
     };
     
-    // Sort hand by rank (highest to lowest)
     const sortedHand = [...hand].sort((a, b) => 
       rankOrder[b.rank] - rankOrder[a.rank]
     );
     
-    // Select the top 3 cards for face-up
     const selectedCards = sortedHand.slice(0, 3);
     const remainingCards = sortedHand.slice(3);
     
     console.log('AI player selected cards:', selectedCards);
     
-    // Update the player in the database
     const { error: updateError } = await supabase
       .from('players')
       .update({

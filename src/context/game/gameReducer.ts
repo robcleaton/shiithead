@@ -1,3 +1,4 @@
+
 import { GameState, GameAction, Player, CardValue } from '@/types/game';
 import { generateId } from '@/utils/gameUtils';
 
@@ -187,6 +188,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     
     case 'ADD_TEST_PLAYER':
       return state;
+    
+    case 'REMOVE_PLAYER': {
+      return {
+        ...state,
+        players: state.players.filter(player => player.id !== action.playerId)
+      };
+    }
       
     default:
       return state;

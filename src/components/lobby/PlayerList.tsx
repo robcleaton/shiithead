@@ -1,9 +1,11 @@
 
 import { motion } from 'framer-motion';
-import { UserRoundCheck } from 'lucide-react';
+import { UserRoundCheck, X } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Player } from '@/types/game';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import useGame from '@/hooks/useGame';
 
 // Generate consistent colors based on player name
 const generateAvatarColor = (name: string): string => {
@@ -38,6 +40,7 @@ interface PlayerListProps {
 
 const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
   const [renderedPlayers, setRenderedPlayers] = useState<Player[]>([]);
+  const { state, removePlayer } = useGame();
   
   // Add debugging for avatar rendering
   useEffect(() => {
@@ -67,6 +70,16 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
     }
   }, [players, currentPlayerId]);
 
+  // Check if current user is the host
+  const isHost = state.isHost;
+
+  // Handle player removal
+  const handleRemovePlayer = (playerId: string) => {
+    if (playerId !== currentPlayerId) {
+      removePlayer(playerId);
+    }
+  };
+
   return (
     <ul className="space-y-2">
       {renderedPlayers.length === 0 ? (
@@ -88,14 +101,31 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
                 <AvatarFallback className="text-xl uppercase">{player.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <span className="font-medium">{player.name}</span>
-              {player.id === currentPlayerId && (
-                <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <UserRoundCheck className="w-3 h-3" /> You
-                </span>
-              )}
-              {player.isHost && (
-                <span className="ml-auto text-xs bg-shithead-secondary px-2 py-0.5 rounded-full">Host</span>
-              )}
+              
+              {/* Status indicators */}
+              <div className="ml-auto flex items-center gap-2">
+                {player.id === currentPlayerId && (
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <UserRoundCheck className="w-3 h-3" /> You
+                  </span>
+                )}
+                {player.isHost && (
+                  <span className="text-xs bg-shithead-secondary px-2 py-0.5 rounded-full">Host</span>
+                )}
+                
+                {/* Remove player button (only visible to host and not for current player) */}
+                {isHost && player.id !== currentPlayerId && !state.gameStarted && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => handleRemovePlayer(player.id)}
+                    title="Remove player"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </motion.li>
           );
         })
