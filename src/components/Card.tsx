@@ -74,7 +74,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
           </svg>
         </div>
       )}
-      <div className="card-frontface absolute inset-0 bg-white rounded-lg border border-gray-200 shadow-sm">
+      <div className="card-frontface absolute inset-0 bg-white rounded-lg border border-gray-200">
         <div className={`absolute top-2 left-2 ${suitColor} font-bold text-xl`}>
           {rank}
         </div>
@@ -91,7 +91,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
           {suitSymbol}
         </div>
       </div>
-      <div className="card-back absolute inset-0 bg-shithead-card-back bg-card-texture rounded-lg border border-gray-700 shadow-sm">
+      <div className="card-back absolute inset-0 bg-shithead-card-back bg-card-texture rounded-lg border border-gray-700">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-gray-700/90 flex items-center justify-center border border-white/20">
             <span className="text-white text-xl font-semibold">K</span>

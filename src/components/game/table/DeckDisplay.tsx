@@ -37,7 +37,7 @@ const DeckDisplay: React.FC<DeckDisplayProps> = ({ deckCount }) => {
         )}
         
         {deckCount === 0 && (
-          <div className="playing-card rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+          <div className="playing-card rounded-lg border border-dashed border-gray-300 flex items-center justify-center shadow-none">
             <span className="text-gray-400 text-xs">Empty</span>
           </div>
         )}
