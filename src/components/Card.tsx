@@ -41,21 +41,7 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
     return (
       <div 
         className="playing-card bg-shithead-card-back bg-card-texture"
-      >
-        {/* Enhanced card back pattern */}
-        <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 p-1 opacity-10">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={`pattern-${i}`} className="flex items-center justify-center">
-              <div className={`w-3 h-3 rounded-full border ${i % 2 === 0 ? 'border-white' : 'border-gray-400'}`}></div>
-            </div>
-          ))}
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-gray-700/90 flex items-center justify-center border border-white/20">
-            <span className="text-white text-xl font-semibold">K</span>
-          </div>
-        </div>
-      </div>
+      />
     );
   }
 
@@ -106,14 +92,6 @@ const Card = ({ card, index, isPlayable = false, onPlay, delay = 0, isSelected =
         </div>
       </div>
       <div className="card-back absolute inset-0 bg-shithead-card-back bg-card-texture rounded-lg border border-gray-700 shadow-sm">
-        {/* Enhanced card back pattern */}
-        <div className="absolute inset-0 grid grid-cols-4 grid-rows-6 p-2 opacity-20">
-          {Array.from({ length: 24 }).map((_, i) => (
-            <div key={`pattern-${i}`} className="flex items-center justify-center">
-              <div className={`w-2 h-2 rounded-full border ${i % 3 === 0 ? 'border-white' : i % 3 === 1 ? 'border-gray-300' : 'border-gray-500'}`}></div>
-            </div>
-          ))}
-        </div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-gray-700/90 flex items-center justify-center border border-white/20">
             <span className="text-white text-xl font-semibold">K</span>
