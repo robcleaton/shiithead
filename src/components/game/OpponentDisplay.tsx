@@ -32,7 +32,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
         <div>
           {/* Removed the "Hand" label */}
           <div className="flex items-center">
-            <div className="flex -space-x-2 relative">
+            <div className="flex relative">
               {Array.from({ length: Math.min(3, opponent.hand.length) }).map((_, i) => (
                 <div
                   key={`hand-${i}`}
@@ -52,7 +52,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
             {/* Card layout with relative positioning */}
             <div className="relative">
               {/* Face down cards - bottom layer */}
-              <div className="flex -space-x-2 relative z-0">
+              <div className="flex relative z-0">
                 {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
                   <div
                     key={`face-down-${i}`}
@@ -66,7 +66,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
 
               {/* Face up cards - top layer, with margin */}
               {opponent.faceUpCards.length > 0 && (
-                <div className="flex -space-x-2 absolute top-0 left-0 mt-1 z-10">
+                <div className="flex absolute top-0 left-0 mt-1 z-10">
                   {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
                     <div
                       key={`face-up-${i}`}

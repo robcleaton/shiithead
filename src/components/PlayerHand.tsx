@@ -85,16 +85,16 @@ const PlayerHand = ({
 
   return (
     <div className="relative">
-      <div className={`p-4 rounded-xl ${isActive ? 'bg-shithead-primary/10 border border-shithead-primary/30' : 'bg-transparent'} transition-all duration-300`}>
-        <div className="mb-3 text-center">
+      <div className={`py-3 rounded-xl ${isActive ? 'bg-shithead-primary/10 border border-shithead-primary/30' : 'bg-transparent'} transition-all duration-300`}>
+        <div className="mb-1 text-center">
           <span className={`text-sm font-medium px-3 py-1 rounded-full ${isActive ? 'bg-shithead-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
             {isSetupPhase ? 'Select Cards' : (isActive ? 'Your Turn' : 'Waiting...')}
           </span>
         </div>
 
         <ScrollArea className="w-full" type="scroll">
-          <div className="relative flex items-center justify-center my-4">
-            <div className="relative flex justify-center w-max min-w-full px-6">
+          <div className="relative flex items-center justify-center">
+            <div className="relative flex justify-center w-max min-w-full">
               {!cardArray || cardArray.length === 0 ? (
                 <div className="text-center p-4 text-gray-500">
                   No cards available
