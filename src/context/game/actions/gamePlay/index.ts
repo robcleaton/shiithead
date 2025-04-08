@@ -9,4 +9,6 @@ export { playFaceUpCard } from './playFaceUpCard';
 export { playHandCards } from './playHandCards';
 export { updateGameState } from './updateGameStateUtils';
 export { validateCardPlay } from './cardValidationUtils';
+export { validateSameRank, validateCardIndices, validatePlayAgainstPile } from './handCardsValidation';
+export { processPlayerHand, determineNextPlayer, generateCardPlayMessage, generateGameStatusMessage } from './cardHandlingUtils';
 

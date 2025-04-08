@@ -13,8 +13,8 @@ export const validateSameRank = (cards: CardValue[]): boolean => {
 };
 
 // Validate card indices are within range
-export const validateCardIndices = (indices: number[], handLength: number): boolean => {
-  return indices.every(index => index >= 0 && index < handLength);
+export const validateCardIndices = (cardIndices: number[], handLength: number): boolean => {
+  return cardIndices.every(index => index >= 0 && index < handLength);
 };
 
 // Validate the card play against the top card on the pile
