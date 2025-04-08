@@ -84,8 +84,8 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Avatar className={`h-10 w-10 text-white font-bold ${generateAvatarColor(player.name)}`}>
-                <AvatarFallback>{player.name.charAt(0).toUpperCase()}</AvatarFallback>
+              <Avatar className={`h-12 w-12 text-white ${generateAvatarColor(player.name)}`}>
+                <AvatarFallback className="text-xl uppercase">{player.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <span className="font-medium">{player.name}</span>
               {player.id === currentPlayerId && (
