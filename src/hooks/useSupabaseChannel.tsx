@@ -31,12 +31,12 @@ export const useSupabaseChannel = (
         supabase.removeChannel(channelRef.current);
       }
 
-      // Fix for TypeScript error by using correct type assertion
+      // Use the postgres_changes event
       const channel = supabase
         .channel(channelName)
         .on(
           // Type assertion to fix TypeScript error
-          'postgres_changes' as unknown as 'system', 
+          'postgres_changes' as any, 
           {
             event: config.event || '*',
             schema: config.schema || 'public',
@@ -48,14 +48,19 @@ export const useSupabaseChannel = (
             
             // Enhanced detection for DELETE events
             if (payload) {
-              const isDeleteEvent = payload.eventType === 'DELETE' || 
-                                    payload.event === 'DELETE';
+              const eventType = payload.eventType || '';
               
-              if (isDeleteEvent) {
+              if (eventType === 'DELETE') {
                 console.log(`DELETE event detected in ${config.table}:`, payload);
-                // Explicitly mark as delete for improved handling
+                
+                // Ensure the DELETE event has proper flags for downstream handlers
                 if (typeof payload === 'object') {
                   payload.isDeleteEvent = true;
+                  
+                  // Make sure 'old' is available for player identification
+                  if (!payload.old && payload.record) {
+                    payload.old = payload.record;
+                  }
                 }
               }
             }

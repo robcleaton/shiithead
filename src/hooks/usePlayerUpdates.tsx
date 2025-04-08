@@ -54,13 +54,13 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           return;
         }
         
-        // If it's another player being removed, update our local state without fetching all players
+        // For all other clients, update their player list to remove the player from UI
+        console.log(`Dispatching REMOVE_PLAYER action for player ID: ${removedPlayerId}`);
         dispatch({ type: 'REMOVE_PLAYER', playerId: removedPlayerId });
-        return;
       }
       
-      // For non-DELETE events and as a fallback for DELETE events that didn't properly update the UI
-      // This ensures all clients have the latest player data
+      // For non-DELETE events or if the DELETE event didn't have sufficient info
+      // Fetch the complete player list to ensure all clients are in sync
       const { data: playersData, error } = await supabase
         .from('players')
         .select('*')
