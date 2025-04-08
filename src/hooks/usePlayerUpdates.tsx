@@ -14,18 +14,26 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
     console.log('Player update received for game:', gameId, 'Payload:', payload);
     
     try {
-      // Handle DELETE events by checking different possible payload structures
-      const isDeleteEvent = (payload.eventType === 'DELETE') || 
-                           (payload.event === 'DELETE') || 
-                           (payload.type === 'postgres_changes' && 
-                            payload.schema === 'public' && 
-                            payload.table === 'players' && 
-                            (payload.eventType === 'DELETE' || payload.event === 'DELETE'));
-                            
-      // Check for old record data in different possible locations in the payload
-      const oldRecord = payload.old || 
-                      (payload.record && payload.record.old) || 
-                      (payload.payload && payload.payload.old);
+      // Check if it's a DELETE event by examining various possible structures
+      const isDeleteEvent = 
+        // Check postgres_changes format
+        (payload.type === 'postgres_changes' && payload.event === 'DELETE') ||
+        // Check for eventType property
+        (payload.eventType === 'DELETE') ||
+        // Check for nested event
+        (payload.data && payload.data.eventType === 'DELETE');
+      
+      // Check for old data in various possible structures
+      let oldRecord = null;
+      if ('old' in payload) {
+        oldRecord = payload.old;
+      } else if (payload.data && 'old' in payload.data) {
+        oldRecord = payload.data.old;
+      } else if (payload.record && 'old' in payload.record) {
+        oldRecord = payload.record.old;
+      } else if (payload.data && payload.data.record && 'old' in payload.data.record) {
+        oldRecord = payload.data.record.old;
+      }
       
       if (isDeleteEvent && oldRecord) {
         const removedPlayerId = oldRecord.id;

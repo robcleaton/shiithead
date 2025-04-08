@@ -47,15 +47,26 @@ export const useSupabaseChannel = (
             
             // Handle different payload structures safely without assuming properties
             if (payload && typeof payload === 'object') {
-              // Log information about DELETE events if we can determine it's a delete
-              // and if there's old data available
-              if ((payload.eventType === 'DELETE' || 
-                  (payload.type === 'postgres_changes' && payload.event === 'DELETE')) && 
-                  ('old' in payload || (payload.record && 'old' in payload.record))) {
-                
-                const oldData = 'old' in payload ? payload.old : 
-                               (payload.record && 'old' in payload.record ? payload.record.old : null);
-                
+              // Check if it's a DELETE event by examining various possible structures
+              const isDelete = 
+                // Check standard format
+                (payload.type === 'postgres_changes' && payload.event === 'DELETE') ||
+                // Check for nested event types
+                (payload.type === 'postgres_changes' && 
+                 payload.data && 
+                 payload.data.eventType === 'DELETE');
+              
+              // Check for old data in various possible structures
+              let oldData = null;
+              if ('old' in payload) {
+                oldData = payload.old;
+              } else if (payload.data && 'old' in payload.data) {
+                oldData = payload.data.old;
+              } else if (payload.data && payload.data.record && 'old' in payload.data.record) {
+                oldData = payload.data.record.old;
+              }
+              
+              if (isDelete && oldData) {
                 console.log(`DELETE event detected in ${config.table}`, oldData);
               }
             }
