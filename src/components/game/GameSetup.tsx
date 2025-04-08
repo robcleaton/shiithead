@@ -96,11 +96,11 @@ const GameSetup = ({
               <></>
             )}
             
-            {/* Empty placeholders for remaining cards */}
+            {/* Empty placeholders for remaining cards - REMOVED backdrop-blur-sm */}
             {remainingSelectionsNeeded > 0 && Array(remainingSelectionsNeeded).fill(0).map((_, i) => (
               <div
                 key={`empty-${i}`}
-                className="w-14 h-20 bg-gray-100/70 backdrop-blur-sm rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
+                className="w-14 h-20 bg-gray-100/70 rounded-lg border border-dashed border-gray-300 flex items-center justify-center"
               >
                 <span className="text-gray-400 text-xs">Select</span>
               </div>
