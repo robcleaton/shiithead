@@ -5,6 +5,32 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Player } from '@/types/game';
 import { useEffect, useState } from 'react';
 
+// Create a function to generate consistent colors based on player name
+const generateAvatarColor = (name: string): string => {
+  // Array of pleasing background colors for avatars
+  const colors = [
+    'bg-purple-500',    // Primary Purple
+    'bg-indigo-500',    // Indigo
+    'bg-blue-500',      // Blue
+    'bg-green-500',     // Green
+    'bg-yellow-500',    // Yellow
+    'bg-orange-500',    // Orange
+    'bg-pink-500',      // Pink
+    'bg-red-500',       // Red
+    'bg-teal-500',      // Teal
+  ];
+  
+  // Simple hash function to get consistent index from name
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // Use absolute value and modulo to get a valid index
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
+
 interface PlayerListProps {
   players: Player[];
   currentPlayerId: string;
@@ -55,7 +81,7 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Avatar className="h-8 w-8 bg-shithead-primary text-white">
+            <Avatar className={`h-8 w-8 text-white ${generateAvatarColor(player.name)}`}>
               <AvatarFallback>{player.name.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="font-medium">{player.name}</span>
