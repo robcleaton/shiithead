@@ -7,12 +7,25 @@ import { Dispatch } from 'react';
 import { isAIPlayer, handleAIPlayerTurn } from '@/context/game/actions/gamePlay';
 import { toast } from 'sonner';
 
+// Define the payload type to match useSupabaseChannel
+interface RealtimePayload {
+  type?: string;
+  event?: string;
+  eventType?: string;
+  new?: Record<string, any>;
+  old?: Record<string, any>;
+  record?: Record<string, any>;
+  schema?: string;
+  table?: string;
+  [key: string]: any;
+}
+
 export const useGameUpdates = (
   dispatch: Dispatch<GameAction>,
   gameStateRef: React.MutableRefObject<GameState | null>
 ) => {
-  const handleGameUpdate = useCallback(async (payload: any, gameId: string) => {
-    if (payload.eventType !== 'UPDATE' || !gameId) return;
+  const handleGameUpdate = useCallback(async (payload: RealtimePayload, gameId: string) => {
+    if ((payload.eventType !== 'UPDATE' && payload.event !== 'UPDATE') || !gameId) return;
     
     try {
       const { data: gameData, error } = await supabase

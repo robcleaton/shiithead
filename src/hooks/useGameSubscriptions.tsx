@@ -137,9 +137,9 @@ export const useGameSubscriptions = (
       event: '*'  // Listen for all events (INSERT, UPDATE, DELETE)
     },
     (payload) => {
-      console.log('Player update received:',  
-        'old' in payload ? `for removed player: ${payload.old?.id}` : 
-        'new' in payload ? `for player: ${payload.new?.id}` : 
+      console.log('Player update received:', 
+        payload.old ? `for removed player: ${payload.old?.id}` : 
+        payload.new ? `for player: ${payload.new?.id}` : 
         'unknown player event');
       handlePlayerUpdate(payload, gameId || '');
     },

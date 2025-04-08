@@ -12,10 +12,23 @@ interface ChannelConfig {
   event?: ChannelEvent;
 }
 
+// Define a proper type for the payload we expect to receive
+interface RealtimePayload {
+  type?: string;
+  event?: ChannelEvent; 
+  eventType?: ChannelEvent;
+  new?: Record<string, any>;
+  old?: Record<string, any>;
+  record?: Record<string, any>;
+  schema?: string;
+  table?: string;
+  [key: string]: any; // For other properties we might receive
+}
+
 export const useSupabaseChannel = (
   channelName: string,
   config: ChannelConfig,
-  onUpdate: (payload: any) => void,
+  onUpdate: (payload: RealtimePayload) => void,
   enabled: boolean = true
 ) => {
   const channelRef = useRef<any>(null);
@@ -43,24 +56,22 @@ export const useSupabaseChannel = (
             table: config.table,
             filter: config.filter
           }, 
-          (payload) => {
+          (payload: RealtimePayload) => {
             console.log(`${channelName} update received:`, payload);
             
             // Enhanced detection for DELETE events
             if (payload) {
-              const eventType = payload.eventType || '';
+              const event = payload.event || '';
               
-              if (eventType === 'DELETE') {
+              if (event === 'DELETE') {
                 console.log(`DELETE event detected in ${config.table}:`, payload);
                 
                 // Ensure the DELETE event has proper flags for downstream handlers
-                if (typeof payload === 'object') {
-                  payload.isDeleteEvent = true;
-                  
-                  // Make sure 'old' is available for player identification
-                  if (!payload.old && payload.record) {
-                    payload.old = payload.record;
-                  }
+                payload.isDeleteEvent = true;
+                
+                // Make sure 'old' is available for player identification
+                if (!payload.old && payload.record) {
+                  payload.old = payload.record;
                 }
               }
             }

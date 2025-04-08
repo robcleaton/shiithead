@@ -7,10 +7,24 @@ import { Dispatch } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
+// Define the payload type to match useSupabaseChannel
+interface RealtimePayload {
+  type?: string;
+  event?: string;
+  eventType?: string;
+  new?: Record<string, any>;
+  old?: Record<string, any>;
+  record?: Record<string, any>;
+  schema?: string;
+  table?: string;
+  isDeleteEvent?: boolean;
+  [key: string]: any;
+}
+
 export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
   const navigate = useNavigate();
 
-  const handlePlayerUpdate = useCallback(async (payload: any, gameId: string) => {
+  const handlePlayerUpdate = useCallback(async (payload: RealtimePayload, gameId: string) => {
     if (!gameId) return;
     
     console.log('Player update received for game:', gameId, 'Payload:', payload);
@@ -18,15 +32,15 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
     try {
       // Enhanced detection of DELETE events
       const isDeleteEvent = 
-        (payload.eventType === 'DELETE') ||
         (payload.event === 'DELETE') || 
+        (payload.eventType === 'DELETE') || 
         (payload.isDeleteEvent === true);
       
       // Get the player data from the record
       let playerRecord = null;
-      if ('old' in payload) {
+      if (payload.old) {
         playerRecord = payload.old;
-      } else if ('record' in payload) {
+      } else if (payload.record) {
         playerRecord = payload.record;
       }
       
