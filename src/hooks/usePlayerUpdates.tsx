@@ -13,6 +13,15 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
     console.log('Player update received for game:', gameId, 'Type:', payload.eventType);
     
     try {
+      // If this is a DELETE event, we need to remove the player from the state
+      if (payload.eventType === 'DELETE' && payload.old) {
+        const removedPlayerId = payload.old.id;
+        console.log('Player removed:', removedPlayerId);
+        dispatch({ type: 'REMOVE_PLAYER', playerId: removedPlayerId });
+        return;
+      }
+      
+      // For other events (INSERT, UPDATE), fetch all players to update the state
       const { data: playersData, error } = await supabase
         .from('players')
         .select('*')

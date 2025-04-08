@@ -1,4 +1,3 @@
-
 import { GameState, GameAction, Player, CardValue } from '@/types/game';
 import { generateId } from '@/utils/gameUtils';
 
@@ -190,6 +189,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return state;
     
     case 'REMOVE_PLAYER': {
+      console.log(`Removing player with ID: ${action.playerId}`);
       return {
         ...state,
         players: state.players.filter(player => player.id !== action.playerId)

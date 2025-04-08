@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useRef } from 'react';
 import { GameState, GameAction } from '@/types/game';
 import { Dispatch } from 'react';
@@ -18,13 +17,11 @@ export const useGameSubscriptions = (
   const { handleGameUpdate } = useGameUpdates(dispatch, gameStateRef);
   const { handlePlayerUpdate } = usePlayerUpdates(dispatch);
   
-  // Setup initial data fetch
   useEffect(() => {
     if (gameId) {
       console.log('Setting up game subscriptions for game ID:', gameId, 'Player ID:', playerId);
       dispatch({ type: 'SET_LOADING', isLoading: true });
       
-      // Initial fetch of all players
       fetchPlayers(gameId).then(players => {
         console.log('Initial players fetch completed:', players?.length || 0, 'players');
         dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -33,7 +30,6 @@ export const useGameSubscriptions = (
         dispatch({ type: 'SET_LOADING', isLoading: false });
       });
 
-      // Add an initial fetch of the game state directly to ensure we have the latest state
       const fetchInitialGameState = async () => {
         try {
           const { data: gameData, error } = await supabase
@@ -64,7 +60,6 @@ export const useGameSubscriptions = (
     }
   }, [gameId, dispatch, fetchPlayers, playerId]);
 
-  // Setup game updates channel
   useSupabaseChannel(
     'game_updates', 
     { 
@@ -78,7 +73,6 @@ export const useGameSubscriptions = (
     !!gameId
   );
 
-  // Setup player updates channel - monitor all events for players in this game
   useSupabaseChannel(
     'player_updates', 
     { 

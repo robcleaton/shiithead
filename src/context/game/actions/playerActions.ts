@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
@@ -228,6 +229,7 @@ export const removePlayer = async (
       return;
     }
     
+    // Delete the player from the database - this will trigger real-time updates
     const { error } = await supabase
       .from('players')
       .delete()
@@ -236,7 +238,9 @@ export const removePlayer = async (
       
     if (error) throw error;
     
-    dispatch({ type: 'REMOVE_PLAYER', playerId });
+    // We don't need to manually dispatch REMOVE_PLAYER action here
+    // as the real-time subscription will handle it for all clients
+    
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Removed ${playerToRemove.name} from the game`);
     
