@@ -19,7 +19,7 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         // Check for event property directly
         (payload.event === 'DELETE') ||
         // Check for type and event properties
-        (payload.type === 'postgres_changes' && payload.event === 'DELETE');
+        (typeof payload.type === 'string' && payload.event === 'DELETE');
       
       // Check for old data
       let oldRecord = null;
@@ -51,29 +51,9 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         return;
       }
       
-      // For other events (INSERT, UPDATE), verify if current player still exists in the game
-      // by checking the database directly
-      const currentPlayerId = localStorage.getItem('playerId');
-      
-      if (currentPlayerId) {
-        // Directly check if current player still exists in this game
-        const { data: currentPlayerExists, error: playerCheckError } = await supabase
-          .from('players')
-          .select('id')
-          .eq('id', currentPlayerId)
-          .eq('game_id', gameId)
-          .maybeSingle();
-        
-        if (playerCheckError) {
-          console.error('Error checking if player exists:', playerCheckError);
-        } else if (!currentPlayerExists) {
-          // Player doesn't exist in this game anymore, they must have been removed
-          console.log('Player no longer exists in game');
-          dispatch({ type: 'RESET_GAME' });
-          toast.error('You have been removed from the game by the host');
-          return;
-        }
-      }
+      // For INSERT and UPDATE events, don't verify if the current player still exists
+      // This prevents unnecessary database queries that could cause premature redirects
+      // Only proceed with updating the players list
       
       // Proceed with normal update - fetch all players to update the state
       const { data: playersData, error } = await supabase

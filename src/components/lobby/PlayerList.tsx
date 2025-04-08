@@ -47,31 +47,11 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
     console.log('PlayerList received players update:', players);
     
     if (players && players.length > 0) {
-      // Check if current player is still in the list
-      const currentPlayerStillInGame = players.some(p => p.id === currentPlayerId);
-      
-      if (!currentPlayerStillInGame && currentPlayerId) {
-        console.log('Current player no longer in game list - they were removed');
-        
-        // We should be redirected by the usePlayerUpdates hook
-        // This is a fallback in case that doesn't happen
-        setTimeout(() => {
-          console.log('Fallback redirect triggered');
-          window.location.href = '/';
-        }, 1000);
-      }
-      
+      // Set rendered players without attempting to redirect
       setRenderedPlayers(players);
-    } else if (currentPlayerId) {
-      // We have a player ID but no players, check if we've been removed
-      console.log('No players returned but we have a player ID - possible removal');
-      
-      // We should be redirected by the usePlayerUpdates hook
-      // This is a fallback in case that doesn't happen
-      setTimeout(() => {
-        console.log('No players fallback redirect triggered');
-        window.location.href = '/';
-      }, 1000);
+    } else {
+      // If no players, just use an empty array
+      setRenderedPlayers([]);
     }
   }, [players, currentPlayerId]);
 

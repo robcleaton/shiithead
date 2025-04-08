@@ -23,30 +23,21 @@ const Index = () => {
   }, [gameId, location]);
 
   // If we've been removed from a game, this effect will clean up the state
+  // but only if we're on the home page naturally (not during page load)
   useEffect(() => {
     const playerId = localStorage.getItem('playerId');
     
-    // If we have a player ID but we're at the home page and we're not seeing the join form
-    // this might be because we were removed from a game
-    if (playerId && location.pathname === '/' && !showJoinForm && state.gameId) {
-      console.log('Home page detected with lingering game state - cleaning up');
+    // Only reset if we came to home page via navigation, not on initial load
+    // Add a check to make sure this only happens if we were previously in a game
+    if (playerId && 
+        location.pathname === '/' && 
+        !showJoinForm && 
+        state.gameId && 
+        document.referrer.includes(window.location.host)) {
+      console.log('Home page detected with lingering game state after navigation - cleaning up');
       resetGame();
     }
   }, [location.pathname, showJoinForm, state.gameId, resetGame]);
-
-  // This handles automatic redirection to the home page if a player was removed from a game
-  useEffect(() => {
-    // If we're in a game but our player is no longer in the players list, we've been removed
-    if (state.gameId && state.players.length > 0 && state.playerId) {
-      const currentPlayerInGame = state.players.some(p => p.id === state.playerId);
-      
-      if (!currentPlayerInGame) {
-        console.log('Current player no longer in game state, navigating to home');
-        resetGame();
-        navigate('/');
-      }
-    }
-  }, [state.players, state.playerId, state.gameId, resetGame, navigate]);
 
   return (
     // Join game module
