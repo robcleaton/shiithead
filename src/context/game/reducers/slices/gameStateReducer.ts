@@ -19,24 +19,6 @@ export const gameStateReducer = (state: GameState, action: GameAction): GameStat
         gameOver: true
       };
     
-    case 'RESET_GAME':
-      return {
-        ...state,
-        deck: [],
-        pile: [],
-        gameStarted: false,
-        gameOver: false,
-        setupPhase: false,
-        currentPlayerId: null,
-        players: state.players.map(player => ({
-          ...player,
-          hand: [],
-          faceDownCards: [],
-          faceUpCards: [],
-          isReady: false
-        }))
-      };
-    
     default:
       return state;
   }
