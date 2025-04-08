@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
-import { generateId } from '@/utils/gameUtils';
 import { NavigateFunction } from 'react-router-dom';
+import { generateGameId } from '@/utils/gameUtils';
 
 export const createGame = async (
   dispatch: Dispatch<GameAction>,
@@ -14,28 +14,31 @@ export const createGame = async (
 ) => {
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
-    const gameId = generateId();
-    
-    // Create a new game in the database
+
+    const gameId = generateGameId();
+    console.log(`Generated game ID: ${gameId}`);
+
+    // Create game in Supabase
     const { error: gameError } = await supabase
       .from('games')
-      .insert([{ 
+      .insert([{
         id: gameId,
+        deck: [],
+        pile: [],
         started: false,
         ended: false,
         setup_phase: false,
-        deck: [],
-        pile: []
+        current_player_id: null
       }]);
-      
+
     if (gameError) {
       console.error('Error creating game:', gameError);
-      throw gameError;
+      toast.error('Error creating game');
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
     }
-    
-    console.log(`Game created with ID: ${gameId}`);
-    
-    // Create the player record
+
+    // Create player in Supabase
     const { error: playerError } = await supabase
       .from('players')
       .insert([{
@@ -49,22 +52,32 @@ export const createGame = async (
         is_active: true,
         is_ready: false
       }]);
-      
+
     if (playerError) {
       console.error('Error creating player:', playerError);
-      throw playerError;
+      toast.error('Error creating player');
+
+      // Clean up the game if player creation fails
+      await supabase
+        .from('games')
+        .delete()
+        .eq('id', gameId);
+
+      dispatch({ type: 'SET_LOADING', isLoading: false });
+      return;
     }
-    
-    console.log(`Host player created: ${playerName} (${playerId})`);
-    
-    // Update the client state
+
+    // Store game ID in localStorage for session persistence
+    localStorage.setItem('gameId', gameId);
+
+    // Update state
     dispatch({ type: 'CREATE_GAME', gameId, playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });
-    
-    toast.success(`Game created! Share the game ID: ${gameId}`);
+
+    toast.success('Game created successfully');
     navigate('/game');
   } catch (error) {
-    console.error('Error creating game:', error);
+    console.error('Error in createGame:', error);
     toast.error('Failed to create game');
     dispatch({ type: 'SET_LOADING', isLoading: false });
   }

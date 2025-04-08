@@ -94,6 +94,9 @@ export const joinGame = async (
       }
     }
     
+    // Store game ID in localStorage for session persistence
+    localStorage.setItem('gameId', gameId);
+    
     // Update state and navigate only after all operations completed successfully
     dispatch({ type: 'JOIN_GAME', gameId, playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });

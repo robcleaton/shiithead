@@ -7,6 +7,7 @@ import JoinGameForm from '@/components/lobby/JoinGameForm';
 import useGame from '@/hooks/useGame';
 import CursorTracker from '@/components/CursorTracker';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
@@ -14,6 +15,7 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { joinGame, state, resetGame } = useGame();
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
     if (location.pathname.startsWith('/join/') && gameId) {
@@ -21,6 +23,48 @@ const Index = () => {
       console.log(`Detected join URL with gameId: ${gameId}`);
     }
   }, [gameId, location]);
+
+  // Check for existing session on page load
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      setIsCheckingSession(true);
+      
+      try {
+        // Get stored game ID and player ID
+        const storedGameId = localStorage.getItem('gameId');
+        const storedPlayerId = localStorage.getItem('playerId');
+        
+        if (storedGameId && storedPlayerId) {
+          console.log(`Found stored game session: Game ID ${storedGameId}, Player ID ${storedPlayerId}`);
+          
+          // Verify player is still part of the game
+          const { data: playerData, error } = await supabase
+            .from('players')
+            .select('id, name, game_id')
+            .eq('id', storedPlayerId)
+            .eq('game_id', storedGameId)
+            .maybeSingle();
+          
+          if (error) {
+            console.error('Error checking player session:', error);
+            resetGame();
+          } else if (playerData) {
+            console.log('Player found in game, redirecting to game page');
+            navigate('/game');
+          } else {
+            console.log('Player no longer in game, resetting state');
+            resetGame();
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setIsCheckingSession(false);
+      }
+    };
+    
+    checkExistingSession();
+  }, [navigate, resetGame]);
 
   // Modified to be less aggressive with resets
   // Only reset if we came from a game page via explicit navigation
@@ -45,6 +89,16 @@ const Index = () => {
       sessionStorage.setItem('wasInGame', 'true');
     }
   }, [location.pathname, showJoinForm, state.gameId, resetGame]);
+
+  if (isCheckingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <div className="text-center">
+          <p className="text-shithead-foreground/60">Checking game session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     // Join game module
