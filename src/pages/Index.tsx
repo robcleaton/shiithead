@@ -1,7 +1,7 @@
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import JoinGameForm from '@/components/lobby/JoinGameForm';
 import useGame from '@/hooks/useGame';
@@ -12,6 +12,7 @@ const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
   const { gameId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { joinGame, state, resetGame } = useGame();
 
   useEffect(() => {
@@ -21,7 +22,7 @@ const Index = () => {
     }
   }, [gameId, location]);
 
-  // If we're redirected to home but still have game state, reset it
+  // If we've been removed from a game, this effect will clean up the state
   useEffect(() => {
     const playerId = localStorage.getItem('playerId');
     
@@ -32,6 +33,20 @@ const Index = () => {
       resetGame();
     }
   }, [location.pathname, showJoinForm, state.gameId, resetGame]);
+
+  // This handles automatic redirection to the home page if a player was removed from a game
+  useEffect(() => {
+    // If we're in a game but our player is no longer in the players list, we've been removed
+    if (state.gameId && state.players.length > 0 && state.playerId) {
+      const currentPlayerInGame = state.players.some(p => p.id === state.playerId);
+      
+      if (!currentPlayerInGame) {
+        console.log('Current player no longer in game state, navigating to home');
+        resetGame();
+        navigate('/');
+      }
+    }
+  }, [state.players, state.playerId, state.gameId, resetGame, navigate]);
 
   return (
     // Join game module

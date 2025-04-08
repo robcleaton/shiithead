@@ -31,7 +31,7 @@ export const useSupabaseChannel = (
         supabase.removeChannel(channelRef.current);
       }
 
-      // The channel configuration includes event type, which should properly catch DELETE events
+      // Create the channel configuration with explicit event handling
       const channel = supabase
         .channel(channelName)
         .on(
@@ -44,6 +44,12 @@ export const useSupabaseChannel = (
           }, 
           (payload) => {
             console.log(`${channelName} update received:`, payload);
+            
+            // Enhanced logging for DELETE events to help with debugging
+            if (payload.eventType === 'DELETE') {
+              console.log(`DELETE event detected in ${config.table}`, payload.old);
+            }
+            
             onUpdate(payload);
           }
         )

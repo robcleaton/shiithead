@@ -5,6 +5,7 @@ import { jsonToCardValues } from '@/utils/gameUtils';
 import { GameAction } from '@/types/game';
 import { Dispatch } from 'react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
   const handlePlayerUpdate = useCallback(async (payload: any, gameId: string) => {
@@ -18,10 +19,10 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         const removedPlayerId = payload.old.id;
         console.log('Player removed from database:', removedPlayerId);
         
-        // If the removed player is the current player, redirect them back to home immediately
+        // If the removed player is the current player, handle removal gracefully
         const currentPlayerId = localStorage.getItem('playerId');
         if (removedPlayerId === currentPlayerId) {
-          console.log('Current player was removed from the game - redirecting immediately!');
+          console.log('Current player was removed from the game');
           
           // Clear game state first
           dispatch({ type: 'RESET_GAME' });
@@ -29,8 +30,10 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           // Show toast message
           toast.error('You have been removed from the game by the host');
           
-          // Force immediate navigation to home page
-          window.location.href = '/';
+          // Use react-router navigation instead of forced page refresh
+          dispatch({ type: 'SET_LOADING', isLoading: false });
+          
+          // We'll handle navigation in the component through game state changes
           return;
         }
         
@@ -56,10 +59,10 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           console.error('Error checking if player exists:', playerCheckError);
         } else if (!currentPlayerExists) {
           // Player doesn't exist in this game anymore, they must have been removed
-          console.log('Player no longer exists in game - redirecting immediately!');
+          console.log('Player no longer exists in game');
           dispatch({ type: 'RESET_GAME' });
           toast.error('You have been removed from the game by the host');
-          window.location.href = '/';
+          // We'll handle navigation in the component through game state changes
           return;
         }
       }
@@ -93,7 +96,7 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
       }
     } catch (error) {
       console.error('Error processing players update:', error);
-      toast.error('Error updating player data. Please refresh.');
+      toast.error('Error updating player data');
     }
   }, [dispatch]);
 

@@ -1,5 +1,6 @@
 
 import { createContext, ReactNode, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useGameContext from '@/hooks/useGameContext';
 import { GameState } from '@/types/game';
 import { isAIPlayer } from './actions/gamePlay/aiPlayerActions';
@@ -12,6 +13,7 @@ export const GameContext = createContext<GameContextType | undefined>(undefined)
 
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const gameContext = useGameContext();
+  const navigate = useNavigate();
   const lastPlayerChangeRef = useRef<number>(Date.now());
   const stuckGameCheckerRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -41,6 +43,15 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     gameContext.state.gameOver
   ]);
 
+  // Handle navigation when game state changes (especially player removal)
+  useEffect(() => {
+    // If player was in a game but now the game state is reset, navigate to home
+    if (!gameContext.state.gameId && localStorage.getItem('playerId')) {
+      console.log('Game state reset detected, navigating to home');
+      navigate('/');
+    }
+  }, [gameContext.state.gameId, navigate]);
+
   // Add debug logging for player state changes
   useEffect(() => {
     console.log('Current players in GameProvider:', gameContext.state.players);
@@ -57,25 +68,29 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         
         // Double check with database before taking action
         const checkPlayerExistence = async () => {
-          const { data } = await supabase
-            .from('players')
-            .select('id')
-            .eq('id', currentPlayerId)
-            .eq('game_id', gameContext.state.gameId)
-            .maybeSingle();
-            
-          if (!data) {
-            console.log('Player confirmed removed from database - resetting game');
-            gameContext.resetGame();
-            toast.error('You have been removed from the game');
-            window.location.href = '/';
+          try {
+            const { data } = await supabase
+              .from('players')
+              .select('id')
+              .eq('id', currentPlayerId)
+              .eq('game_id', gameContext.state.gameId)
+              .maybeSingle();
+              
+            if (!data) {
+              console.log('Player confirmed removed from database - resetting game');
+              gameContext.resetGame();
+              toast.error('You have been removed from the game');
+              navigate('/');
+            }
+          } catch (error) {
+            console.error('Error checking player existence:', error);
           }
         };
         
         checkPlayerExistence();
       }
     }
-  }, [gameContext.state.players, gameContext.state.gameId, gameContext.resetGame]);
+  }, [gameContext.state.players, gameContext.state.gameId, gameContext.resetGame, navigate]);
   
   // Add a heartbeat check to detect and recover from stalled games
   useEffect(() => {
