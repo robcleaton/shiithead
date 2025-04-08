@@ -148,16 +148,9 @@ const PlayerHand = ({
             </Button>
           </div>
         )}
-
-        {isMobile && cardArray.length > 4 && (
-          <div className="text-center text-xs text-gray-500 mt-2">
-            Swipe to view more cards
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
 export default PlayerHand;
-
