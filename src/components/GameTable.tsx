@@ -43,19 +43,13 @@ const GameTable: React.FC<GameTableProps> = ({
 
       {/* Game area */}
       <div className="flex justify-center mb-6">
-        {/* Deck count on left */}
-        <div className="flex flex-row items-center justify-between w-full">
+        {/* Center content with vertical stack of deck count and pile */}
+        <div className="flex flex-col items-center justify-center w-full">
+          {/* Deck count on top */}
           <DeckDisplay deckCount={deckCount} />
           
-          {/* Pile display centered */}
-          <div className="flex-1 flex justify-center">
-            <PileDisplay pile={pile} />
-          </div>
-          
-          {/* Empty div to balance layout */}
-          <div className="invisible">
-            <DeckDisplay deckCount={deckCount} />
-          </div>
+          {/* Pile display below */}
+          <PileDisplay pile={pile} />
         </div>
       </div>
 
