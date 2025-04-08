@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
-import { generateId } from '@/utils/gameUtils';
+import { generateId, jsonToCardValues } from '@/utils/gameUtils';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { isAIPlayer } from './gamePlay/aiPlayerActions';
