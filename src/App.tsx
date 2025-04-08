@@ -28,7 +28,7 @@ const AppRoutes = () => {
       <header className="container mx-auto px-6 py-6 fixed top-0 left-1/2 -translate-x-1/2 z-50">
         <SiteHeader />
       </header>
-      <main className="flex-1">
+      <main className="flex-1 mt-24">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/join/:gameId" element={<Index />} />
