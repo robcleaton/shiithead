@@ -8,8 +8,9 @@ export const resetGame = (dispatch: Dispatch<GameAction>, state: GameState) => {
   try {
     console.log('Resetting game state');
     
-    // Clear the game ID from localStorage
+    // Clear the game ID and player name from localStorage
     localStorage.removeItem('gameId');
+    localStorage.removeItem('playerName');
     
     // Reset the game state in the reducer
     dispatch({ type: 'RESET_GAME' });

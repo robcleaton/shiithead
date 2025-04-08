@@ -69,6 +69,7 @@ export const createGame = async (
 
     // Store game ID in localStorage for session persistence
     localStorage.setItem('gameId', gameId);
+    localStorage.setItem('playerName', playerName);
 
     // Update state
     dispatch({ type: 'CREATE_GAME', gameId, playerName });

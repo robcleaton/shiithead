@@ -32,6 +32,7 @@ const Index = () => {
       try {
         // Get stored game ID and player ID
         const storedGameId = localStorage.getItem('gameId');
+        const storedPlayerName = localStorage.getItem('playerName');
         const storedPlayerId = localStorage.getItem('playerId');
         
         if (storedGameId && storedPlayerId) {
@@ -50,7 +51,8 @@ const Index = () => {
             resetGame();
           } else if (playerData) {
             console.log('Player found in game, redirecting to game page');
-            navigate('/game');
+            const nameToUse = storedPlayerName || playerData.name || 'Player';
+            joinGame(storedGameId, nameToUse, storedPlayerId, navigate);
           } else {
             console.log('Player no longer in game, resetting state');
             resetGame();
@@ -64,11 +66,9 @@ const Index = () => {
     };
     
     checkExistingSession();
-  }, [navigate, resetGame]);
+  }, [navigate, resetGame, joinGame]);
 
-  // Modified to be less aggressive with resets
-  // Only reset if we came from a game page via explicit navigation
-  // (not on initial load or browser refresh)
+  // Reset game state only when explicitly navigating away from game
   useEffect(() => {
     const playerId = localStorage.getItem('playerId');
     const wasInGame = sessionStorage.getItem('wasInGame') === 'true';

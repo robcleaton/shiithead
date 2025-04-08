@@ -8,6 +8,7 @@ import useGame from '@/hooks/useGame';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 // Import refactored components
 import CreateGameForm from './lobby/CreateGameForm';
@@ -23,6 +24,7 @@ const Lobby = () => {
   const { gameId: joinGameId } = useParams();
   const navigate = useNavigate();
   const isDevelopment = import.meta.env.DEV;
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (joinGameId && !state.gameId) {
@@ -30,6 +32,50 @@ const Lobby = () => {
     }
   }, [joinGameId, state.gameId]);
 
+  // Check for existing game session when component mounts
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      setIsLoading(true);
+      try {
+        const storedGameId = localStorage.getItem('gameId');
+        const storedPlayerName = localStorage.getItem('playerName');
+        const playerId = localStorage.getItem('playerId');
+        
+        if (storedGameId && playerId) {
+          console.log('Found stored game session:', storedGameId);
+          
+          // Verify the game and player still exist in the database
+          const { data: playerData, error } = await supabase
+            .from('players')
+            .select('id, name, game_id')
+            .eq('id', playerId)
+            .eq('game_id', storedGameId)
+            .maybeSingle();
+            
+          if (error) {
+            console.error('Error checking game session:', error);
+          } else if (playerData) {
+            console.log('Valid game session found, joining game:', storedGameId);
+            // If player name is stored, use it, otherwise use the name from the database
+            const nameToUse = storedPlayerName || playerData.name || 'Player';
+            joinGame(storedGameId, nameToUse, playerId, navigate);
+          } else {
+            console.log('Game or player no longer exists, clearing session');
+            localStorage.removeItem('gameId');
+            localStorage.removeItem('playerName');
+          }
+        }
+      } catch (error) {
+        console.error('Error in session check:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkExistingSession();
+  }, [joinGame, navigate]);
+
+  // After checking session or if already in a game, redirect to game page
   useEffect(() => {
     if (state.gameId) {
       navigate('/game');
@@ -64,6 +110,20 @@ const Lobby = () => {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <p className="text-shithead-foreground/60">Loading game session...</p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
