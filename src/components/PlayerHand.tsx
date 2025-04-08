@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import Card from './Card';
 import { CardValue } from '@/context/GameContext';
@@ -92,14 +93,14 @@ const PlayerHand = ({
         </div>
 
         <ScrollArea className="w-full" type="scroll">
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center my-4">
             <div className="relative flex justify-center w-max min-w-full px-6">
               {!cardArray || cardArray.length === 0 ? (
                 <div className="text-center p-4 text-gray-500">
                   No cards available
                 </div>
               ) : (
-                <div className="flex justify-center">
+                <div className="flex justify-center py-3">
                   {cardArray.map((card, index) => (
                     <div
                       key={`${card.suit}-${card.rank}-${index}`}
@@ -128,7 +129,7 @@ const PlayerHand = ({
         </ScrollArea>
 
         {(isActive || isSetupPhase) && selectedIndices.length > 0 && areSelectionsValid() && (
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-4">
             <Button
               onClick={handlePlaySelected}
               className="bg-shithead-primary hover:bg-shithead-primary/90"
@@ -159,3 +160,4 @@ const PlayerHand = ({
 };
 
 export default PlayerHand;
+
