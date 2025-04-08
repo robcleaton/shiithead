@@ -42,45 +42,44 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           // Show toast message
           toast.error('You have been removed from the game by the host');
           
-          // We'll handle navigation in the component through game state changes
+          // Return early to prevent unnecessary player data fetch
           return;
         }
         
-        // If it's another player being removed, update our local state
+        // If it's another player being removed, update our local state without fetching all players
         dispatch({ type: 'REMOVE_PLAYER', playerId: removedPlayerId });
         return;
       }
       
-      // For INSERT and UPDATE events, don't verify if the current player still exists
-      // This prevents unnecessary database queries that could cause premature redirects
-      // Only proceed with updating the players list
-      
-      // Proceed with normal update - fetch all players to update the state
-      const { data: playersData, error } = await supabase
-        .from('players')
-        .select('*')
-        .eq('game_id', gameId);
-        
-      if (error) {
-        console.error('Error fetching players data after update:', error);
-        toast.error('Failed to sync player data. Please refresh.');
-        return;
-      }
-        
-      if (playersData && playersData.length > 0) {
-        const mappedPlayers = playersData.map(p => ({
-          id: p.id,
-          name: p.name,
-          isHost: p.is_host,
-          hand: jsonToCardValues(p.hand),
-          faceDownCards: jsonToCardValues(p.face_down_cards),
-          faceUpCards: jsonToCardValues(p.face_up_cards),
-          isActive: p.is_active,
-          isReady: p.is_ready,
-          gameId: p.game_id
-        }));
-        
-        dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+      // Only fetch all players for non-DELETE events (like INSERT or UPDATE)
+      // This prevents unnecessary database queries that could trigger refreshes
+      if (!isDeleteEvent) {
+        const { data: playersData, error } = await supabase
+          .from('players')
+          .select('*')
+          .eq('game_id', gameId);
+          
+        if (error) {
+          console.error('Error fetching players data after update:', error);
+          toast.error('Failed to sync player data. Please refresh.');
+          return;
+        }
+          
+        if (playersData && playersData.length > 0) {
+          const mappedPlayers = playersData.map(p => ({
+            id: p.id,
+            name: p.name,
+            isHost: p.is_host,
+            hand: jsonToCardValues(p.hand),
+            faceDownCards: jsonToCardValues(p.face_down_cards),
+            faceUpCards: jsonToCardValues(p.face_up_cards),
+            isActive: p.is_active,
+            isReady: p.is_ready,
+            gameId: p.game_id
+          }));
+          
+          dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+        }
       }
     } catch (error) {
       console.error('Error processing players update:', error);

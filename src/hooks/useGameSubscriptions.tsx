@@ -32,7 +32,7 @@ export const useGameSubscriptions = (
         if (playerId && players && players.length > 0) {
           const currentPlayerExists = players.some(p => p.id === playerId);
           if (!currentPlayerExists) {
-            // Only reset if player is definitely not in game
+            // Only check database once to verify if player is truly not in the game
             console.log('Current player not found in initial players fetch');
             
             // Add a final database check before resetting
@@ -47,11 +47,6 @@ export const useGameSubscriptions = (
                   console.log('Player confirmed not in database - resetting game');
                   dispatch({ type: 'RESET_GAME' });
                   toast.error('You are no longer part of this game');
-                  
-                  // Use timeout to avoid immediate navigation that might cause refresh loops
-                  setTimeout(() => {
-                    window.location.href = '/';
-                  }, 1000);
                 } else {
                   console.log('Player found in database despite not being in fetched players - keeping game state');
                 }

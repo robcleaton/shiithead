@@ -45,21 +45,28 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
   // Update rendered players whenever the players prop changes
   useEffect(() => {
     console.log('PlayerList received players update:', players);
-    
-    if (players && players.length > 0) {
-      // Set rendered players without attempting to redirect
-      setRenderedPlayers(players);
-    } else {
-      // If no players, just use an empty array
-      setRenderedPlayers([]);
-    }
-  }, [players, currentPlayerId]);
+    setRenderedPlayers(players);
+  }, [players]);
 
-  // Handle player removal
+  // Handle player removal with optimistic UI update
   const handleRemovePlayer = async (playerId: string) => {
     if (playerId !== currentPlayerId && state.isHost) {
       console.log(`Host is removing player: ${playerId}`);
+      
+      // Find player before removal for toast message
+      const playerToRemove = players.find(p => p.id === playerId);
+      
+      // Apply optimistic UI update by filtering out the player locally
+      // This prevents waiting for the real-time update
+      setRenderedPlayers(prev => prev.filter(p => p.id !== playerId));
+      
+      // Actually remove the player via the API
       await removePlayer(playerId);
+      
+      // Show confirmation toast after successful removal
+      if (playerToRemove) {
+        console.log(`Removed ${playerToRemove.name} from the game`);
+      }
     }
   };
 

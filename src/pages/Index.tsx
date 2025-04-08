@@ -22,20 +22,27 @@ const Index = () => {
     }
   }, [gameId, location]);
 
-  // If we've been removed from a game, this effect will clean up the state
-  // but only if we're on the home page naturally (not during page load)
+  // Modified to be less aggressive with resets
+  // Only reset if we came from a game page via explicit navigation
+  // (not on initial load or browser refresh)
   useEffect(() => {
     const playerId = localStorage.getItem('playerId');
+    const wasInGame = sessionStorage.getItem('wasInGame') === 'true';
     
-    // Only reset if we came to home page via navigation, not on initial load
-    // Add a check to make sure this only happens if we were previously in a game
+    // Only reset if we came to home page via explicit navigation from a game page
     if (playerId && 
         location.pathname === '/' && 
         !showJoinForm && 
         state.gameId && 
-        document.referrer.includes(window.location.host)) {
+        wasInGame) {
       console.log('Home page detected with lingering game state after navigation - cleaning up');
       resetGame();
+      sessionStorage.removeItem('wasInGame');
+    }
+    
+    // Mark that we're in a game when we have a game state
+    if (state.gameId) {
+      sessionStorage.setItem('wasInGame', 'true');
     }
   }, [location.pathname, showJoinForm, state.gameId, resetGame]);
 
