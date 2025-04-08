@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
+  const navigate = useNavigate();
+
   const handlePlayerUpdate = useCallback(async (payload: any, gameId: string) => {
     if (!gameId) return;
     
@@ -41,6 +43,9 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           
           // Show toast message
           toast.error('You have been removed from the game by the host');
+          
+          // Navigate to home page
+          navigate('/');
           
           // Return early to prevent unnecessary player data fetch
           return;
@@ -85,7 +90,7 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
       console.error('Error processing players update:', error);
       toast.error('Error updating player data');
     }
-  }, [dispatch]);
+  }, [dispatch, navigate]);
 
   return { handlePlayerUpdate };
 };

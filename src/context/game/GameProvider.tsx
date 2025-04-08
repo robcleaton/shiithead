@@ -16,6 +16,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const lastPlayerChangeRef = useRef<number>(Date.now());
   const stuckGameCheckerRef = useRef<NodeJS.Timeout | null>(null);
+  const playerRemovalCheckRef = useRef<NodeJS.Timeout | null>(null);
   
   // Set up a watcher for AI player turns
   useEffect(() => {
@@ -91,6 +92,55 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [gameContext.state.players, gameContext.state.gameId, gameContext.resetGame, navigate]);
+  
+  // Special periodic check for player removal when in a lobby
+  useEffect(() => {
+    const currentPlayerId = localStorage.getItem('playerId');
+    const { gameId } = gameContext.state;
+    
+    // Only run this check when in a game but not yet started
+    if (currentPlayerId && gameId && !gameContext.state.gameStarted) {
+      // Clear any existing check interval
+      if (playerRemovalCheckRef.current) {
+        clearInterval(playerRemovalCheckRef.current);
+      }
+      
+      // Set up an interval to check if player still exists (every 10 seconds)
+      playerRemovalCheckRef.current = setInterval(async () => {
+        try {
+          console.log('Performing periodic check to verify player membership in the game');
+          const { data } = await supabase
+            .from('players')
+            .select('id')
+            .eq('id', currentPlayerId)
+            .eq('game_id', gameId)
+            .maybeSingle();
+            
+          if (!data) {
+            console.log('Periodic check detected player removal - leaving game');
+            gameContext.resetGame();
+            toast.error('You have been removed from the game by the host');
+            navigate('/');
+            
+            // Clear the interval after redirecting
+            if (playerRemovalCheckRef.current) {
+              clearInterval(playerRemovalCheckRef.current);
+              playerRemovalCheckRef.current = null;
+            }
+          }
+        } catch (error) {
+          console.error('Error in periodic player existence check:', error);
+        }
+      }, 10000);
+      
+      return () => {
+        if (playerRemovalCheckRef.current) {
+          clearInterval(playerRemovalCheckRef.current);
+          playerRemovalCheckRef.current = null;
+        }
+      };
+    }
+  }, [gameContext.state.gameId, gameContext.state.gameStarted, gameContext.resetGame, navigate]);
   
   // Add a heartbeat check to detect and recover from stalled games
   useEffect(() => {

@@ -35,7 +35,7 @@ export const useSupabaseChannel = (
       const channel = supabase
         .channel(channelName)
         .on(
-          'postgres_changes' as any, 
+          'postgres_changes', 
           {
             event: config.event || '*',
             schema: config.schema || 'public',
