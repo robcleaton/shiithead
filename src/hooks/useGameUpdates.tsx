@@ -4,8 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { jsonToCardValues } from '@/utils/gameUtils';
 import { GameState, GameAction } from '@/types/game';
 import { Dispatch } from 'react';
-import { isAIPlayer } from '@/context/game/actions/gamePlay';
-import { handleAIPlayerTurn } from '@/context/game/actions/gamePlayActions';
+import { isAIPlayer, handleAIPlayerTurn } from '@/context/game/actions/gamePlay';
 import { toast } from 'sonner';
 
 export const useGameUpdates = (

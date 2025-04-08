@@ -7,65 +7,70 @@ import { GameAction } from '@/types/game';
 import { processBurnConditions } from './burnPileUtils';
 import { determineNextPlayer, generateGameStatusMessage } from './cardHandlingUtils';
 
-// Shared function to handle updating player and game state after a card is played
-export const updateGameState = async (
-  dispatch: Dispatch<GameAction>,
-  state: GameState,
+// Helper to handle the case when face down cards need to be moved to hand
+const handleFaceDownToHandTransfer = (
   player: Player,
-  cardToPlay: CardValue,
-  updatedFaceUpCards: CardValue[] | null = null,
-  updatedFaceDownCards: CardValue[] | null = null,
-  cardPlayedFromType: 'faceUp' | 'faceDown' | 'hand' = 'hand'
-): Promise<void> => {
-  // First, add the card to the pile before processing burn conditions
-  let newPile = [...state.pile, cardToPlay];
-  
-  // Process burn conditions
-  const { updatedPile, shouldGetAnotherTurn, burnMessage, cardsBurned } = processBurnConditions(state, [cardToPlay], newPile);
-  
-  // Determine next player
-  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);
-  
-  // Create a copy of the deck for potential drawing
-  const updatedDeck = [...state.deck];
-  
-  // Check if we need to move face down cards to hand
-  let updatedHand = [...player.hand];
-  const faceDownCardsToUpdate = updatedFaceDownCards !== null ? updatedFaceDownCards : [...player.faceDownCards];
-  
+  updatedHand: CardValue[],
+  updatedFaceUpCards: CardValue[] | null,
+  updatedFaceDownCards: CardValue[] | null,
+  cardPlayedFromType: string
+): {
+  updatedHand: CardValue[];
+  updatedFaceDownCards: CardValue[] | null;
+  statusMessage?: string;
+} => {
   // If player's hand is empty, face up cards are empty, and they have face down cards
   if (cardPlayedFromType === 'faceUp' && updatedHand.length === 0 && 
      (updatedFaceUpCards === null || updatedFaceUpCards.length === 0) && 
-     faceDownCardsToUpdate.length > 0) {
+     (updatedFaceDownCards !== null ? updatedFaceDownCards.length > 0 : player.faceDownCards.length > 0)) {
     
-    updatedHand = [...faceDownCardsToUpdate];
-    // Update face down cards to be empty since we moved them to hand
-    if (updatedFaceDownCards === null) {
-      updatedFaceDownCards = [];
-    } else {
-      updatedFaceDownCards = [];
-    }
+    const faceDownCardsToMove = updatedFaceDownCards || [...player.faceDownCards];
     
-    console.log(`Moved ${updatedHand.length} face down cards to hand after playing face up card`);
-    toast.info(`${player.name}'s face down cards have been moved to their hand`);
+    console.log(`Moving ${faceDownCardsToMove.length} face down cards to hand after playing face up card`);
+    
+    return {
+      updatedHand: [...faceDownCardsToMove],
+      updatedFaceDownCards: [],
+      statusMessage: `${player.name}'s face down cards have been moved to their hand`
+    };
   }
+  
+  return { updatedHand, updatedFaceDownCards };
+};
+
+// Helper to draw cards after playing from hand
+const handleDrawFromDeck = (
+  updatedHand: CardValue[],
+  updatedDeck: CardValue[],
+  cardPlayedFromType: string
+): {
+  updatedHand: CardValue[];
+  updatedDeck: CardValue[];
+  drewCard?: boolean;
+} => {
   // If player's hand is below 3 cards and deck is not empty, draw a card
-  else if (cardPlayedFromType === 'hand' && updatedHand.length < 3 && updatedDeck.length > 0) {
+  if (cardPlayedFromType === 'hand' && updatedHand.length < 3 && updatedDeck.length > 0) {
     const drawnCard = updatedDeck.pop()!;
     updatedHand.push(drawnCard);
     console.log(`Drew card after playing from hand: ${drawnCard.rank} of ${drawnCard.suit}, deck now has ${updatedDeck.length} cards`);
+    return { updatedHand, updatedDeck, drewCard: true };
   }
   
-  // Generate game status
-  const { gameOver, statusMessage } = generateGameStatusMessage(
-    player,
-    updatedHand, 
-    updatedFaceUpCards || player.faceUpCards,
-    updatedFaceDownCards || player.faceDownCards,
-    { deck: updatedDeck }
-  );
-  
-  // First update the local state immediately to reflect changes before database updates
+  return { updatedHand, updatedDeck };
+};
+
+// Helper to update local state
+const updateLocalState = (
+  dispatch: Dispatch<GameAction>,
+  state: GameState,
+  player: Player,
+  updatedHand: CardValue[],
+  updatedFaceUpCards: CardValue[] | null,
+  updatedFaceDownCards: CardValue[] | null,
+  updatedPile: CardValue[],
+  updatedDeck: CardValue[],
+  nextPlayerId: string
+): void => {
   // Update player's cards in the local state
   const updatedPlayers = [...state.players];
   const playerIndex = updatedPlayers.findIndex(p => p.id === player.id);
@@ -89,7 +94,20 @@ export const updateGameState = async (
       currentPlayerId: nextPlayerId
     }
   });
-  
+};
+
+// Helper to update database state
+const updateDatabaseState = async (
+  state: GameState,
+  player: Player,
+  updatedHand: CardValue[],
+  updatedFaceUpCards: CardValue[] | null,
+  updatedFaceDownCards: CardValue[] | null,
+  updatedPile: CardValue[],
+  updatedDeck: CardValue[],
+  nextPlayerId: string,
+  gameOver: boolean
+): Promise<void> => {
   // Prepare player update payload
   const playerUpdatePayload: any = {};
   
@@ -130,7 +148,17 @@ export const updateGameState = async (
     .eq('id', state.gameId);
     
   if (gameError) throw gameError;
-  
+};
+
+// Helper to show appropriate toast messages
+const showCardPlayMessages = (
+  player: Player,
+  cardToPlay: CardValue,
+  burnMessage: string | null,
+  cardPlayedFromType: string,
+  gameOver: boolean,
+  statusMessage: string | null
+): void => {
   // Display messages based on card played
   if (burnMessage) {
     toast.success(`${player.name} ${burnMessage} ${player.name} gets another turn.`);
@@ -159,3 +187,89 @@ export const updateGameState = async (
     toast.info(statusMessage);
   }
 };
+
+// Shared function to handle updating player and game state after a card is played
+export const updateGameState = async (
+  dispatch: Dispatch<GameAction>,
+  state: GameState,
+  player: Player,
+  cardToPlay: CardValue,
+  updatedFaceUpCards: CardValue[] | null = null,
+  updatedFaceDownCards: CardValue[] | null = null,
+  cardPlayedFromType: 'faceUp' | 'faceDown' | 'hand' = 'hand'
+): Promise<void> => {
+  // First, add the card to the pile before processing burn conditions
+  let newPile = [...state.pile, cardToPlay];
+  
+  // Process burn conditions
+  const { updatedPile, shouldGetAnotherTurn, burnMessage } = processBurnConditions(state, [cardToPlay], newPile);
+  
+  // Determine next player
+  const nextPlayerId = determineNextPlayer(state, player, [cardToPlay], shouldGetAnotherTurn);
+  
+  // Create a copy of the deck for potential drawing
+  const updatedDeck = [...state.deck];
+  
+  // Check if we need to move face down cards to hand
+  let updatedHand = [...player.hand];
+  
+  // Handle face down cards to hand transfer if needed
+  const transferResult = handleFaceDownToHandTransfer(
+    player,
+    updatedHand,
+    updatedFaceUpCards,
+    updatedFaceDownCards,
+    cardPlayedFromType
+  );
+  
+  updatedHand = transferResult.updatedHand;
+  let faceDownCardsToUpdate = transferResult.updatedFaceDownCards;
+  let statusMessage = transferResult.statusMessage;
+  
+  // Handle drawing cards from deck if needed
+  const drawResult = handleDrawFromDeck(updatedHand, updatedDeck, cardPlayedFromType);
+  updatedHand = drawResult.updatedHand;
+  const finalUpdatedDeck = drawResult.updatedDeck;
+  
+  // Generate game status
+  const gameStatusResult = generateGameStatusMessage(
+    player,
+    updatedHand, 
+    updatedFaceUpCards || player.faceUpCards,
+    faceDownCardsToUpdate || player.faceDownCards,
+    { deck: finalUpdatedDeck }
+  );
+  
+  const { gameOver, statusMessage: gameStatusMessage } = gameStatusResult;
+  statusMessage = statusMessage || gameStatusMessage;
+  
+  // Update local state
+  updateLocalState(
+    dispatch,
+    state,
+    player,
+    updatedHand,
+    updatedFaceUpCards,
+    faceDownCardsToUpdate,
+    updatedPile,
+    finalUpdatedDeck,
+    nextPlayerId
+  );
+  
+  // Update database state
+  await updateDatabaseState(
+    state,
+    player,
+    updatedHand,
+    updatedFaceUpCards,
+    faceDownCardsToUpdate,
+    updatedPile,
+    finalUpdatedDeck,
+    nextPlayerId,
+    gameOver
+  );
+  
+  // Show appropriate messages
+  showCardPlayMessages(player, cardToPlay, burnMessage, cardPlayedFromType, gameOver, statusMessage);
+};
+
