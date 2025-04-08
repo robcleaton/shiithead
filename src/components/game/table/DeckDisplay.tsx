@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Card from '@/components/Card';
 
@@ -13,36 +12,7 @@ const DeckDisplay: React.FC<DeckDisplayProps> = ({ deckCount }) => {
         {deckCount} card{deckCount !== 1 ? 's' : ''} left
       </div>
       
-      <div className="relative flex justify-center">
-        {deckCount > 0 && (
-          <div className="relative">
-            {Array.from({ length: Math.min(5, Math.max(1, Math.ceil(deckCount / 5))) }).map((_, index) => (
-              <div 
-                key={`deck-card-${index}`}
-                className="absolute"
-                style={{ 
-                  top: `${-index * 0.7}px`, 
-                  left: `${-index * 0.7}px`, 
-                  zIndex: 5 - index,
-                  transform: `scale(1.25) rotate(${(index - 2) * 0.7}deg)`,
-                }}
-              >
-                <Card 
-                  index={index} 
-                  isPlayable={false}
-                  sizeClass="deck-card"
-                />
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {deckCount === 0 && (
-          <div className="playing-card playing-card-lg rounded-lg border border-dashed border-gray-300 flex items-center justify-center shadow-none">
-            <span className="text-gray-400 text-xs">Empty</span>
-          </div>
-        )}
-      </div>
+      
     </div>
   );
 };
