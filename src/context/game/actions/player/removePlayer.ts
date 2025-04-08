@@ -1,9 +1,10 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { GameState } from '@/types/game';
+import { GameState, CardValue } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
+import { jsonToCardValues } from '@/utils/gameUtils';
 
 export const removePlayer = async (
   dispatch: Dispatch<GameAction>,
@@ -53,9 +54,9 @@ export const removePlayer = async (
           id: p.id,
           name: p.name,
           isHost: p.is_host,
-          hand: JSON.parse(p.hand || '[]'),
-          faceDownCards: JSON.parse(p.face_down_cards || '[]'),
-          faceUpCards: JSON.parse(p.face_up_cards || '[]'),
+          hand: jsonToCardValues(p.hand),
+          faceDownCards: jsonToCardValues(p.face_down_cards),
+          faceUpCards: jsonToCardValues(p.face_up_cards),
           isActive: p.is_active,
           isReady: p.is_ready,
           gameId: p.game_id
