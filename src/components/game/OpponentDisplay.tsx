@@ -21,69 +21,65 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
 
   return (
     <div className={`p-4 rounded-lg ${hasNoCardsLeft ? 'bg-green-100 border-green-300' : 'border-gray-200'}`}>
-      <div className="flex items-center gap-6">
-        {/* Opponent's name on the left */}
-        <div className="flex flex-col min-w-24">
-          <h3 className="font-tusker uppercase text-lg">{opponent.name}</h3>
-          {hasNoCardsLeft && (
-            <span className="text-xs text-green-700 font-medium">No cards left!</span>
-          )}
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-tusker uppercase">{opponent.name}</h3>
+        {hasNoCardsLeft && (
+          <span className="text-sm text-green-700 font-medium">No cards left!</span>
+        )}
+      </div>
+
+      <div className="flex gap-4">
+        <div>
+          <div className="text-xs text-gray-500 mb-1">Hand</div>
+          <div className="flex items-center">
+            <div className="flex -space-x-2 relative">
+              {Array.from({ length: Math.min(3, opponent.hand.length) }).map((_, i) => (
+                <div
+                  key={`hand-${i}`}
+                  className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
+                ></div>
+              ))}
+            </div>
+            {opponent.hand.length === 0 && (
+              <span className="text-xs text-gray-500">No cards</span>
+            )}
+          </div>
         </div>
-        
-        {/* Cards on the right */}
-        <div className="flex gap-4">
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Hand</div>
-            <div className="flex items-center">
-              <div className="flex -space-x-2 relative">
-                {Array.from({ length: Math.min(3, opponent.hand.length) }).map((_, i) => (
+
+        <div>
+          <div className="text-xs text-gray-500 mb-1">Face Down/Up</div>
+          <div className="flex items-center">
+            {/* Card layout with relative positioning */}
+            <div className="relative">
+              {/* Face down cards - bottom layer */}
+              <div className="flex -space-x-2 relative z-0">
+                {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
                   <div
-                    key={`hand-${i}`}
+                    key={`face-down-${i}`}
                     className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                   ></div>
                 ))}
-              </div>
-              {opponent.hand.length === 0 && (
-                <span className="text-xs text-gray-500">No cards</span>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Face Down/Up</div>
-            <div className="flex items-center">
-              {/* Card layout with relative positioning */}
-              <div className="relative">
-                {/* Face down cards - bottom layer */}
-                <div className="flex -space-x-2 relative z-0">
-                  {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
-                    <div
-                      key={`face-down-${i}`}
-                      className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
-                    ></div>
-                  ))}
-                  {opponent.faceDownCards.length === 0 && (
-                    <span className="text-xs text-gray-500">No cards</span>
-                  )}
-                </div>
-
-                {/* Face up cards - top layer, with margin */}
-                {opponent.faceUpCards.length > 0 && (
-                  <div className="flex -space-x-2 absolute top-0 left-0 mt-1 z-10">
-                    {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
-                      <div
-                        key={`face-up-${i}`}
-                        className="w-8 h-12 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
-                      >
-                        <div className={`text-xs ${opponent.faceUpCards[i].suit === 'hearts' || opponent.faceUpCards[i].suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                          {opponent.faceUpCards[i].rank}
-                          <span>{getSuitSymbol(opponent.faceUpCards[i].suit)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {opponent.faceDownCards.length === 0 && (
+                  <span className="text-xs text-gray-500">No cards</span>
                 )}
               </div>
+
+              {/* Face up cards - top layer, with margin */}
+              {opponent.faceUpCards.length > 0 && (
+                <div className="flex -space-x-2 absolute top-0 left-0 mt-1 z-10">
+                  {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
+                    <div
+                      key={`face-up-${i}`}
+                      className="w-8 h-12 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
+                    >
+                      <div className={`text-xs ${opponent.faceUpCards[i].suit === 'hearts' || opponent.faceUpCards[i].suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                        {opponent.faceUpCards[i].rank}
+                        <span>{getSuitSymbol(opponent.faceUpCards[i].suit)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
