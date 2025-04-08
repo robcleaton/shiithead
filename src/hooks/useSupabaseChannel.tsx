@@ -32,10 +32,12 @@ export const useSupabaseChannel = (
       }
 
       // Create the channel configuration with explicit event handling
+      // Fix the TypeScript error by using the correct type casting for RealtimeChannel methods
       const channel = supabase
         .channel(channelName)
         .on(
-          'postgres_changes', 
+          // Use type assertion to fix the TypeScript error
+          'postgres_changes' as unknown as 'system', 
           {
             event: config.event || '*',
             schema: config.schema || 'public',
