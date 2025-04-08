@@ -25,13 +25,13 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
 
   return (
     <motion.div
-      className={`fixed inset-0 min-h-screen flex items-center justify-center bg-gradient-to-br ${gradientColors}`}
+      className={`fixed inset-0 min-h-screen flex items-center justify-center p-3 bg-gradient-to-br ${gradientColors}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       <motion.div
-        className="text-center glass-card p-8 rounded-xl max-w-md w-full bg-white/80"
+        className="text-center p-8 rounded-xl max-w-md w-full bg-white"
         initial={{ y: 20, scale: 0.9 }}
         animate={{ y: 0, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
