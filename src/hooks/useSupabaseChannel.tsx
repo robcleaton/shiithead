@@ -31,9 +31,7 @@ export const useSupabaseChannel = (
         supabase.removeChannel(channelRef.current);
       }
 
-      // Type assertion to any to bypass TypeScript's type checking for Supabase's API
-      // This is necessary because the Supabase API accepts this string at runtime
-      // but TypeScript's type definitions don't match the runtime behavior
+      // The channel configuration includes event type, which should properly catch DELETE events
       const channel = supabase
         .channel(channelName)
         .on(
@@ -52,8 +50,6 @@ export const useSupabaseChannel = (
         .subscribe((status: any) => {
           console.log(`${channelName} channel subscription status:`, status);
           
-          // Type assertion here to bypass TypeScript's type checking
-          // Supabase runtime API returns string literals that don't match TypeScript types
           if (status === 'SUBSCRIPTION_ERROR') {
             console.error(`${channelName} subscription error. Will attempt to reconnect.`);
             

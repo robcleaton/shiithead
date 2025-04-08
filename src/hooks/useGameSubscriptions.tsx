@@ -7,6 +7,7 @@ import { useFetchPlayers } from './useFetchPlayers';
 import { useGameUpdates } from './useGameUpdates';
 import { usePlayerUpdates } from './usePlayerUpdates';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const useGameSubscriptions = (
   gameId: string | null,
@@ -25,6 +26,19 @@ export const useGameSubscriptions = (
       
       fetchPlayers(gameId).then(players => {
         console.log('Initial players fetch completed:', players?.length || 0, 'players');
+        
+        // Verify if current player exists in this game
+        if (playerId && players && players.length > 0) {
+          const currentPlayerExists = players.some(p => p.id === playerId);
+          if (!currentPlayerExists) {
+            console.log('Current player not found in initial players fetch - redirecting to home');
+            dispatch({ type: 'RESET_GAME' });
+            toast.error('You are no longer part of this game');
+            window.location.href = '/';
+            return;
+          }
+        }
+        
         dispatch({ type: 'SET_LOADING', isLoading: false });
       }).catch(error => {
         console.error('Error in initial players fetch:', error);
@@ -61,19 +75,7 @@ export const useGameSubscriptions = (
     }
   }, [gameId, dispatch, fetchPlayers, playerId]);
 
-  useSupabaseChannel(
-    'game_updates', 
-    { 
-      table: 'games',
-      filter: `id=eq.${gameId}`
-    },
-    (payload) => {
-      console.log('Game update received:', payload.eventType);
-      handleGameUpdate(payload, gameId || '');
-    },
-    !!gameId
-  );
-
+  // Set up player updates with explicit DELETE event listening
   useSupabaseChannel(
     'player_updates', 
     { 
@@ -86,6 +88,20 @@ export const useGameSubscriptions = (
         payload.new ? `for player: ${payload.new.id}` : 
         payload.old ? `for removed player: ${payload.old.id}` : '');
       handlePlayerUpdate(payload, gameId || '');
+    },
+    !!gameId
+  );
+
+  // Set up game updates
+  useSupabaseChannel(
+    'game_updates', 
+    { 
+      table: 'games',
+      filter: `id=eq.${gameId}`
+    },
+    (payload) => {
+      console.log('Game update received:', payload.eventType);
+      handleGameUpdate(payload, gameId || '');
     },
     !!gameId
   );

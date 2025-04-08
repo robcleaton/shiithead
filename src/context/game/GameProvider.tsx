@@ -1,7 +1,7 @@
 
 import { createContext, ReactNode, useEffect, useRef } from 'react';
 import useGameContext from '@/hooks/useGameContext';
-import { GameState, Player, CardValue } from '@/types/game';
+import { GameState } from '@/types/game';
 import { isAIPlayer } from './actions/gamePlay/aiPlayerActions';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,7 +46,36 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     console.log('Current players in GameProvider:', gameContext.state.players);
     // Update the last player change timestamp whenever players state changes
     lastPlayerChangeRef.current = Date.now();
-  }, [gameContext.state.players]);
+    
+    // Verify player existence in game
+    const currentPlayerId = localStorage.getItem('playerId');
+    if (currentPlayerId && gameContext.state.gameId && gameContext.state.players.length > 0) {
+      const playerExists = gameContext.state.players.some(p => p.id === currentPlayerId);
+      
+      if (!playerExists) {
+        console.log('Current player no longer exists in local game state!');
+        
+        // Double check with database before taking action
+        const checkPlayerExistence = async () => {
+          const { data } = await supabase
+            .from('players')
+            .select('id')
+            .eq('id', currentPlayerId)
+            .eq('game_id', gameContext.state.gameId)
+            .maybeSingle();
+            
+          if (!data) {
+            console.log('Player confirmed removed from database - resetting game');
+            gameContext.resetGame();
+            toast.error('You have been removed from the game');
+            window.location.href = '/';
+          }
+        };
+        
+        checkPlayerExistence();
+      }
+    }
+  }, [gameContext.state.players, gameContext.state.gameId, gameContext.resetGame]);
   
   // Add a heartbeat check to detect and recover from stalled games
   useEffect(() => {

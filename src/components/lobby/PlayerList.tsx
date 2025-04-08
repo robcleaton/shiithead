@@ -44,37 +44,34 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
   
   // Update rendered players whenever the players prop changes
   useEffect(() => {
-    console.log('PlayerList received players:', players);
+    console.log('PlayerList received players update:', players);
     
     if (players && players.length > 0) {
-      // Check if current player is in the list
+      // Check if current player is still in the list
       const currentPlayerStillInGame = players.some(p => p.id === currentPlayerId);
       
       if (!currentPlayerStillInGame && currentPlayerId) {
-        console.log('Current player no longer in game list, will redirect soon');
-        // The redirection will be handled by the usePlayerUpdates hook
+        console.log('Current player no longer in game list - they were removed');
+        
+        // We should be redirected by the usePlayerUpdates hook
+        // This is a fallback in case that doesn't happen
+        setTimeout(() => {
+          console.log('Fallback redirect triggered');
+          window.location.href = '/';
+        }, 1000);
       }
       
       setRenderedPlayers(players);
-    } else {
-      // If we have a current player but no players list, at least show the current player
-      // until the redirect happens
-      if (currentPlayerId) {
-        const fallbackPlayer: Player = {
-          id: currentPlayerId,
-          name: 'You',
-          isHost: true,
-          hand: [],
-          faceDownCards: [],
-          faceUpCards: [],
-          isActive: true,
-          isReady: false,
-          gameId: ''
-        };
-        
-        setRenderedPlayers([fallbackPlayer]);
-        console.warn('Using fallback player data since no players were received');
-      }
+    } else if (currentPlayerId) {
+      // We have a player ID but no players, check if we've been removed
+      console.log('No players returned but we have a player ID - possible removal');
+      
+      // We should be redirected by the usePlayerUpdates hook
+      // This is a fallback in case that doesn't happen
+      setTimeout(() => {
+        console.log('No players fallback redirect triggered');
+        window.location.href = '/';
+      }, 1000);
     }
   }, [players, currentPlayerId]);
 
