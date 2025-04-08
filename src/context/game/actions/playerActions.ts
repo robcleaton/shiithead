@@ -229,17 +229,42 @@ export const removePlayer = async (
       return;
     }
     
-    // Delete the player from the database - this will trigger real-time updates
+    // Optimistic UI update - remove player from state immediately
+    dispatch({ type: 'REMOVE_PLAYER', playerId: playerId });
+    
+    // Delete the player from the database
     const { error } = await supabase
       .from('players')
       .delete()
       .eq('id', playerId)
       .eq('game_id', state.gameId);
       
-    if (error) throw error;
-    
-    // We don't need to manually dispatch REMOVE_PLAYER action here
-    // as the real-time subscription will handle it for all clients
+    if (error) {
+      console.error('Error removing player from database:', error);
+      // Revert the optimistic update by refetching players
+      const { data: playersData } = await supabase
+        .from('players')
+        .select('*')
+        .eq('game_id', state.gameId);
+        
+      if (playersData) {
+        const mappedPlayers = playersData.map(p => ({
+          id: p.id,
+          name: p.name,
+          isHost: p.is_host,
+          hand: jsonToCardValues(p.hand),
+          faceDownCards: jsonToCardValues(p.face_down_cards),
+          faceUpCards: jsonToCardValues(p.face_up_cards),
+          isActive: p.is_active,
+          isReady: p.is_ready,
+          gameId: p.game_id
+        }));
+        
+        dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+      }
+      
+      throw error;
+    }
     
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Removed ${playerToRemove.name} from the game`);

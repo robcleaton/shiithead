@@ -16,7 +16,7 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
       // If this is a DELETE event, we need to remove the player from the state
       if (payload.eventType === 'DELETE' && payload.old) {
         const removedPlayerId = payload.old.id;
-        console.log('Player removed:', removedPlayerId);
+        console.log('Player removed from database:', removedPlayerId);
         dispatch({ type: 'REMOVE_PLAYER', playerId: removedPlayerId });
         return;
       }

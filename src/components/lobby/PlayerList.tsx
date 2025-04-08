@@ -42,10 +42,9 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
   const [renderedPlayers, setRenderedPlayers] = useState<Player[]>([]);
   const { state, removePlayer } = useGame();
   
-  // Add debugging for avatar rendering
+  // Update rendered players whenever the players prop changes
   useEffect(() => {
     console.log('PlayerList received players:', players);
-    console.log('PlayerList avatars should be colored with initials');
     
     if (players && players.length > 0) {
       setRenderedPlayers(players);
@@ -70,13 +69,14 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
     }
   }, [players, currentPlayerId]);
 
-  // Check if current user is the host
-  const isHost = state.isHost;
-
   // Handle player removal
-  const handleRemovePlayer = (playerId: string) => {
-    if (playerId !== currentPlayerId) {
-      removePlayer(playerId);
+  const handleRemovePlayer = async (playerId: string) => {
+    if (playerId !== currentPlayerId && state.isHost) {
+      console.log(`Host is removing player: ${playerId}`);
+      await removePlayer(playerId);
+      
+      // Immediately update local state for a responsive UI
+      setRenderedPlayers(prev => prev.filter(p => p.id !== playerId));
     }
   };
 
@@ -114,7 +114,7 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
                 )}
                 
                 {/* Remove player button (only visible to host and not for current player) */}
-                {isHost && player.id !== currentPlayerId && !state.gameStarted && (
+                {state.isHost && player.id !== currentPlayerId && !state.gameStarted && (
                   <Button 
                     variant="ghost" 
                     size="sm" 

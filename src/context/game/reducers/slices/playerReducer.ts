@@ -7,7 +7,7 @@ export const playerReducer = (state: GameState, action: GameAction): GameState =
       return { ...state, players: action.players };
     
     case 'REMOVE_PLAYER': {
-      console.log(`Removing player with ID: ${action.playerId}`);
+      console.log(`Removing player with ID: ${action.playerId} from state`);
       return {
         ...state,
         players: state.players.filter(player => player.id !== action.playerId)

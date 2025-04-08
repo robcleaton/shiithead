@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useRef } from 'react';
 import { GameState, GameAction } from '@/types/game';
 import { Dispatch } from 'react';
@@ -81,8 +82,9 @@ export const useGameSubscriptions = (
       event: '*'  // Listen for all events (INSERT, UPDATE, DELETE)
     },
     (payload) => {
-      console.log('Player update received:', payload.eventType, 'for player:', 
-        payload.new?.id || payload.old?.id);
+      console.log('Player update received:', payload.eventType, 
+        payload.new ? `for player: ${payload.new.id}` : 
+        payload.old ? `for removed player: ${payload.old.id}` : '');
       handlePlayerUpdate(payload, gameId || '');
     },
     !!gameId
