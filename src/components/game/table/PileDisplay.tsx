@@ -58,7 +58,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
                   style={{ 
                     top: `${-3 - index * 2}px`, 
                     left: `${-3 - index * 2}px`, 
-                    transform: `rotate(${(index - 1) * -3}deg)`,
+                    transform: `scale(1.25) rotate(${(index - 1) * -3}deg)`,
                     zIndex: 3 - index
                   }}
                 >
@@ -66,12 +66,14 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
                     card={topCard} 
                     index={index} 
                     isPlayable={false}
+                    sizeClass="pile-card"
                   />
                 </div>
               ))
             )}
             
             <div className={cn(
+              "transform scale-125",
               isTenOnTop ? 'ring-2 ring-orange-500' : '',
               isEightOnTop ? 'opacity-70' : ''
             )}>
@@ -79,6 +81,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
                 card={topCard} 
                 index={0} 
                 isPlayable={false}
+                sizeClass="pile-card"
               />
             </div>
             
@@ -99,7 +102,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
             )}
           </div>
         ) : (
-          <div className="playing-card rounded-lg border border-dashed border-gray-300 flex items-center justify-center shadow-none">
+          <div className="playing-card playing-card-lg rounded-lg border border-dashed border-gray-300 flex items-center justify-center shadow-none">
             <span className="text-gray-400 text-xs">Empty</span>
           </div>
         )}
@@ -109,4 +112,3 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
 };
 
 export default PileDisplay;
-

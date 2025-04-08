@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -112,6 +111,10 @@
 
   .playing-card {
     @apply relative w-24 h-36 rounded-lg overflow-hidden select-none cursor-pointer transition-all duration-300 shadow-md;
+  }
+
+  .playing-card-lg {
+    @apply w-32 h-48;
   }
 
   .playing-card:hover {

@@ -21,15 +21,17 @@ const DeckDisplay: React.FC<DeckDisplayProps> = ({ deckCount }) => {
                 key={`deck-card-${index}`}
                 className="absolute"
                 style={{ 
-                  top: `${-index * 0.5}px`, 
-                  left: `${-index * 0.5}px`, 
-                  transform: `rotate(${(index - 2) * 0.5}deg)`,
-                  zIndex: 5 - index
+                  top: `${-index * 0.7}px`, 
+                  left: `${-index * 0.7}px`, 
+                  transform: `rotate(${(index - 2) * 0.7}deg)`,
+                  zIndex: 5 - index,
+                  transform: `scale(1.25) rotate(${(index - 2) * 0.7}deg)`,
                 }}
               >
                 <Card 
                   index={index} 
                   isPlayable={false}
+                  sizeClass="deck-card"
                 />
               </div>
             ))}
@@ -37,7 +39,7 @@ const DeckDisplay: React.FC<DeckDisplayProps> = ({ deckCount }) => {
         )}
         
         {deckCount === 0 && (
-          <div className="playing-card rounded-lg border border-dashed border-gray-300 flex items-center justify-center shadow-none">
+          <div className="playing-card playing-card-lg rounded-lg border border-dashed border-gray-300 flex items-center justify-center shadow-none">
             <span className="text-gray-400 text-xs">Empty</span>
           </div>
         )}
