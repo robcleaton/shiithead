@@ -11,12 +11,21 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
   const handlePlayerUpdate = useCallback(async (payload: any, gameId: string) => {
     if (!gameId) return;
     
-    console.log('Player update received for game:', gameId, 'Type:', payload.eventType);
+    console.log('Player update received for game:', gameId, 'Payload:', payload);
     
     try {
-      // If this is a DELETE event, we need to handle player removal immediately
-      if (payload.eventType === 'DELETE' && payload.old) {
-        const removedPlayerId = payload.old.id;
+      // Handle DELETE events by checking the payload structure
+      const isDeleteEvent = payload.eventType === 'DELETE' || 
+                           (payload.type === 'postgres_changes' && 
+                            payload.schema === 'public' && 
+                            payload.table === 'players' && 
+                            payload.eventType === 'DELETE');
+                            
+      // Check for old record data in different possible locations in the payload
+      const oldRecord = payload.old || (payload.record ? payload.record.old : null);
+      
+      if (isDeleteEvent && oldRecord) {
+        const removedPlayerId = oldRecord.id;
         console.log('Player removed from database:', removedPlayerId);
         
         // If the removed player is the current player, handle removal gracefully
@@ -29,9 +38,6 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           
           // Show toast message
           toast.error('You have been removed from the game by the host');
-          
-          // Use react-router navigation instead of forced page refresh
-          dispatch({ type: 'SET_LOADING', isLoading: false });
           
           // We'll handle navigation in the component through game state changes
           return;
@@ -62,7 +68,6 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
           console.log('Player no longer exists in game');
           dispatch({ type: 'RESET_GAME' });
           toast.error('You have been removed from the game by the host');
-          // We'll handle navigation in the component through game state changes
           return;
         }
       }

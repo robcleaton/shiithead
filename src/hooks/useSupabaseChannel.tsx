@@ -45,8 +45,8 @@ export const useSupabaseChannel = (
           (payload) => {
             console.log(`${channelName} update received:`, payload);
             
-            // Enhanced logging for DELETE events to help with debugging
-            if (payload.eventType === 'DELETE') {
+            // Fix: Use proper type checking for Supabase realtime payloads
+            if (payload.eventType === 'DELETE' && payload.old) {
               console.log(`DELETE event detected in ${config.table}`, payload.old);
             }
             
