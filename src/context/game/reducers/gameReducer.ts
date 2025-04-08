@@ -9,12 +9,17 @@ import { gamePlayReducer } from './slices/gamePlayReducer';
 export { initialState } from './initialState';
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
+  // Check if this is a reset action, handle it immediately
+  if (action.type === 'RESET_GAME') {
+    console.log('Resetting game state');
+    return { ...initialState, playerId: state.playerId };
+  }
+  
   // Handle game state actions
   if (
     action.type === 'SET_LOADING' ||
     action.type === 'SET_GAME_STATE' ||
-    action.type === 'END_GAME' ||
-    action.type === 'RESET_GAME'
+    action.type === 'END_GAME'
   ) {
     return gameStateReducer(state, action);
   }

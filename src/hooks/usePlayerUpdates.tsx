@@ -17,6 +17,23 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
       if (payload.eventType === 'DELETE' && payload.old) {
         const removedPlayerId = payload.old.id;
         console.log('Player removed from database:', removedPlayerId);
+        
+        // If the removed player is the current player, redirect them back to home
+        if (payload.old.id === localStorage.getItem('playerId')) {
+          console.log('Current player was removed from the game!');
+          toast.error('You have been removed from the game by the host');
+          
+          // Clear state and redirect
+          dispatch({ type: 'RESET_GAME' });
+          
+          // Use a short timeout to ensure the toast is visible before redirecting
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+          
+          return;
+        }
+        
         dispatch({ type: 'REMOVE_PLAYER', playerId: removedPlayerId });
         return;
       }

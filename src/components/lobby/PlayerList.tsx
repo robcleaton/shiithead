@@ -47,6 +47,13 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
     console.log('PlayerList received players:', players);
     
     if (players && players.length > 0) {
+      // Check if current player is in the list
+      const currentPlayerStillInGame = players.some(p => p.id === currentPlayerId);
+      
+      if (!currentPlayerStillInGame && currentPlayerId) {
+        console.log('Current player no longer in game, will be redirected soon');
+      }
+      
       setRenderedPlayers(players);
     } else {
       // If we have a current player but no players list, at least show the current player
@@ -75,8 +82,7 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
       console.log(`Host is removing player: ${playerId}`);
       await removePlayer(playerId);
       
-      // Immediately update local state for a responsive UI
-      setRenderedPlayers(prev => prev.filter(p => p.id !== playerId));
+      // Immediate UI update is now handled in the reducer
     }
   };
 
