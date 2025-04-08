@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { NavigateFunction } from 'react-router-dom';
-import { generateGameId } from '@/utils/gameUtils';
+import { generateId } from '@/utils/gameUtils';
 
 export const createGame = async (
   dispatch: Dispatch<GameAction>,
@@ -15,7 +15,7 @@ export const createGame = async (
   try {
     dispatch({ type: 'SET_LOADING', isLoading: true });
 
-    const gameId = generateGameId();
+    const gameId = generateId();
     console.log(`Generated game ID: ${gameId}`);
 
     // Create game in Supabase
