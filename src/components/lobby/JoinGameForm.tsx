@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
+import { NavigateFunction } from 'react-router-dom';
 
 interface JoinGameFormProps {
-  joinGame: (gameId: string, playerName: string) => void;
+  joinGame: (gameId: string, playerName: string, playerId?: string, navigate?: NavigateFunction) => void;
   initialGameId?: string;
 }
 
@@ -31,7 +32,7 @@ const JoinGameForm = ({ joinGame, initialGameId = '' }: JoinGameFormProps) => {
     setIsSubmitting(true);
 
     try {
-      await joinGame(gameId, playerName);
+      await joinGame(gameId, playerName, undefined, navigate);
     } catch (error) {
       console.error('Error in join game form:', error);
     } finally {

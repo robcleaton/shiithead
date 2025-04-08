@@ -123,7 +123,8 @@ const useGameContext = () => {
   return {
     state,
     createGame: (playerName: string) => createGame(dispatch, playerName, state.playerId, navigate),
-    joinGame: (gameId: string, playerName: string) => joinGame(dispatch, gameId, playerName, state.playerId, navigate),
+    joinGame: (gameId: string, playerName: string, playerId?: string, navigate?: any) => 
+      joinGame(dispatch, gameId, playerName, playerId || state.playerId, navigate || undefined),
     startGame: () => startGame(dispatch, state),
     selectFaceUpCard: (cardIndex: number | number[]) => selectFaceUpCard(dispatch, state, cardIndex),
     selectMultipleFaceUpCards: (cardIndices: number[]) => selectMultipleFaceUpCards(dispatch, state, cardIndices),
