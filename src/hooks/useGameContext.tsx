@@ -1,7 +1,7 @@
 
 import { useReducer, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { gameReducer, initialState } from '@/context/game/gameReducer';
+import { gameReducer, initialState } from '@/context/game/reducers';
 import { 
   createGame,
   joinGame,
