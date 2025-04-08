@@ -30,7 +30,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
 
       <div className="flex gap-4">
         <div>
-          <div className="text-xs text-gray-500 mb-1">Hand</div>
+          {/* Removed the "Hand" label */}
           <div className="flex items-center">
             <div className="flex -space-x-2 relative">
               {Array.from({ length: Math.min(3, opponent.hand.length) }).map((_, i) => (
@@ -47,7 +47,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
         </div>
 
         <div>
-          <div className="text-xs text-gray-500 mb-1">Face Down/Up</div>
+          {/* Removed the "Face Down/Up" label */}
           <div className="flex items-center">
             {/* Card layout with relative positioning */}
             <div className="relative">
