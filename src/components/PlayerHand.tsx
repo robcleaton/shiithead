@@ -100,7 +100,7 @@ const PlayerHand = ({
                   No cards available
                 </div>
               ) : (
-                <div className="flex justify-center py-3">
+                <div className="flex justify-center p-3">
                   {cardArray.map((card, index) => (
                     <div
                       key={`${card.suit}-${card.rank}-${index}`}
