@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import useGame from '@/hooks/useGame';
-import { MousePointer } from 'lucide-react';
 
 type CursorPosition = {
   x: number;
@@ -137,7 +136,12 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
           style={{ color: cursor.color }}
         >
           <div className="relative">
-            <MousePointer className="h-6 w-6 filter drop-shadow-md" />
+            <img 
+              src="/assets/logo-mark-black.svg" 
+              alt="Cursor" 
+              className="h-6 w-6 filter drop-shadow-md"
+              style={{ transform: 'rotate(15deg)' }}
+            />
             <div
               className="absolute left-4 top-1 px-2 py-1 text-base font-medium rounded-md shadow-md whitespace-nowrap"
               style={{ backgroundColor: cursor.color, color: '#fff' }}
@@ -158,7 +162,12 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
           style={{ color: userCursor.color }}
         >
           <div className="relative">
-            <MousePointer className="h-6 w-6 filter drop-shadow-md" />
+            <img 
+              src="/assets/logo-mark-black.svg" 
+              alt="Cursor" 
+              className="h-6 w-6 filter drop-shadow-md"
+              style={{ transform: 'rotate(15deg)' }}
+            />
             <div
               className="absolute left-4 top-1 px-2 py-1 text-base font-medium rounded-md shadow-md whitespace-nowrap"
               style={{ backgroundColor: userCursor.color, color: '#fff' }}
