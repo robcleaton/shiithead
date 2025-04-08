@@ -45,9 +45,19 @@ export const useSupabaseChannel = (
           (payload) => {
             console.log(`${channelName} update received:`, payload);
             
-            // Fix: Use proper type checking for Supabase realtime payloads
-            if (payload.eventType === 'DELETE' && payload.old) {
-              console.log(`DELETE event detected in ${config.table}`, payload.old);
+            // Handle different payload structures safely without assuming properties
+            if (payload && typeof payload === 'object') {
+              // Log information about DELETE events if we can determine it's a delete
+              // and if there's old data available
+              if ((payload.eventType === 'DELETE' || 
+                  (payload.type === 'postgres_changes' && payload.event === 'DELETE')) && 
+                  ('old' in payload || (payload.record && 'old' in payload.record))) {
+                
+                const oldData = 'old' in payload ? payload.old : 
+                               (payload.record && 'old' in payload.record ? payload.record.old : null);
+                
+                console.log(`DELETE event detected in ${config.table}`, oldData);
+              }
             }
             
             onUpdate(payload);

@@ -14,15 +14,18 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
     console.log('Player update received for game:', gameId, 'Payload:', payload);
     
     try {
-      // Handle DELETE events by checking the payload structure
-      const isDeleteEvent = payload.eventType === 'DELETE' || 
+      // Handle DELETE events by checking different possible payload structures
+      const isDeleteEvent = (payload.eventType === 'DELETE') || 
+                           (payload.event === 'DELETE') || 
                            (payload.type === 'postgres_changes' && 
                             payload.schema === 'public' && 
                             payload.table === 'players' && 
-                            payload.eventType === 'DELETE');
+                            (payload.eventType === 'DELETE' || payload.event === 'DELETE'));
                             
       // Check for old record data in different possible locations in the payload
-      const oldRecord = payload.old || (payload.record ? payload.record.old : null);
+      const oldRecord = payload.old || 
+                      (payload.record && payload.record.old) || 
+                      (payload.payload && payload.payload.old);
       
       if (isDeleteEvent && oldRecord) {
         const removedPlayerId = oldRecord.id;
