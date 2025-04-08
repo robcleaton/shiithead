@@ -52,7 +52,7 @@ export const useSupabaseChannel = (
                 // Check if event property exists and is DELETE
                 (payload.event === 'DELETE') ||
                 // Check for type and event properties
-                (payload.type === 'postgres_changes' && payload.event === 'DELETE');
+                (typeof payload.type === 'string' && payload.event === 'DELETE');
               
               // Safely extract old data if available
               let oldData = null;
