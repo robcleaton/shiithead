@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 import { GameState } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
-import { validateCardPlay, updateGameState } from './cardPlayUtils';
+import { validateCardPlay } from './cardValidationUtils';
+import { updateGameState } from './updateGameStateUtils';
 
 export const playFaceDownCard = async (
   dispatch: Dispatch<GameAction>,

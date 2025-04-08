@@ -5,7 +5,8 @@ import { GameState } from '@/types/game';
 import { Dispatch } from 'react';
 import { GameAction } from '@/types/game';
 import { validateSingleCardPlay } from './cardValidation';
-import { validateCardPlay, updateGameState } from './cardPlayUtils';
+import { validateCardPlay } from './cardValidationUtils';
+import { updateGameState } from './updateGameStateUtils';
 
 export const playFaceUpCard = async (
   dispatch: Dispatch<GameAction>,
