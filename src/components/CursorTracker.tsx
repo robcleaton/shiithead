@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -140,7 +139,6 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
               src="/assets/logo-mark-black.svg" 
               alt="Cursor" 
               className="h-6 w-6 filter drop-shadow-md"
-              style={{ transform: 'rotate(15deg)' }}
             />
             <div
               className="absolute left-4 top-1 px-2 py-1 text-base font-medium rounded-md shadow-md whitespace-nowrap"
@@ -166,7 +164,6 @@ const CursorTracker = ({ label, showOnlyUserCursor = false, hideUserCursor = fal
               src="/assets/logo-mark-black.svg" 
               alt="Cursor" 
               className="h-6 w-6 filter drop-shadow-md"
-              style={{ transform: 'rotate(15deg)' }}
             />
             <div
               className="absolute left-4 top-1 px-2 py-1 text-base font-medium rounded-md shadow-md whitespace-nowrap"
