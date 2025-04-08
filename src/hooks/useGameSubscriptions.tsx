@@ -19,6 +19,39 @@ export const useGameSubscriptions = (
   const { handleGameUpdate } = useGameUpdates(dispatch, gameStateRef);
   const { handlePlayerUpdate } = usePlayerUpdates(dispatch);
   const initialCheckDoneRef = useRef<boolean>(false);
+  const playerExistenceCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Check if player still exists in the game
+  const verifyPlayerInGame = useCallback(async (gameId: string, playerId: string) => {
+    if (!gameId || !playerId) return true;
+    
+    try {
+      console.log('Verifying player existence in game:', gameId, 'Player ID:', playerId);
+      const { data: playerData, error } = await supabase
+        .from('players')
+        .select('id')
+        .eq('id', playerId)
+        .eq('game_id', gameId)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error verifying player existence:', error);
+        return true; // Assume player exists on error to prevent false logouts
+      }
+      
+      if (!playerData) {
+        console.log('Player not found in game during verification - triggering reset');
+        dispatch({ type: 'RESET_GAME' });
+        toast.error('You are no longer part of this game');
+        return false;
+      }
+      
+      return true;
+    } catch (err) {
+      console.error('Exception in verifyPlayerInGame:', err);
+      return true; // Assume player exists on error
+    }
+  }, [dispatch]);
   
   useEffect(() => {
     if (gameId && playerId && !initialCheckDoneRef.current) {
@@ -32,30 +65,27 @@ export const useGameSubscriptions = (
         if (playerId && players && players.length > 0) {
           const currentPlayerExists = players.some(p => p.id === playerId);
           if (!currentPlayerExists) {
-            // Only check database once to verify if player is truly not in the game
-            console.log('Current player not found in initial players fetch');
-            
-            // Add a final database check before resetting
-            supabase
-              .from('players')
-              .select('id')
-              .eq('id', playerId)
-              .eq('game_id', gameId)
-              .maybeSingle()
-              .then(({ data }) => {
-                if (!data) {
-                  console.log('Player confirmed not in database - resetting game');
-                  dispatch({ type: 'RESET_GAME' });
-                  toast.error('You are no longer part of this game');
-                } else {
-                  console.log('Player found in database despite not being in fetched players - keeping game state');
-                }
-              });
+            // Player not in initial fetch, do explicit check
+            verifyPlayerInGame(gameId, playerId).then(exists => {
+              if (!exists) {
+                console.log('Player confirmed not in game during initial setup - resetting');
+              }
+            });
           }
         }
         
         initialCheckDoneRef.current = true;
         dispatch({ type: 'SET_LOADING', isLoading: false });
+        
+        // Set up periodic check to verify player is still in the game
+        if (playerExistenceCheckTimeoutRef.current) {
+          clearInterval(playerExistenceCheckTimeoutRef.current);
+        }
+        
+        playerExistenceCheckTimeoutRef.current = setInterval(() => {
+          verifyPlayerInGame(gameId, playerId);
+        }, 10000); // Check every 10 seconds
+        
       }).catch(error => {
         console.error('Error in initial players fetch:', error);
         dispatch({ type: 'SET_LOADING', isLoading: false });
@@ -90,7 +120,14 @@ export const useGameSubscriptions = (
       
       fetchInitialGameState();
     }
-  }, [gameId, dispatch, fetchPlayers, playerId]);
+    
+    return () => {
+      if (playerExistenceCheckTimeoutRef.current) {
+        clearInterval(playerExistenceCheckTimeoutRef.current);
+        playerExistenceCheckTimeoutRef.current = null;
+      }
+    };
+  }, [gameId, dispatch, fetchPlayers, playerId, verifyPlayerInGame]);
 
   // Set up player updates with explicit DELETE event listening
   useSupabaseChannel(

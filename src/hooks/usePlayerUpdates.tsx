@@ -16,21 +16,24 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
     console.log('Player update received for game:', gameId, 'Payload:', payload);
     
     try {
-      // Check if it's a DELETE event by examining various possible structures
+      // Enhanced detection of DELETE events
       const isDeleteEvent = 
-        // Check for event property directly
-        (payload.event === 'DELETE') ||
-        // Check for type and event properties
-        (typeof payload.type === 'string' && payload.event === 'DELETE');
+        (payload.eventType === 'DELETE') ||
+        (payload.event === 'DELETE') || 
+        (payload.isDeleteEvent === true);
       
-      // Check for old data
-      let oldRecord = null;
+      // Get the player data from the record
+      let playerRecord = null;
       if ('old' in payload) {
-        oldRecord = payload.old;
+        playerRecord = payload.old;
+      } else if ('record' in payload) {
+        playerRecord = payload.record;
       }
       
-      if (isDeleteEvent && oldRecord) {
-        const removedPlayerId = oldRecord.id;
+      console.log('DELETE detection:', isDeleteEvent, 'Player record:', playerRecord);
+      
+      if (isDeleteEvent && playerRecord) {
+        const removedPlayerId = playerRecord.id;
         console.log('Player removed from database:', removedPlayerId);
         
         // If the removed player is the current player, handle removal gracefully
@@ -56,34 +59,51 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         return;
       }
       
-      // Only fetch all players for non-DELETE events (like INSERT or UPDATE)
-      // This prevents unnecessary database queries that could trigger refreshes
-      if (!isDeleteEvent) {
-        const { data: playersData, error } = await supabase
-          .from('players')
-          .select('*')
-          .eq('game_id', gameId);
-          
-        if (error) {
-          console.error('Error fetching players data after update:', error);
-          toast.error('Failed to sync player data. Please refresh.');
-          return;
-        }
-          
-        if (playersData && playersData.length > 0) {
-          const mappedPlayers = playersData.map(p => ({
-            id: p.id,
-            name: p.name,
-            isHost: p.is_host,
-            hand: jsonToCardValues(p.hand),
-            faceDownCards: jsonToCardValues(p.face_down_cards),
-            faceUpCards: jsonToCardValues(p.face_up_cards),
-            isActive: p.is_active,
-            isReady: p.is_ready,
-            gameId: p.game_id
-          }));
-          
-          dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+      // For non-DELETE events and as a fallback for DELETE events that didn't properly update the UI
+      // This ensures all clients have the latest player data
+      const { data: playersData, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('game_id', gameId);
+        
+      if (error) {
+        console.error('Error fetching players data after update:', error);
+        toast.error('Failed to sync player data. Please refresh.');
+        return;
+      }
+        
+      if (playersData && playersData.length > 0) {
+        const mappedPlayers = playersData.map(p => ({
+          id: p.id,
+          name: p.name,
+          isHost: p.is_host,
+          hand: jsonToCardValues(p.hand),
+          faceDownCards: jsonToCardValues(p.face_down_cards),
+          faceUpCards: jsonToCardValues(p.face_up_cards),
+          isActive: p.is_active,
+          isReady: p.is_ready,
+          gameId: p.game_id
+        }));
+        
+        console.log('Updated player list:', mappedPlayers);
+        dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
+      } else {
+        // If no players returned, check if current player is still in the game
+        const currentPlayerId = localStorage.getItem('playerId');
+        if (currentPlayerId) {
+          const { data: currentPlayerCheck } = await supabase
+            .from('players')
+            .select('id')
+            .eq('id', currentPlayerId)
+            .eq('game_id', gameId)
+            .maybeSingle();
+            
+          if (!currentPlayerCheck) {
+            console.log('Player not found in game - redirecting to home');
+            dispatch({ type: 'RESET_GAME' });
+            toast.error('You are no longer part of this game');
+            navigate('/');
+          }
         }
       }
     } catch (error) {

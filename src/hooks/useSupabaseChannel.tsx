@@ -31,12 +31,11 @@ export const useSupabaseChannel = (
         supabase.removeChannel(channelRef.current);
       }
 
-      // Create the channel configuration with explicit event handling
-      // Fix the TypeScript error by using the correct type casting for RealtimeChannel methods
+      // Fix for TypeScript error by using correct type assertion
       const channel = supabase
         .channel(channelName)
         .on(
-          // Use type assertion to fix the TypeScript error
+          // Type assertion to fix TypeScript error
           'postgres_changes' as unknown as 'system', 
           {
             event: config.event || '*',
@@ -47,28 +46,21 @@ export const useSupabaseChannel = (
           (payload) => {
             console.log(`${channelName} update received:`, payload);
             
-            // Handle different payload structures safely without assuming properties
-            if (payload && typeof payload === 'object') {
-              // Safely check for DELETE events using optional chaining and type guards
-              const isDelete = 
-                // Check if event property exists and is DELETE
-                (payload.event === 'DELETE') ||
-                // Check for type and event properties
-                (typeof payload.type === 'string' && payload.event === 'DELETE');
+            // Enhanced detection for DELETE events
+            if (payload) {
+              const isDeleteEvent = payload.eventType === 'DELETE' || 
+                                    payload.event === 'DELETE';
               
-              // Safely extract old data if available
-              let oldData = null;
-              
-              // Use optional chaining to safely access potentially undefined properties
-              if ('old' in payload) {
-                oldData = payload.old;
-              }
-              
-              if (isDelete && oldData) {
-                console.log(`DELETE event detected in ${config.table}`, oldData);
+              if (isDeleteEvent) {
+                console.log(`DELETE event detected in ${config.table}:`, payload);
+                // Explicitly mark as delete for improved handling
+                if (typeof payload === 'object') {
+                  payload.isDeleteEvent = true;
+                }
               }
             }
             
+            // Forward all events to handler, including enhanced delete events
             onUpdate(payload);
           }
         )
