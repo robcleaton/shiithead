@@ -35,11 +35,11 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
   
   return (
     <div className="flex flex-col items-center">
-      <div className="text-xs bg-shithead-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
+      <div className="text-xs bg-shithead-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-4">
         {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
       </div>
       
-      <div className="relative">
+      <div className="relative mt-2">
         {isTenOnTop && (
           <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-shithead-foreground/70 text-center">
             <span className="font-medium text-orange-500 flex items-center justify-center">
