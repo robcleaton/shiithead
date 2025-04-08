@@ -1,5 +1,5 @@
+
 import React from 'react';
-import Card from '@/components/Card';
 
 interface DeckDisplayProps {
   deckCount: number;
@@ -11,8 +11,6 @@ const DeckDisplay: React.FC<DeckDisplayProps> = ({ deckCount }) => {
       <div className="text-xs bg-shithead-primary text-white px-2 py-0.5 rounded-full font-medium whitespace-nowrap mb-2">
         {deckCount} card{deckCount !== 1 ? 's' : ''} left
       </div>
-      
-      
     </div>
   );
 };
