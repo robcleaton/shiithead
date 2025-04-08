@@ -38,6 +38,7 @@ export const removePlayer = async (
       
     if (error) {
       console.error('Error removing player from database:', error);
+      
       // Revert the optimistic update by refetching players
       const { data: playersData } = await supabase
         .from('players')
@@ -65,6 +66,9 @@ export const removePlayer = async (
     
     dispatch({ type: 'SET_LOADING', isLoading: false });
     toast.success(`Removed ${playerToRemove.name} from the game`);
+    
+    // The removed player will be redirected by the usePlayerUpdates hook
+    // when they receive the DELETE event via the Supabase realtime subscription
     
   } catch (error) {
     console.error('Error removing player:', error);

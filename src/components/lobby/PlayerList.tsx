@@ -51,12 +51,14 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
       const currentPlayerStillInGame = players.some(p => p.id === currentPlayerId);
       
       if (!currentPlayerStillInGame && currentPlayerId) {
-        console.log('Current player no longer in game, will be redirected soon');
+        console.log('Current player no longer in game list, will redirect soon');
+        // The redirection will be handled by the usePlayerUpdates hook
       }
       
       setRenderedPlayers(players);
     } else {
       // If we have a current player but no players list, at least show the current player
+      // until the redirect happens
       if (currentPlayerId) {
         const fallbackPlayer: Player = {
           id: currentPlayerId,
@@ -81,8 +83,6 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
     if (playerId !== currentPlayerId && state.isHost) {
       console.log(`Host is removing player: ${playerId}`);
       await removePlayer(playerId);
-      
-      // Immediate UI update is now handled in the reducer
     }
   };
 
@@ -93,48 +93,45 @@ const PlayerList = ({ players, currentPlayerId }: PlayerListProps) => {
           No players have joined yet
         </li>
       ) : (
-        renderedPlayers.map((player, index) => {
-          console.log(`Rendering player ${player.name} with avatar color: ${generateAvatarColor(player.name)}`);
-          return (
-            <motion.li
-              key={player.id}
-              className="flex items-center gap-3 bg-white/40 p-3 rounded-lg shadow-sm border border-gray-100"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Avatar className={`h-12 w-12 text-white ${generateAvatarColor(player.name)}`}>
-                <AvatarFallback className="text-xl uppercase">{player.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <span className="font-medium">{player.name}</span>
+        renderedPlayers.map((player, index) => (
+          <motion.li
+            key={player.id}
+            className="flex items-center gap-3 bg-white/40 p-3 rounded-lg shadow-sm border border-gray-100"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Avatar className={`h-12 w-12 text-white ${generateAvatarColor(player.name)}`}>
+              <AvatarFallback className="text-xl uppercase">{player.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <span className="font-medium">{player.name}</span>
+            
+            {/* Status indicators */}
+            <div className="ml-auto flex items-center gap-2">
+              {player.id === currentPlayerId && (
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <UserRoundCheck className="w-3 h-3" /> You
+                </span>
+              )}
+              {player.isHost && (
+                <span className="text-xs bg-shithead-secondary px-2 py-0.5 rounded-full">Host</span>
+              )}
               
-              {/* Status indicators */}
-              <div className="ml-auto flex items-center gap-2">
-                {player.id === currentPlayerId && (
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <UserRoundCheck className="w-3 h-3" /> You
-                  </span>
-                )}
-                {player.isHost && (
-                  <span className="text-xs bg-shithead-secondary px-2 py-0.5 rounded-full">Host</span>
-                )}
-                
-                {/* Remove player button (only visible to host and not for current player) */}
-                {state.isHost && player.id !== currentPlayerId && !state.gameStarted && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => handleRemovePlayer(player.id)}
-                    title="Remove player"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </motion.li>
-          );
-        })
+              {/* Remove player button (only visible to host and not for current player) */}
+              {state.isHost && player.id !== currentPlayerId && !state.gameStarted && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleRemovePlayer(player.id)}
+                  title="Remove player"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </motion.li>
+        ))
       )}
     </ul>
   );

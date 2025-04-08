@@ -19,18 +19,16 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         console.log('Player removed from database:', removedPlayerId);
         
         // If the removed player is the current player, redirect them back to home
-        if (payload.old.id === localStorage.getItem('playerId')) {
+        const currentPlayerId = localStorage.getItem('playerId');
+        if (removedPlayerId === currentPlayerId) {
           console.log('Current player was removed from the game!');
           toast.error('You have been removed from the game by the host');
           
-          // Clear state and redirect
+          // Clear state immediately to ensure the player knows they're removed
           dispatch({ type: 'RESET_GAME' });
           
-          // Use a short timeout to ensure the toast is visible before redirecting
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 1500);
-          
+          // Immediate redirect instead of using timeout
+          window.location.href = '/';
           return;
         }
         
@@ -74,9 +72,42 @@ export const usePlayerUpdates = (dispatch: Dispatch<GameAction>) => {
         }));
         console.log('Updated players after DB change:', playerInfo);
         
+        // Check if current player still exists in the updated players list
+        const currentPlayerId = localStorage.getItem('playerId');
+        const currentPlayerExists = mappedPlayers.some(p => p.id === currentPlayerId);
+        
+        if (!currentPlayerExists && currentPlayerId) {
+          console.log('Current player no longer exists in player list - they were removed');
+          toast.error('You have been removed from the game by the host');
+          dispatch({ type: 'RESET_GAME' });
+          window.location.href = '/';
+          return;
+        }
+        
         dispatch({ type: 'SET_PLAYERS', players: mappedPlayers });
       } else {
         console.warn('No players data returned for game:', gameId);
+        
+        // If there are no players and we have a player ID, we might have been removed
+        const currentPlayerId = localStorage.getItem('playerId');
+        if (currentPlayerId) {
+          console.log('No players returned but we have a player ID - checking if removed');
+          
+          // Double check if our player still exists in the game
+          const { data: playerCheck } = await supabase
+            .from('players')
+            .select('id')
+            .eq('id', currentPlayerId)
+            .maybeSingle();
+            
+          if (!playerCheck) {
+            console.log('Confirmed player removal - redirecting');
+            toast.error('You have been removed from the game by the host');
+            dispatch({ type: 'RESET_GAME' });
+            window.location.href = '/';
+            return;
+          }
+        }
       }
     } catch (error) {
       console.error('Error processing players update:', error);
