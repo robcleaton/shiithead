@@ -15,7 +15,6 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
     ? pile.filter(card => card.rank === topCard?.rank).length
     : 0;
   
-  const isThreeOnTop = topCard?.rank === '3';
   const isTenOnTop = topCard?.rank === '10';
   const isEightOnTop = topCard?.rank === '8';
   
@@ -49,14 +48,6 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
           </div>
         )}
         
-        {isThreeOnTop && (
-          <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-red-500 text-center whitespace-nowrap">
-            <span className="font-medium flex items-center justify-center">
-              Play a 3 or Pick Up!
-            </span>
-          </div>
-        )}
-        
         {topCard ? (
           <div className="relative">
             {sameRankCount > 1 && (
@@ -82,7 +73,6 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
             
             <div className={cn(
               isTenOnTop ? 'ring-2 ring-orange-500' : '',
-              isThreeOnTop ? 'ring-2 ring-red-500' : '',
               isEightOnTop ? 'opacity-70' : ''
             )}>
               <Card 
@@ -119,3 +109,4 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
 };
 
 export default PileDisplay;
+

@@ -21,7 +21,7 @@ const GameStatusMessages: React.FC<GameStatusMessagesProps> = ({
   return (
     <div className="text-center mt-4 text-xs text-shithead-foreground/70">
       {isThreeOnTop && (
-        <p className="font-medium text-orange-600 mb-1">Three has been played! {isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
+        <p className="font-medium text-orange-600 mb-1">{isCurrentPlayer ? "You must" : "Current player must"} pick up the pile or play another 3.</p>
       )}
       {isTenOnTop && (
         <p className="font-medium text-orange-500 mb-1">10 has been played! The entire discard pile has been burned!</p>
