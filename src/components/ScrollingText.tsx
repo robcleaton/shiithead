@@ -26,9 +26,10 @@ const ScrollingText = ({
   const duration = speed;
   
   // Generate repeated content to ensure seamless scrolling
-  const repeatedContent = Array.from({ length: 20 }, (_, i) => (
+  // Using more repetitions to ensure no gaps during animation
+  const repeatedContent = Array.from({ length: 30 }, (_, i) => (
     useLogoInstead ? (
-      <span key={i} className="mx-8">
+      <span key={i} className="mx-4">
         <img 
           src="/assets/logo.svg" 
           alt="Shit Head Logo" 
@@ -55,6 +56,7 @@ const ScrollingText = ({
         minHeight: '250px',
       }}
     >
+      {/* Add the same content twice - one for initial display, one for continuous animation */}
       <div 
         className="absolute whitespace-nowrap scrolling-text-animation"
         style={{
