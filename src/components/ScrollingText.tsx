@@ -1,3 +1,4 @@
+
 import { useIsMobile } from '@/hooks/use-mobile';
 import './ScrollingText.css';
 
@@ -33,6 +34,7 @@ const ScrollingText = ({
           alt="Shit Head Logo" 
           style={{ 
             height: logoHeight,
+            maxHeight: '500px',
             maxWidth: 'fit-content',
             display: 'inline-block'
           }} 
@@ -48,6 +50,7 @@ const ScrollingText = ({
       className="w-full overflow-hidden relative flex items-center"
       style={{
         height: logoHeight,
+        maxHeight: '500px',
       }}
     >
       <div 
