@@ -33,7 +33,7 @@ const ScrollingText = ({
           fontSize,
           color,
           fontFamily: 'TuskerGrotesk',
-          lineHeight: 0.8,
+          lineHeight: '34vw',
           textTransform: 'uppercase',
           animationDuration: `${duration}s`,
         }}
