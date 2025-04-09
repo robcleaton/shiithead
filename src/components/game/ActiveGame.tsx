@@ -6,7 +6,7 @@ import PlayerArea from './PlayerArea';
 import { CardValue } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import useGame from '@/hooks/useGame';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -38,6 +38,49 @@ const ActiveGame = ({
   const { pickupPile, refreshGameState } = useGame();
   const currentPlayer = players.find(p => p.id === currentPlayerId);
   const player = players.find(p => p.id === playerId);
+  const [turnCheckCount, setTurnCheckCount] = useState(0);
+  const lastTurnIdRef = useRef<string | null>(null);
+  const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Turn check timer - detect when game might be stuck
+  useEffect(() => {
+    // Clear any existing timer
+    if (turnTimerRef.current) {
+      clearTimeout(turnTimerRef.current);
+      turnTimerRef.current = null;
+    }
+
+    // If current player ID changed, reset the turn check counter
+    if (currentPlayerId !== lastTurnIdRef.current) {
+      console.log(`Turn changed from ${lastTurnIdRef.current} to ${currentPlayerId}`);
+      setTurnCheckCount(0);
+      lastTurnIdRef.current = currentPlayerId;
+      return;
+    }
+
+    // If game is in a potentially stuck state, start incremental checking
+    if (currentPlayerId && !isLoading) {
+      turnTimerRef.current = setTimeout(() => {
+        setTurnCheckCount(prev => prev + 1);
+      }, 10000); // Check every 10 seconds
+    }
+
+    return () => {
+      if (turnTimerRef.current) {
+        clearTimeout(turnTimerRef.current);
+      }
+    };
+  }, [currentPlayerId, isLoading, turnCheckCount]);
+
+  // Handle automatic refresh if turn isn't changing
+  useEffect(() => {
+    if (turnCheckCount >= 3) {
+      console.log(`Game may be stuck - no turn change detected for ~30 seconds`);
+      toast.info("Game seems stuck, refreshing state for all players...");
+      refreshGameState();
+      setTurnCheckCount(0);
+    }
+  }, [turnCheckCount, refreshGameState]);
 
   // Log important state information for debugging
   useEffect(() => {
@@ -73,9 +116,18 @@ const ActiveGame = ({
   // Log the deck count for debugging
   console.log(`Current deck count in ActiveGame: ${deck.length}, type: ${typeof deck.length}`);
 
+  // Calculate waiting status message
+  const isWaiting = currentPlayerId && currentPlayerId !== playerId;
+  const waitingMessage = isWaiting ? `Waiting for ${currentPlayer?.name || 'opponent'} to play...` : "";
+
   return (
     <div className="container mx-auto px-4 min-h-screen">
       <div className="flex flex-col gap-4 items-center">
+        {isWaiting && (
+          <div className="w-full text-center py-2 bg-orange-100 text-orange-800 rounded-md">
+            {waitingMessage}
+          </div>
+        )}
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {players
