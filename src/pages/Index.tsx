@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -98,7 +97,7 @@ const Index = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
       <div className="w-full overflow-hidden mb-8 -mt-12">
-        <ScrollingText text="Shit head" fontSize="30vw" color="#F8331E" speed={300} />
+        <ScrollingText text="Shit head" fontSize="30vw" color="#F8331E" speed={450} />
       </div>
       
       <div className="p-3 w-full">
