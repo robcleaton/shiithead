@@ -1,0 +1,17 @@
+
+/* Make the animation more seamless by using a larger translation to ensure overlap */
+@keyframes scrollText {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* Move left by 50% to create seamless loop */
+  }
+}
+
+.scrolling-text-animation {
+  animation: scrollText linear infinite;
+  /* Ensure there's enough content to form a continuous loop */
+  padding-right: 0; /* Remove any padding that might create gaps */
+  display: inline-block; /* Keep the element dimensions tight to its content */
+}
