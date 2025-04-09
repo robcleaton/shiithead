@@ -35,6 +35,7 @@ const ScrollingText = ({
           style={{ 
             height: logoHeight,
             maxHeight: '500px',
+            minHeight: '150px',
             maxWidth: 'fit-content',
             display: 'inline-block'
           }} 
@@ -51,6 +52,7 @@ const ScrollingText = ({
       style={{
         height: logoHeight,
         maxHeight: '500px',
+        minHeight: '150px',
       }}
     >
       <div 
