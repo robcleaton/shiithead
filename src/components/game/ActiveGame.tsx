@@ -1,4 +1,5 @@
 
+
 import { Player } from '@/types/game';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
@@ -116,19 +117,9 @@ const ActiveGame = ({
   // Log the deck count for debugging
   console.log(`Current deck count in ActiveGame: ${deck.length}, type: ${typeof deck.length}`);
 
-  // Calculate waiting status message
-  const isWaiting = currentPlayerId && currentPlayerId !== playerId;
-  const waitingMessage = isWaiting ? `Waiting for ${currentPlayer?.name || 'opponent'} to play...` : "";
-
   return (
     <div className="container mx-auto px-4 min-h-screen">
       <div className="flex flex-col gap-4 items-center">
-        {isWaiting && (
-          <div className="w-full text-center py-2 bg-orange-100 text-orange-800 rounded-md">
-            {waitingMessage}
-          </div>
-        )}
-
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
           {players
             .filter(p => p.id !== playerId)
