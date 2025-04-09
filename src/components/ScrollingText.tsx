@@ -24,7 +24,7 @@ const ScrollingText = ({
     useLogoInstead ? (
       <span key={i} className="mx-8">
         <img 
-          src="/assets/logo-full-red.svg" 
+          src="/assets/logo.svg" 
           alt="Shit Head Logo" 
           style={{ 
             height: logoHeight,
