@@ -1,4 +1,6 @@
 
+import { useIsMobile } from '@/hooks/use-mobile';
+
 interface ScrollingTextProps {
   text?: string;
   fontSize?: string;
@@ -16,10 +18,13 @@ const ScrollingText = ({
   useLogoInstead = false,
   logoHeight = '34vw',
 }: ScrollingTextProps) => {
-  // Calculate animation duration based on speed (higher number = slower)
-  const duration = speed;
+  const isMobile = useIsMobile();
   
-  // Generate repeated text to ensure seamless scrolling
+  // Calculate animation duration based on speed and device type
+  // Mobile devices need a different duration to maintain visual consistency
+  const duration = isMobile ? speed * 0.5 : speed;
+  
+  // Generate repeated content to ensure seamless scrolling
   const repeatedContent = Array.from({ length: 20 }, (_, i) => (
     useLogoInstead ? (
       <span key={i} className="mx-8">

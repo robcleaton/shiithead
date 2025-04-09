@@ -8,6 +8,7 @@ import CursorTracker from '@/components/CursorTracker';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import ScrollingText from '@/components/ScrollingText';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
@@ -16,6 +17,9 @@ const Index = () => {
   const navigate = useNavigate();
   const { joinGame, state, resetGame } = useGame();
   const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const isMobile = useIsMobile();
+
+  const scrollSpeed = isMobile ? 350 : 450;
 
   useEffect(() => {
     if (location.pathname.startsWith('/join/') && gameId) {
@@ -97,7 +101,7 @@ const Index = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
       <div className="w-full overflow-hidden mb-8 -mt-12">
-        <ScrollingText useLogoInstead={true} logoHeight="34vw" speed={450} />
+        <ScrollingText useLogoInstead={true} logoHeight="34vw" speed={scrollSpeed} />
       </div>
       
       <div className="p-3 w-full">
