@@ -1,4 +1,5 @@
 
+
 interface ScrollingTextProps {
   text?: string;
   fontSize?: string;
@@ -27,7 +28,8 @@ const ScrollingText = ({
           src="/assets/logo-full-red.svg" 
           alt="Shit Head Logo" 
           style={{ 
-            height: logoHeight, 
+            height: logoHeight,
+            maxWidth: 'fit-content',
             display: 'inline-block'
           }} 
         />
