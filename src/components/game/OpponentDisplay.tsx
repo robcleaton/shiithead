@@ -25,7 +25,7 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
   };
 
   return (
-    <div className={`p-4 rounded-lg ${hasNoCardsLeft ? 'bg-green-100 border-green-300' : 'border-gray-200'}`}>
+    <div className={`p-4 rounded-lg border-2 ${hasNoCardsLeft ? 'bg-green-100 border-green-300' : 'border-shithead-primary/50 shadow-md'}`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-tusker uppercase">{opponent.name}</h3>
         {hasNoCardsLeft && (
