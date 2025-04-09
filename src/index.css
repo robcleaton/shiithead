@@ -208,6 +208,7 @@ html {
 body {
   /* background: #F8331E; */
   height: 100vh;
+  height: -webkit-fill-available;
 }
 body {
   @apply border border-[8px] border-black rounded-[34px]
@@ -218,6 +219,7 @@ body {
 }
 #root {
     background: aquamarine;
+    height: -webkit-fill-available;
     @apply rounded-[12px]
       sm:rounded-[20px]
       md:rounded-[20px]
