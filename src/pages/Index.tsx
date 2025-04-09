@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -8,6 +7,7 @@ import useGame from '@/hooks/useGame';
 import CursorTracker from '@/components/CursorTracker';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import ScrollingText from '@/components/ScrollingText';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
@@ -24,13 +24,11 @@ const Index = () => {
     }
   }, [gameId, location]);
 
-  // Check for existing session on page load
   useEffect(() => {
     const checkExistingSession = async () => {
       setIsCheckingSession(true);
       
       try {
-        // Get stored game ID and player ID
         const storedGameId = localStorage.getItem('gameId');
         const storedPlayerName = localStorage.getItem('playerName');
         const storedPlayerId = localStorage.getItem('playerId');
@@ -38,7 +36,6 @@ const Index = () => {
         if (storedGameId && storedPlayerId) {
           console.log(`Found stored game session: Game ID ${storedGameId}, Player ID ${storedPlayerId}`);
           
-          // Verify player is still part of the game
           const { data: playerData, error } = await supabase
             .from('players')
             .select('id, name, game_id')
@@ -68,12 +65,10 @@ const Index = () => {
     checkExistingSession();
   }, [navigate, resetGame, joinGame]);
 
-  // Reset game state only when explicitly navigating away from game
   useEffect(() => {
     const playerId = localStorage.getItem('playerId');
     const wasInGame = sessionStorage.getItem('wasInGame') === 'true';
     
-    // Only reset if we came to home page via explicit navigation from a game page
     if (playerId && 
         location.pathname === '/' && 
         !showJoinForm && 
@@ -84,7 +79,6 @@ const Index = () => {
       sessionStorage.removeItem('wasInGame');
     }
     
-    // Mark that we're in a game when we have a game state
     if (state.gameId) {
       sessionStorage.setItem('wasInGame', 'true');
     }
@@ -101,8 +95,11 @@ const Index = () => {
   }
 
   return (
-    // Join game module
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="w-full overflow-hidden mb-8 -mt-12">
+        <ScrollingText text="Shit head" fontSize="30vw" color="#F8331E" speed={30} />
+      </div>
+      
       <div className="p-3 w-full">
         <div className="mx-auto max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
@@ -117,7 +114,7 @@ const Index = () => {
           ) : (
             <>
               <motion.h1
-                className="text-4xl md:text-6xl p-4 font-tusker"
+                className="text-4xl md:text-6xl p-4 font-tusker sr-only"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
@@ -129,7 +126,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.6 }}
-                className="flex justify-center"
+                className="flex justify-center mt-8"
               >
                 <Link to="/game">
                   <Button size="lg" className="bg-shithead-primary hover:bg-shithead-primary/90 text-white px-8 py-6 text-lg">

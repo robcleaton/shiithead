@@ -183,6 +183,22 @@
       transform: translateY(0);
     }
   }
+
+  /* Horizontal scrolling text animation */
+  @keyframes scrollText {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .scrolling-text-animation {
+    display: inline-block;
+    animation: scrollText linear infinite;
+    padding-left: 100%;
+  }
 }
 
 html {

@@ -1,0 +1,47 @@
+
+interface ScrollingTextProps {
+  text: string;
+  fontSize?: string;
+  color?: string;
+  speed?: number;
+}
+
+const ScrollingText = ({
+  text,
+  fontSize = '30vw',
+  color = '#FEFFF1',
+  speed = 50,
+}: ScrollingTextProps) => {
+  // Calculate animation duration based on speed (lower number = faster)
+  const duration = speed;
+  
+  // Generate repeated text to ensure seamless scrolling
+  const repeatedText = Array.from({ length: 20 }, (_, i) => (
+    <span key={i} className="mx-2">{text}</span>
+  )).join(' ');
+
+  return (
+    <div 
+      className="w-full overflow-hidden relative"
+      style={{
+        height: fontSize,
+      }}
+    >
+      <div 
+        className="absolute whitespace-nowrap scrolling-text-animation"
+        style={{
+          fontSize,
+          color,
+          fontFamily: 'TuskerGrotesk',
+          lineHeight: 0.8,
+          textTransform: 'uppercase',
+          animationDuration: `${duration}s`,
+        }}
+      >
+        {repeatedText}
+      </div>
+    </div>
+  );
+};
+
+export default ScrollingText;
