@@ -1,7 +1,4 @@
 
-import { useIsMobile } from '@/hooks/use-mobile';
-import './ScrollingText.css';
-
 interface ScrollingTextProps {
   text?: string;
   fontSize?: string;
@@ -15,29 +12,22 @@ const ScrollingText = ({
   text = "Shit head",
   fontSize = '30vw',
   color = '#FEFFF1',
-  speed = 25, // Default speed - lower is faster
+  speed = 50,
   useLogoInstead = false,
   logoHeight = '34vw',
 }: ScrollingTextProps) => {
-  const isMobile = useIsMobile();
-  
-  // Calculate animation duration based on speed
-  // Lower values make the animation faster
+  // Calculate animation duration based on speed (higher number = slower)
   const duration = speed;
   
-  // Generate repeated content to ensure seamless scrolling
-  // Using more repetitions to ensure no gaps during animation
-  const repeatedContent = Array.from({ length: 30 }, (_, i) => (
+  // Generate repeated text to ensure seamless scrolling
+  const repeatedContent = Array.from({ length: 20 }, (_, i) => (
     useLogoInstead ? (
-      <span key={i} className="mx-4">
+      <span key={i} className="mx-8">
         <img 
-          src="/assets/logo.svg" 
+          src="/assets/logo-full-red.svg" 
           alt="Shit Head Logo" 
           style={{ 
-            height: logoHeight,
-            maxHeight: '500px',
-            minHeight: '250px',
-            maxWidth: 'fit-content',
+            height: logoHeight, 
             display: 'inline-block'
           }} 
         />
@@ -49,14 +39,11 @@ const ScrollingText = ({
 
   return (
     <div 
-      className="w-full overflow-hidden fixed bottom-0 left-0 right-0 z-10 flex items-center"
+      className="w-full overflow-hidden relative flex items-center"
       style={{
         height: logoHeight,
-        maxHeight: '500px',
-        minHeight: '250px',
       }}
     >
-      {/* Add the same content twice - one for initial display, one for continuous animation */}
       <div 
         className="absolute whitespace-nowrap scrolling-text-animation"
         style={{
@@ -66,13 +53,6 @@ const ScrollingText = ({
           lineHeight: logoHeight,
           textTransform: 'uppercase',
           animationDuration: `${duration}s`,
-          animationIterationCount: 'infinite', 
-          animationTimingFunction: 'linear',
-          animationName: 'scrollText',
-          animationDelay: '0s',
-          animationDirection: 'normal',
-          animationFillMode: 'none',
-          willChange: 'transform',
         }}
       >
         {repeatedContent}
