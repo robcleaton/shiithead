@@ -8,7 +8,6 @@ import CursorTracker from '@/components/CursorTracker';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import ScrollingText from '@/components/ScrollingText';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const [showJoinForm, setShowJoinForm] = useState(false);
@@ -17,9 +16,6 @@ const Index = () => {
   const navigate = useNavigate();
   const { joinGame, state, resetGame } = useGame();
   const [isCheckingSession, setIsCheckingSession] = useState(true);
-  const isMobile = useIsMobile();
-
-  const scrollSpeed = isMobile ? 15 : 25;
 
   useEffect(() => {
     if (location.pathname.startsWith('/join/') && gameId) {
@@ -100,6 +96,10 @@ const Index = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="w-full overflow-hidden mb-8 -mt-12">
+        <ScrollingText text="Shit head" fontSize="30vw" color="#F8331E" speed={450} />
+      </div>
+      
       <div className="p-3 w-full">
         <div className="mx-auto max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
@@ -126,11 +126,11 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.6 }}
-                className="flex justify-center mt-8 mb-32"
+                className="flex justify-center mt-8"
               >
                 <Link to="/game">
                   <Button size="lg" className="bg-shithead-primary hover:bg-shithead-primary/90 text-white px-8 py-6 text-lg">
-                    Let's Play!
+                    Start Playing
                   </Button>
                 </Link>
               </motion.div>
@@ -150,8 +150,6 @@ const Index = () => {
         </motion.div>
       </footer>
 
-      <ScrollingText useLogoInstead={true} logoHeight="34vw" speed={scrollSpeed} />
-      
       <CursorTracker label="Let's play" showOnlyUserCursor={true} />
     </div>
   );
