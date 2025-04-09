@@ -107,7 +107,7 @@ const PlayerHand = ({
                   No cards available. Try refreshing the page.
                 </div>
               ) : (
-                <div className="flex justify-center p-3">
+                <div className="flex justify-center p-3 py-4">
                   {cardArray.map((card, index) => (
                     <div
                       key={`${card.suit}-${card.rank}-${index}`}
@@ -136,7 +136,7 @@ const PlayerHand = ({
         </ScrollArea>
 
         {(isActive || isSetupPhase) && selectedIndices.length > 0 && areSelectionsValid() && (
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center my-4">
             <Button
               onClick={handlePlaySelected}
               className="bg-shithead-primary hover:bg-shithead-primary/90"
