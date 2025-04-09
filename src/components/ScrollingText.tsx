@@ -16,15 +16,16 @@ const ScrollingText = ({
   const duration = speed;
   
   // Generate repeated text to ensure seamless scrolling
-  const repeatedText = Array.from({ length: 20 }, (_, i) => (
-    <span key={i} className="mx-2">{text}</span>
-  )).join(' ');
+  const repeatedText = Array.from({ length: 30 }, (_, i) => (
+    <span key={i} className="mx-1">{text}</span>
+  ));
 
   return (
     <div 
       className="w-full overflow-hidden relative flex items-center"
       style={{
         height: '34vw',
+        minHeight: '250px',
       }}
     >
       <div 
