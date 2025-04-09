@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Player } from '@/types/game';
 import { Check } from 'lucide-react';
@@ -57,8 +58,35 @@ const GameSetup = ({
           </div>
         </div>
 
-        {/* Card layout container with relative positioning */}
-        <div className="relative w-full flex justify-center">
+        {/* Player Hand - Now positioned FIRST */}
+        <div className="w-full max-w-3xl">
+          {player.hand && player.hand.length > 0 ? (
+            <PlayerHand
+              cards={player.hand}
+              isActive={true} // Always active during setup phase
+              onPlayCard={(index) => selectFaceUpCard(index)}
+              onSelectMultipleCards={(indices) => selectMultipleFaceUpCards(indices)}
+              isSetupPhase={true}
+              maxSelections={remainingSelectionsNeeded}
+            />
+          ) : (
+            <div className="text-center p-4 text-gray-200">
+              No cards in hand. Please try refreshing the page.
+            </div>
+          )}
+        </div>
+
+        {/* Display remaining selections needed if not ready */}
+        {!player.isReady && remainingSelectionsNeeded > 0 && (
+          <div className="my-2 text-center">
+            <span className="bg-shithead-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+              Select {remainingSelectionsNeeded} more card{remainingSelectionsNeeded !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+
+        {/* Card layout container with relative positioning - Now positioned AFTER the hand */}
+        <div className="relative w-full flex justify-center mt-4">
           {/* Face Down Cards - positioned at the bottom layer */}
           <div className="flex justify-center gap-4 z-0">
             {player.faceDownCards && player.faceDownCards.length > 0 ? (
@@ -95,7 +123,7 @@ const GameSetup = ({
               <></>
             )}
             
-            {/* Empty placeholders for remaining cards - REMOVED backdrop-blur-sm */}
+            {/* Empty placeholders for remaining cards */}
             {remainingSelectionsNeeded > 0 && Array(remainingSelectionsNeeded).fill(0).map((_, i) => (
               <div
                 key={`empty-${i}`}
@@ -105,33 +133,6 @@ const GameSetup = ({
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Display remaining selections needed if not ready */}
-        {!player.isReady && remainingSelectionsNeeded > 0 && (
-          <div className="my-2 text-center">
-            <span className="bg-shithead-primary text-white px-3 py-1 rounded-full text-sm font-medium">
-              Select {remainingSelectionsNeeded} more card{remainingSelectionsNeeded !== 1 ? 's' : ''}
-            </span>
-          </div>
-        )}
-
-        {/* Player Hand */}
-        <div className="w-full max-w-3xl mt-4">
-          {player.hand && player.hand.length > 0 ? (
-            <PlayerHand
-              cards={player.hand}
-              isActive={true} // Always active during setup phase
-              onPlayCard={(index) => selectFaceUpCard(index)}
-              onSelectMultipleCards={(indices) => selectMultipleFaceUpCards(indices)}
-              isSetupPhase={true}
-              maxSelections={remainingSelectionsNeeded}
-            />
-          ) : (
-            <div className="text-center p-4 text-gray-200">
-              No cards in hand. Please try refreshing the page.
-            </div>
-          )}
         </div>
 
         {player.isReady && (

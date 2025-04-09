@@ -82,8 +82,18 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
         </div>
       )}
 
-      {/* Card layout container with relative positioning */}
-      <div className="relative w-full flex justify-center mb-6">
+      {/* Player Hand - Now positioned FIRST */}
+      <PlayerHand
+        cards={player.hand}
+        isActive={isActive}
+        onPlayCard={onPlayCard}
+      />
+
+      {/* Add spacing between hand and face-up/face-down cards */}
+      <div className="mt-6"></div>
+
+      {/* Card layout container with relative positioning - Now positioned AFTER the hand */}
+      <div className="relative w-full flex justify-center mt-4">
         {/* Face Down Cards - positioned at the bottom layer */}
         <div className="flex justify-center gap-4 z-0">
           {player.faceDownCards.map((_, index) => (
@@ -120,7 +130,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       </div>
 
       {isHandEmpty && isActive && selectedFaceUpCardIndex !== null && (
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mt-4">
           <Button
             onClick={handlePlayFaceUpCard}
             className="bg-shithead-primary hover:bg-shithead-primary/90"
@@ -132,7 +142,7 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
       )}
 
       {isHandEmpty && isFaceUpEmpty && isActive && selectedFaceDownCardIndex !== null && (
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mt-4">
           <Button
             onClick={handlePlayFaceDownCard}
             className="bg-shithead-primary hover:bg-shithead-primary/90"
@@ -142,12 +152,6 @@ const PlayerArea = ({ player, isActive, onPlayCard }: PlayerAreaProps) => {
           </Button>
         </div>
       )}
-
-      <PlayerHand
-        cards={player.hand}
-        isActive={isActive}
-        onPlayCard={onPlayCard}
-      />
     </div>
   );
 };
