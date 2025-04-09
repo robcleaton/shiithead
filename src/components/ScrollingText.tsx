@@ -1,5 +1,5 @@
-
 import { useIsMobile } from '@/hooks/use-mobile';
+import './ScrollingText.css';
 
 interface ScrollingTextProps {
   text?: string;
@@ -59,6 +59,13 @@ const ScrollingText = ({
           lineHeight: logoHeight,
           textTransform: 'uppercase',
           animationDuration: `${duration}s`,
+          animationIterationCount: 'infinite', // Ensure animation repeats infinitely
+          animationTimingFunction: 'linear',   // Ensure smooth scrolling
+          animationName: 'scrollText',         // Name of the animation
+          animationDelay: '0s',                // Start immediately
+          animationDirection: 'normal',        // Always move in the same direction
+          animationFillMode: 'none',           // Don't retain styles before/after
+          willChange: 'transform',             // Optimize for animation performance
         }}
       >
         {repeatedContent}

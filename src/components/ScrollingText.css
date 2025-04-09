@@ -1,0 +1,13 @@
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* Move left by 50% to create seamless loop */
+  }
+}
+
+.scrolling-text-animation {
+  animation: scrollText linear infinite;
+}
