@@ -22,13 +22,13 @@ const ScrollingText = ({
 
   return (
     <div 
-      className="w-full overflow-hidden relative flex items-center"
+      className="w-full overflow-hidden relative"
       style={{
-        height: '34vw',
+        height: fontSize,
       }}
     >
       <div 
-        className="absolute whitespace-nowrap scrolling-text-animation-vertical"
+        className="absolute whitespace-nowrap scrolling-text-animation"
         style={{
           fontSize,
           color,
