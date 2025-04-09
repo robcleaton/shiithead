@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -187,7 +188,7 @@
   /* Horizontal scrolling text animation */
   @keyframes scrollText {
     0% {
-      transform: translateX(0%);
+      transform: translateX(0);
     }
     100% {
       transform: translateX(-50%);
@@ -197,7 +198,7 @@
   .scrolling-text-animation {
     display: inline-block;
     animation: scrollText linear infinite;
-    padding-left: 100%;
+    /* Remove the padding-left that was pushing text off-screen initially */
   }
 }
 
