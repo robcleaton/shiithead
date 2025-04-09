@@ -28,7 +28,7 @@ const ScrollingText = ({
       }}
     >
       <div 
-        className="absolute whitespace-nowrap scrolling-text-animation"
+        className="absolute whitespace-nowrap scrolling-text-animation-vertical"
         style={{
           fontSize,
           color,
