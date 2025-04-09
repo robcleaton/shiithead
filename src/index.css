@@ -199,6 +199,25 @@
     animation: scrollText linear infinite;
     padding-left: 100%;
   }
+
+  /* Vertical scrolling text animation */
+  @keyframes scrollTextVertical {
+    0% {
+      transform: translateY(0%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  .scrolling-text-animation-vertical {
+    display: inline-block;
+    animation: scrollTextVertical linear infinite;
+    left: 0;
+    top: -100%;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 html {
