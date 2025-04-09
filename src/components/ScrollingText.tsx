@@ -1,5 +1,4 @@
 
-
 interface ScrollingTextProps {
   text?: string;
   fontSize?: string;
