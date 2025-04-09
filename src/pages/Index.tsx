@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -130,7 +131,7 @@ const Index = () => {
               >
                 <Link to="/game">
                   <Button size="lg" className="bg-shithead-primary hover:bg-shithead-primary/90 text-white px-8 py-6 text-lg">
-                    Start Playing
+                    Let's Play!
                   </Button>
                 </Link>
               </motion.div>
