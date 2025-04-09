@@ -14,6 +14,7 @@ import CursorTracker from '@/components/CursorTracker';
 const Game = () => {
   const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards, refreshGameState } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [hasRefreshedSetup, setHasRefreshedSetup] = useState(false);
 
   useEffect(() => {
     console.log('Game component rendered. Game started:', state.gameStarted);
@@ -30,17 +31,32 @@ const Game = () => {
     }
   }, [state]);
 
-  // Auto-refresh game state when setup phase starts
+  // Smart refresh for setup phase - only refresh once when entering setup phase
+  // or if player has no cards
   useEffect(() => {
     if (state.setupPhase) {
-      console.log('Setup phase detected, refreshing game state...');
-      // Add short delay to ensure database has updated
-      const timer = setTimeout(() => {
-        refreshGameState();
-      }, 500);
-      return () => clearTimeout(timer);
+      const player = state.players.find(p => p.id === state.playerId);
+      const needsRefresh = !hasRefreshedSetup || 
+                           !player || 
+                           !player.hand || 
+                           player.hand.length === 0;
+      
+      if (needsRefresh) {
+        console.log('Setup phase detected with missing cards, refreshing game state...');
+        // Add short delay to ensure database has updated
+        const timer = setTimeout(() => {
+          refreshGameState();
+          setHasRefreshedSetup(true);
+        }, 500);
+        return () => clearTimeout(timer);
+      } else {
+        console.log('Setup phase active with cards already loaded - no refresh needed');
+      }
+    } else if (!state.setupPhase) {
+      // Reset the refresh flag when exiting setup phase
+      setHasRefreshedSetup(false);
     }
-  }, [state.setupPhase, refreshGameState]);
+  }, [state.setupPhase, state.players, state.playerId, refreshGameState, hasRefreshedSetup]);
 
   const player = state.players.find(p => p.id === state.playerId);
 
