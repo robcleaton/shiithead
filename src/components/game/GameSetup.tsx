@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Player } from '@/types/game';
 import { Check } from 'lucide-react';
@@ -137,7 +136,6 @@ const GameSetup = ({
 
         {player.isReady && (
           <div className="mt-4 flex flex-col items-center">
-            <p className="text-center text-green-100 mb-2">You've selected all your face-up cards</p>
             {isHost && (
               <Button
                 onClick={completeSetup}
