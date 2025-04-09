@@ -33,7 +33,14 @@ const PlayerHand = ({
     setSelectedIndices([]);
   }, [cards, isActive]);
 
+  // Ensure cards is always an array, even if null or undefined was passed
   const cardArray = Array.isArray(cards) ? cards : [];
+
+  // Debug logging to help identify issues
+  useEffect(() => {
+    console.log("PlayerHand received cards:", cards);
+    console.log("PlayerHand processed cardArray:", cardArray);
+  }, [cards]);
 
   const handleSelectCard = (index: number) => {
     setSelectedIndices(prevIndices => {
@@ -95,9 +102,9 @@ const PlayerHand = ({
         <ScrollArea className="w-full" type="scroll">
           <div className="relative flex items-center justify-center">
             <div className="relative flex justify-center w-max min-w-full">
-              {!cardArray || cardArray.length === 0 ? (
+              {(!cardArray || cardArray.length === 0) ? (
                 <div className="text-center p-4 text-gray-500">
-                  No cards available
+                  No cards available. Try refreshing the page.
                 </div>
               ) : (
                 <div className="flex justify-center p-3">

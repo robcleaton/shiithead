@@ -6,7 +6,12 @@ interface OpponentDisplayProps {
 }
 
 const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
-  const totalCards = opponent.hand.length + opponent.faceUpCards.length + opponent.faceDownCards.length;
+  // Ensure we're working with arrays, even if they're null/undefined in the opponent object
+  const handCards = Array.isArray(opponent.hand) ? opponent.hand : [];
+  const faceDownCards = Array.isArray(opponent.faceDownCards) ? opponent.faceDownCards : [];
+  const faceUpCards = Array.isArray(opponent.faceUpCards) ? opponent.faceUpCards : [];
+  
+  const totalCards = handCards.length + faceDownCards.length + faceUpCards.length;
   const hasNoCardsLeft = totalCards === 0;
 
   const getSuitSymbol = (suit: string) => {
@@ -33,14 +38,14 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
           {/* Removed the "Hand" label */}
           <div className="flex items-center">
             <div className="flex relative">
-              {Array.from({ length: Math.min(3, opponent.hand.length) }).map((_, i) => (
+              {Array.from({ length: Math.min(3, handCards.length) }).map((_, i) => (
                 <div
                   key={`hand-${i}`}
                   className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                 ></div>
               ))}
             </div>
-            {opponent.hand.length === 0 && (
+            {handCards.length === 0 && (
               <span className="text-xs text-gray-500">No cards</span>
             )}
           </div>
@@ -53,31 +58,34 @@ const OpponentDisplay = ({ opponent }: OpponentDisplayProps) => {
             <div className="relative">
               {/* Face down cards - bottom layer */}
               <div className="flex relative z-0">
-                {Array.from({ length: Math.min(3, opponent.faceDownCards.length) }).map((_, i) => (
+                {Array.from({ length: Math.min(3, faceDownCards.length) }).map((_, i) => (
                   <div
                     key={`face-down-${i}`}
                     className="w-8 h-12 bg-shithead-card-back bg-card-texture rounded-lg shadow-sm border border-gray-800/20"
                   ></div>
                 ))}
-                {opponent.faceDownCards.length === 0 && (
+                {faceDownCards.length === 0 && (
                   <span className="text-xs text-gray-500">No cards</span>
                 )}
               </div>
 
               {/* Face up cards - top layer, with margin */}
-              {opponent.faceUpCards.length > 0 && (
+              {faceUpCards.length > 0 && (
                 <div className="flex absolute top-0 left-0 mt-1 z-10">
-                  {Array.from({ length: Math.min(3, opponent.faceUpCards.length) }).map((_, i) => (
-                    <div
-                      key={`face-up-${i}`}
-                      className="w-8 h-12 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
-                    >
-                      <div className={`text-xs ${opponent.faceUpCards[i].suit === 'hearts' || opponent.faceUpCards[i].suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
-                        {opponent.faceUpCards[i].rank}
-                        <span>{getSuitSymbol(opponent.faceUpCards[i].suit)}</span>
+                  {Array.from({ length: Math.min(3, faceUpCards.length) }).map((_, i) => {
+                    const card = faceUpCards[i];
+                    return (
+                      <div
+                        key={`face-up-${i}`}
+                        className="w-8 h-12 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center"
+                      >
+                        <div className={`text-xs ${card.suit === 'hearts' || card.suit === 'diamonds' ? 'text-red-500' : 'text-black'}`}>
+                          {card.rank}
+                          <span>{getSuitSymbol(card.suit)}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -12,7 +12,7 @@ import ActiveGame from '@/components/game/ActiveGame';
 import CursorTracker from '@/components/CursorTracker';
 
 const Game = () => {
-  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards } = useGame();
+  const { state, playCard, drawCard, resetGame, selectFaceUpCard, completeSetup, selectMultipleFaceUpCards, refreshGameState } = useGame();
   const [rulesOpen, setRulesOpen] = useState(false);
 
   useEffect(() => {
@@ -29,6 +29,18 @@ const Game = () => {
       console.log('Player is ready:', currentPlayer.isReady);
     }
   }, [state]);
+
+  // Auto-refresh game state when setup phase starts
+  useEffect(() => {
+    if (state.setupPhase) {
+      console.log('Setup phase detected, refreshing game state...');
+      // Add short delay to ensure database has updated
+      const timer = setTimeout(() => {
+        refreshGameState();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [state.setupPhase, refreshGameState]);
 
   const player = state.players.find(p => p.id === state.playerId);
 
