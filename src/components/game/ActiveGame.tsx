@@ -81,7 +81,11 @@ const ActiveGame = ({
           {players
             .filter(p => p.id !== playerId)
             .map(opponent => (
-              <OpponentDisplay key={opponent.id} opponent={opponent} />
+              <OpponentDisplay
+                key={opponent.id}
+                opponent={opponent}
+                isCurrentPlayer={opponent.id === currentPlayerId}
+              />
             ))}
         </div>
 
