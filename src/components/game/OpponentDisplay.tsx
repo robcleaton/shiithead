@@ -26,7 +26,7 @@ const OpponentDisplay = ({ opponent, isCurrentPlayer = false }: OpponentDisplayP
   };
 
   return (
-    <div className={`p-4 rounded-lg ${isCurrentPlayer ? 'border-2 border-shithead-primary/50 shadow-md' : ''} ${hasNoCardsLeft ? 'bg-green-100 border-green-300' : ''}`}>
+    <div className={`p-4 rounded-lg ${isCurrentPlayer ? 'border-2 border-shithead-primary/50' : ''} ${hasNoCardsLeft ? 'bg-green-100 border-green-300' : ''}`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-tusker uppercase">{opponent.name}</h3>
         {hasNoCardsLeft && (
