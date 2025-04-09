@@ -100,10 +100,6 @@ const Index = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-      <div className="w-full overflow-hidden mb-8 -mt-12">
-        <ScrollingText useLogoInstead={true} logoHeight="34vw" speed={scrollSpeed} />
-      </div>
-      
       <div className="p-3 w-full">
         <div className="mx-auto max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
@@ -130,7 +126,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.6 }}
-                className="flex justify-center mt-8"
+                className="flex justify-center mt-8 mb-32"
               >
                 <Link to="/game">
                   <Button size="lg" className="bg-shithead-primary hover:bg-shithead-primary/90 text-white px-8 py-6 text-lg">
@@ -154,6 +150,8 @@ const Index = () => {
         </motion.div>
       </footer>
 
+      <ScrollingText useLogoInstead={true} logoHeight="34vw" speed={scrollSpeed} />
+      
       <CursorTracker label="Let's play" showOnlyUserCursor={true} />
     </div>
   );

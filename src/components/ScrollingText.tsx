@@ -47,7 +47,7 @@ const ScrollingText = ({
 
   return (
     <div 
-      className="w-full overflow-hidden relative flex items-center"
+      className="w-full overflow-hidden fixed bottom-0 left-0 right-0 z-10 flex items-center"
       style={{
         height: logoHeight,
         maxHeight: '500px',
