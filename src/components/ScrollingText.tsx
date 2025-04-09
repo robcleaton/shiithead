@@ -23,7 +23,14 @@ const ScrollingText = ({
   const repeatedContent = Array.from({ length: 20 }, (_, i) => (
     useLogoInstead ? (
       <span key={i} className="mx-8">
-        <img src="/assets/logo-full-red.svg" alt="Shit Head Logo" style={{ height: logoHeight, display: 'inline-block' }} />
+        <img 
+          src="/assets/logo-full-red.svg" 
+          alt="Shit Head Logo" 
+          style={{ 
+            height: logoHeight, 
+            display: 'inline-block'
+          }} 
+        />
       </span>
     ) : (
       <span key={i} className="mx-2">{text}</span>
