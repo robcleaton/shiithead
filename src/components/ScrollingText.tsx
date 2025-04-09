@@ -22,9 +22,9 @@ const ScrollingText = ({
 
   return (
     <div 
-      className="w-full overflow-hidden relative"
+      className="w-full overflow-hidden relative flex items-center"
       style={{
-        height: fontSize,
+        height: '34vw',
       }}
     >
       <div 
