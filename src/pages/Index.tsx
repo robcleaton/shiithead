@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
@@ -20,7 +19,7 @@ const Index = () => {
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const isMobile = useIsMobile();
 
-  const scrollSpeed = isMobile ? 350 : 450;
+  const scrollSpeed = isMobile ? 15 : 25;
 
   useEffect(() => {
     if (location.pathname.startsWith('/join/') && gameId) {

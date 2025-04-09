@@ -15,15 +15,15 @@ const ScrollingText = ({
   text = "Shit head",
   fontSize = '30vw',
   color = '#FEFFF1',
-  speed = 50,
+  speed = 25, // Default speed - lower is faster
   useLogoInstead = false,
   logoHeight = '34vw',
 }: ScrollingTextProps) => {
   const isMobile = useIsMobile();
   
-  // Calculate animation duration based on speed and device type
-  // Mobile devices need a different duration to maintain visual consistency
-  const duration = isMobile ? speed * 0.5 : speed;
+  // Calculate animation duration based on speed
+  // Lower values make the animation faster
+  const duration = speed;
   
   // Generate repeated content to ensure seamless scrolling
   const repeatedContent = Array.from({ length: 20 }, (_, i) => (
@@ -64,13 +64,13 @@ const ScrollingText = ({
           lineHeight: logoHeight,
           textTransform: 'uppercase',
           animationDuration: `${duration}s`,
-          animationIterationCount: 'infinite', // Ensure animation repeats infinitely
-          animationTimingFunction: 'linear',   // Ensure smooth scrolling
-          animationName: 'scrollText',         // Name of the animation
-          animationDelay: '0s',                // Start immediately
-          animationDirection: 'normal',        // Always move in the same direction
-          animationFillMode: 'none',           // Don't retain styles before/after
-          willChange: 'transform',             // Optimize for animation performance
+          animationIterationCount: 'infinite', 
+          animationTimingFunction: 'linear',
+          animationName: 'scrollText',
+          animationDelay: '0s',
+          animationDirection: 'normal',
+          animationFillMode: 'none',
+          willChange: 'transform',
         }}
       >
         {repeatedContent}
