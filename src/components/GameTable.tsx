@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react';
 import { CardValue } from '@/context/GameContext';
-import CurrentPlayerBadge from './game/table/CurrentPlayerBadge';
 import DeckDisplay from './game/table/DeckDisplay';
 import PileDisplay from './game/table/PileDisplay';
 import GameStatusMessages from './game/table/GameStatusMessages';
@@ -39,8 +38,6 @@ const GameTable: React.FC<GameTableProps> = ({
 
   return (
     <div className="w-full max-w-2xl p-6 bg-shithead-muted/30 rounded-xl border relative">
-      <CurrentPlayerBadge currentPlayer={currentPlayer} />
-
       {/* Game area */}
       <div className="flex justify-center mb-6">
         {/* Center content with vertical stack of deck count and pile */}
