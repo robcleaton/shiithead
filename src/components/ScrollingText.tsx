@@ -12,7 +12,7 @@ const ScrollingText = ({
   color = '#FEFFF1',
   speed = 50,
 }: ScrollingTextProps) => {
-  // Calculate animation duration based on speed (lower number = faster)
+  // Calculate animation duration based on speed (higher number = slower)
   const duration = speed;
   
   // Generate repeated text to ensure seamless scrolling
