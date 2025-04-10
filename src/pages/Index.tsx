@@ -27,22 +27,22 @@ const Index = () => {
   useEffect(() => {
     const checkExistingSession = async () => {
       setIsCheckingSession(true);
-      
+
       try {
         const storedGameId = localStorage.getItem('gameId');
         const storedPlayerName = localStorage.getItem('playerName');
         const storedPlayerId = localStorage.getItem('playerId');
-        
+
         if (storedGameId && storedPlayerId) {
           console.log(`Found stored game session: Game ID ${storedGameId}, Player ID ${storedPlayerId}`);
-          
+
           const { data: playerData, error } = await supabase
             .from('players')
             .select('id, name, game_id')
             .eq('id', storedPlayerId)
             .eq('game_id', storedGameId)
             .maybeSingle();
-          
+
           if (error) {
             console.error('Error checking player session:', error);
             resetGame();
@@ -61,24 +61,24 @@ const Index = () => {
         setIsCheckingSession(false);
       }
     };
-    
+
     checkExistingSession();
   }, [navigate, resetGame, joinGame]);
 
   useEffect(() => {
     const playerId = localStorage.getItem('playerId');
     const wasInGame = sessionStorage.getItem('wasInGame') === 'true';
-    
-    if (playerId && 
-        location.pathname === '/' && 
-        !showJoinForm && 
-        state.gameId && 
+
+    if (playerId &&
+        location.pathname === '/' &&
+        !showJoinForm &&
+        state.gameId &&
         wasInGame) {
       console.log('Home page detected with lingering game state after navigation - cleaning up');
       resetGame();
       sessionStorage.removeItem('wasInGame');
     }
-    
+
     if (state.gameId) {
       sessionStorage.setItem('wasInGame', 'true');
     }
@@ -97,9 +97,9 @@ const Index = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
       <div className="w-full overflow-hidden mb-8 -mt-12">
-        <ScrollingText text="Shit head" fontSize="30vw" color="#F8331E" speed={450} />
+        <ScrollingText text="Card Game" fontSize="30vw" color="#F8331E" speed={450} />
       </div>
-      
+
       <div className="p-3 w-full">
         <div className="mx-auto max-w-4xl w-full text-center">
           {showJoinForm || gameId ? (
