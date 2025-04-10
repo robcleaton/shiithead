@@ -67,6 +67,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
                     index={index}
                     isPlayable={false}
                     sizeClass="pile-card"
+                    disableHover={true}
                   />
                 </div>
               ))
@@ -82,6 +83,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
                 index={0}
                 isPlayable={false}
                 sizeClass="pile-card"
+                disableHover={true}
               />
             </div>
 

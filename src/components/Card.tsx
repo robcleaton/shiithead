@@ -11,6 +11,7 @@ interface CardProps {
   isSelected?: boolean;
   onSelect?: () => void;
   sizeClass?: string;
+  disableHover?: boolean;
 }
 
 const getSuitSymbol = (suit: string) => {
@@ -35,7 +36,8 @@ const Card = ({
   delay = 0, 
   isSelected = false, 
   onSelect,
-  sizeClass = '' 
+  sizeClass = '',
+  disableHover = false
 }: CardProps) => {
   const [isFlipped, setIsFlipped] = useState(true);
   
@@ -75,6 +77,7 @@ const Card = ({
       className={`playing-card relative ${isPlayable ? 'cursor-pointer hover:scale-105' : ''} 
                   ${isSelected ? 'ring-4 ring-shithead-primary shadow-lg scale-105 z-10' : ''} 
                   ${sizeClass === 'pile-card' || sizeClass === 'deck-card' ? 'playing-card-lg' : ''}
+                  ${disableHover ? 'hover:transform-none hover:shadow-none' : ''}
                   transition-all duration-200`}
       onClick={handleClick}
     >
