@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useGame } from '@/hooks/useGame';
+import RainingLogos from './RainingLogos';
 
 interface GameOverProps {
   players: Player[];
@@ -30,8 +31,11 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Add the raining logos effect */}
+      <RainingLogos isWinner={isWinner} count={isWinner ? 30 : 15} />
+      
       <motion.div
-        className="text-center p-8 rounded-xl max-w-md w-full bg-white"
+        className="text-center p-8 rounded-xl max-w-md w-full bg-white relative z-20"
         initial={{ y: 20, scale: 0.9 }}
         animate={{ y: 0, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
