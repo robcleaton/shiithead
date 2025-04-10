@@ -76,14 +76,7 @@ const GameSetup = ({
           )}
         </div>
 
-        {/* Display remaining selections needed if not ready */}
-        {!player.isReady && remainingSelectionsNeeded > 0 && (
-          <div className="my-2 text-center">
-            <span className="bg-shithead-primary text-white px-3 py-1 rounded-full text-sm font-medium">
-              Select {remainingSelectionsNeeded} more card{remainingSelectionsNeeded !== 1 ? 's' : ''}
-            </span>
-          </div>
-        )}
+        {/* Removed the "Select X more cards" label that was here */}
 
         {/* Card layout container with relative positioning - Now positioned AFTER the hand */}
         <div className="relative w-full flex justify-center mt-4">
