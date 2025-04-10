@@ -18,7 +18,7 @@ const ScrollingText = ({
   // Generate repeated text to ensure seamless scrolling
   const repeatedText = Array.from({ length: 20 }, (_, i) => (
     <span key={i} className="mx-2">{text}</span>
-  )).join(' ');
+  ));
 
   return (
     <div 
