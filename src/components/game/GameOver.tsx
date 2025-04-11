@@ -24,15 +24,15 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
   // Find the current player more explicitly
   const currentPlayer = players.find(p => p.id === state.playerId);
 
-  // Determine if current player is the winner - ensuring both values exist before comparison
-  const isWinner = winner && currentPlayer && winner.id === currentPlayer.id;
+  // Force explicit boolean value for isWinner to prevent undefined/null issues
+  const isWinner = !!(winner && currentPlayer && winner.id === currentPlayer.id);
 
   console.log('GameOver render - winner:', winner?.name, 'isWinner:', isWinner);
   console.log('Current player:', currentPlayer?.name, 'ID:', currentPlayer?.id);
   console.log('All players:', players.map(p => `${p.name} (${p.id})`).join(', '));
 
   // Set colors based on win/loss status - with fallback to ensure a color is always applied
-  const gradientColors = isWinner === true
+  const gradientColors = isWinner
     ? "from-green-400 to-green-600"  // Winner gets green
     : "from-red-400 to-red-600";     // Loser gets red
 
@@ -44,7 +44,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
       transition={{ duration: 0.5 }}
     >
       {/* Add the raining logos effect */}
-      <RainingLogos isWinner={isWinner || false} count={isWinner ? 30 : 15} />
+      <RainingLogos isWinner={isWinner} count={isWinner ? 30 : 15} />
       
       <motion.div
         className="text-center p-8 rounded-xl max-w-md w-full bg-white relative z-20"

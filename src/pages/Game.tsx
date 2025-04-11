@@ -16,9 +16,11 @@ const Game = () => {
   const [rulesOpen, setRulesOpen] = useState(false);
   const [hasRefreshedSetup, setHasRefreshedSetup] = useState(false);
 
+  // Debugging info about current game state
   useEffect(() => {
     console.log('Game component rendered. Game started:', state.gameStarted);
     console.log('Setup phase:', state.setupPhase);
+    console.log('Game over:', state.gameOver);
     console.log('Players in game:', state.players);
     console.log('Current game state:', state);
 
