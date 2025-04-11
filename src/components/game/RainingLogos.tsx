@@ -33,8 +33,8 @@ const RainingLogos = ({ isWinner, count = 20 }: RainingLogoProps) => {
     setLogos(newLogos);
   }, [count]);
 
-  // Use red logo for winner, black for loser
-  const logoSrc = isWinner ? '/assets/logo-mark-red.svg' : '/assets/logo-mark-black.svg';
+  // Use red logo for winner, black for loser, with explicit boolean check
+  const logoSrc = isWinner === true ? '/assets/logo-mark-red.svg' : '/assets/logo-mark-black.svg';
 
   return (
     <div className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-10">

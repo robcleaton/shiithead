@@ -13,14 +13,26 @@ interface GameOverProps {
 
 const GameOver = ({ players, resetGame }: GameOverProps) => {
   const { state } = useGame();
-  const winner = players.find(p => p.hand.length === 0 && p.faceUpCards.length === 0 && p.faceDownCards.length === 0);
+  
+  // Find the winner more explicitly - player with no cards left
+  const winner = players.find(p => 
+    p.hand.length === 0 && 
+    p.faceUpCards.length === 0 && 
+    p.faceDownCards.length === 0
+  );
+  
+  // Find the current player more explicitly
   const currentPlayer = players.find(p => p.id === state.playerId);
 
-  // Determine if current player is the winner
+  // Determine if current player is the winner - ensuring both values exist before comparison
   const isWinner = winner && currentPlayer && winner.id === currentPlayer.id;
 
-  // Set colors based on win/loss status
-  const gradientColors = isWinner
+  console.log('GameOver render - winner:', winner?.name, 'isWinner:', isWinner);
+  console.log('Current player:', currentPlayer?.name, 'ID:', currentPlayer?.id);
+  console.log('All players:', players.map(p => `${p.name} (${p.id})`).join(', '));
+
+  // Set colors based on win/loss status - with fallback to ensure a color is always applied
+  const gradientColors = isWinner === true
     ? "from-green-400 to-green-600"  // Winner gets green
     : "from-red-400 to-red-600";     // Loser gets red
 
@@ -32,7 +44,7 @@ const GameOver = ({ players, resetGame }: GameOverProps) => {
       transition={{ duration: 0.5 }}
     >
       {/* Add the raining logos effect */}
-      <RainingLogos isWinner={isWinner} count={isWinner ? 30 : 15} />
+      <RainingLogos isWinner={isWinner || false} count={isWinner ? 30 : 15} />
       
       <motion.div
         className="text-center p-8 rounded-xl max-w-md w-full bg-white relative z-20"
