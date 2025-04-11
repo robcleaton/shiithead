@@ -128,3 +128,4 @@ export const playHandCards = async (
   if (gameError) throw gameError;
   
   // Don't display any toasts for the player's own moves - removed toast.success call
+};
