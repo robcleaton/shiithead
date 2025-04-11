@@ -41,7 +41,7 @@ const GameTable: React.FC<GameTableProps> = ({
       {/* Game area */}
       <div className="flex justify-center mb-6">
         {/* Center content with vertical stack of deck count and pile */}
-        <div className="flex flex-col items-center justify-center w-full">
+        <div className="flex flex-col items-center justify-center w-full gap-8">
           {/* Deck count on top */}
           <DeckDisplay deckCount={deckCount} />
           

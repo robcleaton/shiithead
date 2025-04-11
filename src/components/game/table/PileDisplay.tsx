@@ -39,7 +39,8 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
         {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
       </div>
 
-      <div className="relative mt-2">
+      <div className="relative mt-2 w-32 h-48 flex items-center justify-center">
+        {/* Burned indicator */}
         {isTenOnTop && (
           <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-shithead-foreground/70 text-center">
             <span className="font-medium text-orange-500 flex items-center justify-center">
@@ -48,8 +49,10 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
           </div>
         )}
 
+        {/* Card display */}
         {topCard ? (
-          <div className="relative">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Multiple cards of same rank */}
             {sameRankCount > 1 && (
               Array.from({ length: Math.min(3, sameRankCount - 1) }).map((_, index) => (
                 <div
@@ -73,6 +76,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
               ))
             )}
 
+            {/* Top card */}
             <div className={cn(
               "transform scale-125",
               isTenOnTop ? 'ring-2 ring-orange-500' : '',
@@ -87,6 +91,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
               />
             </div>
 
+            {/* Card count badge */}
             {sameRankCount > 1 && (
               <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
                 <span className="text-xs bg-shithead-primary text-white rounded-full px-2 py-0.5 font-medium border border-shithead-border/20">
@@ -95,6 +100,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
               </div>
             )}
 
+            {/* Eight card indicator */}
             {isEightOnTop && cardBelowEight && (
               <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 z-10">
                 <span className="text-xs bg-blue-500 text-white rounded-full px-2 py-0.5 font-medium border border-blue-600/20 whitespace-nowrap">
