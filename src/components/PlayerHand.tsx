@@ -95,7 +95,7 @@ const PlayerHand = ({
       <div className={`rounded-xl ${isActive ? 'bg-shithead-primary/10 border border-shithead-primary/30' : 'bg-transparent'} transition-all duration-300`}>
         <div className="mb-1 mt-2 text-center">
           <span className={`text-sm font-medium px-3 py-1 rounded-full ${isActive ? 'bg-shithead-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
-            {isSetupPhase ? 'Select Cards' : (isActive ? 'Your Turn' : 'Waiting...')}
+            {isSetupPhase ? 'Select Cards' : (isActive ? 'Your Move' : 'Waiting...')}
           </span>
         </div>
 

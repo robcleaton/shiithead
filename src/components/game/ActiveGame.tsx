@@ -1,4 +1,3 @@
-
 import { Player } from '@/types/game';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
@@ -42,15 +41,12 @@ const ActiveGame = ({
   const lastTurnIdRef = useRef<string | null>(null);
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Turn check timer - detect when game might be stuck
   useEffect(() => {
-    // Clear any existing timer
     if (turnTimerRef.current) {
       clearTimeout(turnTimerRef.current);
       turnTimerRef.current = null;
     }
 
-    // If current player ID changed, reset the turn check counter
     if (currentPlayerId !== lastTurnIdRef.current) {
       console.log(`Turn changed from ${lastTurnIdRef.current} to ${currentPlayerId}`);
       setTurnCheckCount(0);
@@ -58,11 +54,10 @@ const ActiveGame = ({
       return;
     }
 
-    // If game is in a potentially stuck state, start incremental checking
     if (currentPlayerId && !isLoading) {
       turnTimerRef.current = setTimeout(() => {
         setTurnCheckCount(prev => prev + 1);
-      }, 10000); // Check every 10 seconds
+      }, 10000);
     }
 
     return () => {
@@ -72,7 +67,6 @@ const ActiveGame = ({
     };
   }, [currentPlayerId, isLoading, turnCheckCount]);
 
-  // Handle automatic refresh if turn isn't changing
   useEffect(() => {
     if (turnCheckCount >= 3) {
       console.log(`Game may be stuck - no turn change detected for ~30 seconds`);
@@ -82,12 +76,10 @@ const ActiveGame = ({
     }
   }, [turnCheckCount, refreshGameState]);
 
-  // Log important state information for debugging
   useEffect(() => {
     console.log(`ActiveGame rendered - Current player: ${currentPlayerId} (${currentPlayer?.name || 'Unknown'})`);
     console.log(`Current player is self: ${currentPlayerId === playerId}`);
     
-    // Force a state refresh if first render doesn't have a current player
     if (!currentPlayerId && players.length > 0) {
       console.log('Current player ID missing but players exist - refreshing state');
       const timer = setTimeout(() => {
@@ -107,22 +99,18 @@ const ActiveGame = ({
     );
   }
 
-  // Determine if a 3 is on top of the pile
   const topCard = pile.length > 0 ? pile[pile.length - 1] : null;
   const isThreeOnTop = topCard?.rank === '3';
 
-  // Function to handle picking up the pile
   const handlePickUpPile = () => {
     pickupPile();
   };
 
-  // Handle game refresh with loading state
   const handleRefreshGame = () => {
     toast.info("Refreshing game state for all players...");
     refreshGameState();
   };
 
-  // Log the deck count for debugging
   console.log(`Current deck count in ActiveGame: ${deck.length}, type: ${typeof deck.length}`);
   console.log(`Is it my turn? ${currentPlayerId === playerId}`);
 
@@ -161,7 +149,7 @@ const ActiveGame = ({
         <div className="mt-4 flex flex-col items-center">
           <div className="text-sm text-gray-500 mb-2">
             {currentPlayerId === playerId ? 
-              <span className="font-bold text-shithead-primary">It's your turn!</span> : 
+              <span className="font-bold text-shithead-primary"></span> : 
               <span>Waiting for {currentPlayer?.name || 'another player'} to play...</span>
             }
           </div>
