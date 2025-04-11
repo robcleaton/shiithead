@@ -39,7 +39,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
         {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
       </div>
 
-      <div class="discard-cards-pile">
+      <div class="discard-cards-pile p-8">
         <div className="relative mt-2">
           {isTenOnTop && (
             <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-shithead-foreground/70 text-center">
