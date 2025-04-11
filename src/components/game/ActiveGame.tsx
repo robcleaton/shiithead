@@ -1,3 +1,4 @@
+
 import { Player } from '@/types/game';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
@@ -148,10 +149,7 @@ const ActiveGame = ({
 
         <div className="mt-4 flex flex-col items-center">
           <div className="text-sm text-gray-500 mb-2">
-            {currentPlayerId === playerId ? 
-              <span className="font-bold text-shithead-primary"></span> : 
-              <span>Waiting for {currentPlayer?.name || 'another player'} to play...</span>
-            }
+            {/* Removed the conditional message that showed "Waiting for player to play" */}
           </div>
           <Button
             variant="outline"
