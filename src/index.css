@@ -202,10 +202,10 @@
   }
 }
 
-html, body {
+html {
   background: black;
 }
-#root {
+#root, body {
     background: aquamarine;
     @apply rounded-[12px]
       sm:rounded-[20px]
