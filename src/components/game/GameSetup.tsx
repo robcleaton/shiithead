@@ -58,28 +58,8 @@ const GameSetup = ({
           </div>
         </div>
 
-        {/* Player Hand - Now positioned FIRST */}
-        <div className="w-full max-w-3xl">
-          {player.hand && player.hand.length > 0 ? (
-            <PlayerHand
-              cards={player.hand}
-              isActive={true} // Always active during setup phase
-              onPlayCard={(index) => selectFaceUpCard(index)}
-              onSelectMultipleCards={(indices) => selectMultipleFaceUpCards(indices)}
-              isSetupPhase={true}
-              maxSelections={remainingSelectionsNeeded}
-            />
-          ) : (
-            <div className="text-center p-4 text-gray-200">
-              No cards in hand. Please try refreshing the page.
-            </div>
-          )}
-        </div>
-
-        {/* Removed the "Select X more cards" label that was here */}
-
-        {/* Card layout container with relative positioning - Now positioned AFTER the hand */}
-        <div className="relative w-full flex justify-center mt-4">
+        {/* Card layout container with relative positioning - MOVED BEFORE the player hand */}
+        <div className="relative w-full flex justify-center mb-8">
           {/* Face Down Cards - positioned at the bottom layer */}
           <div className="flex justify-center gap-4 z-0">
             {player.faceDownCards && player.faceDownCards.length > 0 ? (
@@ -126,6 +106,24 @@ const GameSetup = ({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Player Hand - MOVED AFTER the face up/face down cards */}
+        <div className="w-full max-w-3xl">
+          {player.hand && player.hand.length > 0 ? (
+            <PlayerHand
+              cards={player.hand}
+              isActive={true} // Always active during setup phase
+              onPlayCard={(index) => selectFaceUpCard(index)}
+              onSelectMultipleCards={(indices) => selectMultipleFaceUpCards(indices)}
+              isSetupPhase={true}
+              maxSelections={remainingSelectionsNeeded}
+            />
+          ) : (
+            <div className="text-center p-4 text-gray-200">
+              No cards in hand. Please try refreshing the page.
+            </div>
+          )}
         </div>
 
         {player.isReady && (
