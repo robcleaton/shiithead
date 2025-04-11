@@ -202,25 +202,14 @@
   }
 }
 
-html {
+html, body {
   background: black;
-}
-body {
-  /* background: #F8331E; */
-  height: 100vh;
-}
-body {
-  /* @apply border border-[8px] border-black rounded-[34px]
-    sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
-    md:border-green-500 md:border-[24px] md:rounded-[44px]
-    lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
-    xl:border-purple-500 xl:border-[32px] xl:rounded-[60px]; */
 }
 #root {
     background: aquamarine;
     @apply rounded-[12px]
       sm:rounded-[20px]
-      md:rounded-[20px]
+      md:rounded-[50px]
       lg:rounded-[24px]
       xl:rounded-[28px];
 }
@@ -258,8 +247,8 @@ h1, h2 {
     md:border-green-500 md:border-[24px] md:rounded-[44px]
     lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
     xl:border-purple-500 xl:border-[32px] xl:rounded-[60px];
-
 }
+
 footer.creds {
   width: 100%;
   color: white;
