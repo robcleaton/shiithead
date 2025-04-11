@@ -203,15 +203,19 @@
 }
 
 html {
-  background: black;
+  background-color: black;
 }
-#root, body {
-    background: aquamarine;
-    @apply rounded-[12px]
-      sm:rounded-[20px]
-      md:rounded-[50px]
-      lg:rounded-[24px]
-      xl:rounded-[28px];
+body {
+  background-color: aquamarine;
+}
+#root {
+  background-color: aquamarine;
+  min-height: 100vh;
+  @apply rounded-[40px]
+    sm:rounded-[40px]
+    md:rounded-[50px]
+    lg:rounded-[54px]
+    xl:rounded-[72px];
 }
 
 .pointer-events-none .text-base {
