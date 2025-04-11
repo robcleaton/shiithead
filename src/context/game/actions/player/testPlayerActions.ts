@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
@@ -47,6 +46,7 @@ export const addTestPlayer = async (
     
     dispatch({ type: 'ADD_TEST_PLAYER', playerName });
     dispatch({ type: 'SET_LOADING', isLoading: false });
+    
     toast.success(`Added AI player: ${playerName}`);
     
     setTimeout(() => {
@@ -112,8 +112,6 @@ export const autoSelectAIPlayerCards = async (
       console.error('Error updating AI player cards:', updateError);
       return;
     }
-    
-    toast.success(`${playerData.name} is ready to play!`);
   } catch (error) {
     console.error('Error in AI card selection:', error);
   }

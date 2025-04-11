@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { GameState, CardValue } from '@/types/game';
@@ -67,6 +66,8 @@ export const removePlayer = async (
     }
     
     dispatch({ type: 'SET_LOADING', isLoading: false });
+    
+    // Keep confirmation toast since it's an action the user explicitly took
     toast.success(`Removed ${playerToRemove.name} from the game`);
     
   } catch (error) {

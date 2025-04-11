@@ -59,7 +59,7 @@ export const useGameUpdates = (
         
         dispatch({ type: 'SET_GAME_STATE', gameState: updatedGameState });
         
-        // If player turn has changed, show toast and handle AI player logic
+        // If player turn has changed, handle AI player logic and show toast ONLY for others' turns
         if (prevCurrentPlayerId !== gameData.current_player_id && 
             gameStateRef.current && 
             gameData.current_player_id) {
@@ -74,10 +74,8 @@ export const useGameUpdates = (
           if (currentPlayer) {
             console.log(`Turn changed to player: ${currentPlayer.name} (${currentPlayer.id})`);
             
-            // Show toast for turn changes
-            if (isSelfTurn) {
-              toast.success(`It's your turn!`);
-            } else {
+            // Only show toast for other players' turns, not the user's own turn
+            if (!isSelfTurn) {
               toast.info(`It's ${currentPlayer.name}'s turn`);
             }
             

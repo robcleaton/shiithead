@@ -89,7 +89,7 @@ export const drawCard = async (
       
     if (playerError) throw playerError;
     
-    toast.info(`${player.name} drew a card.`);
+    // Removed toast for own action
     dispatch({ type: 'SET_LOADING', isLoading: false });
   } catch (error) {
     console.error('Error drawing card:', error);

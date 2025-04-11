@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { GameState } from '@/types/game';
 import { Dispatch } from 'react';
@@ -23,6 +22,7 @@ export const invitePlayer = async (
     
     dispatch({ type: 'INVITE_PLAYER', email });
     dispatch({ type: 'SET_LOADING', isLoading: false });
+    
     toast.success(`Invitation sent to ${email}`);
   } catch (error) {
     console.error('Error inviting player:', error);

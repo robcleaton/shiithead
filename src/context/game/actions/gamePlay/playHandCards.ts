@@ -127,15 +127,4 @@ export const playHandCards = async (
     
   if (gameError) throw gameError;
   
-  // Display card play message
-  toast.success(generateCardPlayMessage(player.name, cardsToPlay, burnMessage));
-  
-  // Display game status message
-  if (statusMessage) {
-    if (gameOver) {
-      toast.success(statusMessage);
-    } else {
-      toast.info(statusMessage);
-    }
-  }
-};
+  // Don't display any toasts for the player's own moves - removed toast.success call

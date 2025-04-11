@@ -55,9 +55,7 @@ export const selectFaceUpCard = async (
     dispatch({ type: 'SELECT_FACE_UP_CARD', cardIndex });
     dispatch({ type: 'SET_LOADING', isLoading: false });
     
-    if (updatedFaceUpCards.length === 3) {
-      toast.success('You are ready to start!');
-    }
+    // Remove toast confirmation for your own actions
   } catch (error) {
     console.error('Error selecting face-up card:', error);
     toast.error('Failed to select face-up card');
@@ -118,9 +116,7 @@ export const selectMultipleFaceUpCards = async (
     dispatch({ type: 'SELECT_MULTIPLE_FACE_UP_CARDS', cardIndices: cardIndices });
     dispatch({ type: 'SET_LOADING', isLoading: false });
     
-    if (isReady) {
-      toast.success("You've selected all your face-up cards!");
-    }
+    // Remove toast for your own actions
   } catch (error) {
     console.error('Error selecting face-up cards:', error);
     toast.error('Failed to select face-up cards');

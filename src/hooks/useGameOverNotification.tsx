@@ -16,12 +16,9 @@ export const useGameOverNotification = (gameState: GameState) => {
       // Use explicit boolean comparison for reliable toast handling
       const isWinner = !!(winner && currentPlayer && winner.id === currentPlayer.id);
       
-      if (winner) {
-        if (isWinner) {
-          toast.success("Congratulations! You won the game! 🎉");
-        } else {
-          toast.error(`Game Over! ${winner.name} has won the game.`);
-        }
+      // Only show toast if the winner is not the current player
+      if (winner && !isWinner) {
+        toast.error(`Game Over! ${winner.name} has won the game.`);
       }
     }
   }, [gameState.gameOver, gameState.players, gameState.playerId]);
