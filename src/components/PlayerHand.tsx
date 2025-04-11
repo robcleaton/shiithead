@@ -38,9 +38,9 @@ const PlayerHand = ({
 
   // Debug logging to help identify issues
   useEffect(() => {
-    console.log("PlayerHand received cards:", cards);
-    console.log("PlayerHand processed cardArray:", cardArray);
-  }, [cards]);
+    console.log("PlayerHand rendered - isActive:", isActive);
+    console.log(`PlayerHand card count: ${cardArray.length}`);
+  }, [isActive, cardArray.length]);
 
   const handleSelectCard = (index: number) => {
     setSelectedIndices(prevIndices => {

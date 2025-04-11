@@ -1,5 +1,4 @@
 
-
 import { Player } from '@/types/game';
 import OpponentDisplay from './OpponentDisplay';
 import GameTable from '@/components/GameTable';
@@ -87,7 +86,16 @@ const ActiveGame = ({
   useEffect(() => {
     console.log(`ActiveGame rendered - Current player: ${currentPlayerId} (${currentPlayer?.name || 'Unknown'})`);
     console.log(`Current player is self: ${currentPlayerId === playerId}`);
-  }, [currentPlayerId, currentPlayer, playerId]);
+    
+    // Force a state refresh if first render doesn't have a current player
+    if (!currentPlayerId && players.length > 0) {
+      console.log('Current player ID missing but players exist - refreshing state');
+      const timer = setTimeout(() => {
+        refreshGameState();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentPlayerId, currentPlayer, playerId, players.length, refreshGameState]);
 
   if (!player) {
     return (
@@ -116,6 +124,7 @@ const ActiveGame = ({
 
   // Log the deck count for debugging
   console.log(`Current deck count in ActiveGame: ${deck.length}, type: ${typeof deck.length}`);
+  console.log(`Is it my turn? ${currentPlayerId === playerId}`);
 
   return (
     <div className="container mx-auto px-4 min-h-screen">
@@ -149,7 +158,13 @@ const ActiveGame = ({
           onPlayCard={playCard}
         />
 
-        <div className="mt-4">
+        <div className="mt-4 flex flex-col items-center">
+          <div className="text-sm text-gray-500 mb-2">
+            {currentPlayerId === playerId ? 
+              <span className="font-bold text-shithead-primary">It's your turn!</span> : 
+              <span>Waiting for {currentPlayer?.name || 'another player'} to play...</span>
+            }
+          </div>
           <Button
             variant="outline"
             onClick={handleRefreshGame}

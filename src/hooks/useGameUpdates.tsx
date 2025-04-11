@@ -47,6 +47,7 @@ export const useGameUpdates = (
         console.log(`Game update: deck count from DB = ${deckCards.length}`);
         console.log(`Game turn update: Current player changing from ${prevCurrentPlayerId} to ${gameData.current_player_id}`);
         
+        // Create a complete game state update to ensure consistency
         const updatedGameState = {
           gameStarted: gameData.started,
           gameOver: gameData.ended,
@@ -58,6 +59,7 @@ export const useGameUpdates = (
         
         dispatch({ type: 'SET_GAME_STATE', gameState: updatedGameState });
         
+        // If player turn has changed, show toast and handle AI player logic
         if (prevCurrentPlayerId !== gameData.current_player_id && 
             gameStateRef.current && 
             gameData.current_player_id) {
@@ -66,8 +68,18 @@ export const useGameUpdates = (
             p => p.id === gameData.current_player_id
           );
           
+          const selfId = gameStateRef.current.playerId;
+          const isSelfTurn = selfId === gameData.current_player_id;
+          
           if (currentPlayer) {
             console.log(`Turn changed to player: ${currentPlayer.name} (${currentPlayer.id})`);
+            
+            // Show toast for turn changes
+            if (isSelfTurn) {
+              toast.success(`It's your turn!`);
+            } else {
+              toast.info(`It's ${currentPlayer.name}'s turn`);
+            }
             
             if (isAIPlayer(currentPlayer.id)) {
               console.log(`AI player ${currentPlayer.name} will take their turn`);
