@@ -39,7 +39,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
         {pile.length} card{pile.length !== 1 ? 's' : ''} discarded
       </div>
 
-      <div className="relative mt-2 w-32 h-48 flex items-center justify-center">
+      <div className="relative mt-2 w-[180px] h-[260px] flex items-center justify-center">
         {/* Burned indicator */}
         {isTenOnTop && (
           <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 text-xs text-shithead-foreground/70 text-center">
