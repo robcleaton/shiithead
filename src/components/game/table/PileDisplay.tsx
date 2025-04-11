@@ -89,7 +89,7 @@ const PileDisplay: React.FC<PileDisplayProps> = ({ pile }) => {
               </div>
 
               {sameRankCount > 1 && (
-                <div className="absolute bottom-0 right-0 translate-x-2 translate-y-2 z-10">
+                <div className="absolute bottom-0 right-0 translate-x-2 translate-y-6 z-10">
                   <span className="text-xs bg-shithead-primary text-white rounded-full px-2 py-0.5 font-medium border border-shithead-border/20">
                     {sameRankCount}
                   </span>
