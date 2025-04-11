@@ -210,11 +210,11 @@ body {
   height: 100vh;
 }
 body {
-  @apply border border-[8px] border-black rounded-[34px]
+  /* @apply border border-[8px] border-black rounded-[34px]
     sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
     md:border-green-500 md:border-[24px] md:rounded-[44px]
     lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
-    xl:border-purple-500 xl:border-[32px] xl:rounded-[60px];
+    xl:border-purple-500 xl:border-[32px] xl:rounded-[60px]; */
 }
 #root {
     background: aquamarine;
@@ -246,7 +246,20 @@ h1, h2 {
   text-transform: uppercase;
   color: #FEFFF1;
 }
+.border-wrapper {
+  position: fixed;
+  inset: 0; /* shorthand for top:0; right:0; bottom:0; left:0; */
+  border: 40px solid red;
+  border-radius: 80px;
+  box-sizing: border-box;
+  pointer-events: none; /* optional - lets you click through the border */
+  @apply border border-[8px] border-black rounded-[34px]
+    sm:border-blue-500 sm:border-[20px] sm:rounded-[40px]
+    md:border-green-500 md:border-[24px] md:rounded-[44px]
+    lg:border-yellow-500 lg:border-[28px] lg:rounded-[52px]
+    xl:border-purple-500 xl:border-[32px] xl:rounded-[60px];
 
+}
 footer.creds {
   width: 100%;
   color: white;
