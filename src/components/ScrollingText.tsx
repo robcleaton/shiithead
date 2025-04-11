@@ -4,6 +4,7 @@ interface ScrollingTextProps {
   fontSize?: string;
   color?: string;
   speed?: number;
+  letterSpacing?: string;
 }
 
 const ScrollingText = ({
@@ -11,6 +12,7 @@ const ScrollingText = ({
   fontSize = '30vw',
   color = '#FEFFF1',
   speed = 50,
+  letterSpacing = 'normal',
 }: ScrollingTextProps) => {
   // Calculate animation duration based on speed (higher number = slower)
   const duration = speed;
@@ -35,6 +37,7 @@ const ScrollingText = ({
           fontFamily: 'TuskerGrotesk',
           lineHeight: '34vw',
           textTransform: 'uppercase',
+          letterSpacing,
           animationDuration: `${duration}s`,
         }}
       >
